@@ -1,7 +1,9 @@
 tools
 ---
 
-This is an ES6 project built with yeoman and generator-webpack.
+A group of tools to facilitate your daily life.
+
+- String tools: a series of pipes to transform strings.
 
 Development
 ---
