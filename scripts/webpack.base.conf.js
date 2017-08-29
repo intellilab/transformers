@@ -19,7 +19,7 @@ module.exports = {
   output: {
     path: resolve(DIST),
     publicPath: '',
-    filename: '[name].js',
+    filename: IS_DEV ? '[name].js' : '[name]-[chunkhash:8].js',
   },
   resolve: {
     // Tell webpack to look for peer dependencies in `node_modules`

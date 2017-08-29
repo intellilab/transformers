@@ -14,6 +14,6 @@ targets.push(merge(base, {
     new HtmlWebpackPlugin({
       title: 'Tools',
     }),
-    !IS_DEV && new ExtractTextPlugin('[name].css'),
+    !IS_DEV && new ExtractTextPlugin('[name]-[chunkhash:8].css'),
   ].filter(Boolean),
 }));

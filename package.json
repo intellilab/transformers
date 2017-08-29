@@ -9,6 +9,7 @@
     "dev": "gulp watch",
     "prebuild": "gulp clean",
     "build": "gulp build",
+    "deploy": "sh scripts/deploy.sh",
     "lint": "gulp lint"
   },
   "devDependencies": {
