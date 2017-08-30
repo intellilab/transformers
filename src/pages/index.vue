@@ -5,7 +5,8 @@
         <router-link to="/"><h2>Tools</h2></router-link>
         <div class="t-aside-menu">
           <router-link
-            v-for="tool in toolRoutes"
+            v-for="(tool, index) in toolRoutes"
+            :key="index"
             :to="tool.path"
             v-text="tool.component.meta.title"
           />

@@ -61,7 +61,7 @@ export default {
   methods: {
     addPipe(pipe) {
       const options = pipe.meta.options.reduce((res, item) => {
-        if (item.default) res[item.name] = item.default;
+        if (item.default != null) res[item.name] = item.default;
         return res;
       }, {});
       this.appliedPipes.push({
