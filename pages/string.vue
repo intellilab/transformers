@@ -29,7 +29,7 @@
 </template>
 
 <script>
-const requirePipe = require.context('./pipes', false, /\.js$/);
+const requirePipe = require.context('~/components/string/pipes', false, /\.js$/);
 const pipes = requirePipe.keys().map(key => requirePipe(key));
 
 export default {

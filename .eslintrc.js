@@ -11,13 +11,6 @@ module.exports = {
   },
   extends: 'airbnb-base',
   // check if imports actually resolve
-  'settings': {
-    'import/resolver': {
-      'webpack': {
-        'config': 'scripts/webpack.conf.js'
-      }
-    }
-  },
   // add your custom rules here
   'rules': {
     // don't require some extensions when importing

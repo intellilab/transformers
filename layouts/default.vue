@@ -4,28 +4,23 @@
       <aside class="t-aside">
         <router-link to="/"><h2>Tools</h2></router-link>
         <div class="t-aside-menu">
-          <router-link
-            v-for="(tool, index) in toolRoutes"
-            :key="index"
-            :to="tool.path"
-            v-text="tool.component.meta.title"
-          />
+          <nuxt-link to="/string/">String pipes</nuxt-link>
         </div>
         <footer>
           <p>Designed with &hearts; by <a href="https://gerald.top">Gerald</a></p>
         </footer>
       </aside>
-      <router-view class="t-content"></router-view>
+      <div class="t-content"><nuxt /></div>
     </div>
   </div>
 </template>
 
 <script>
-import { toolRoutes } from 'src/routes';
+import 'spectre.css';
 
 export default {
-  data() {
-    return { toolRoutes };
+  mounted() {
+    window.routes = this.$router.options.routes;
   },
 };
 </script>
