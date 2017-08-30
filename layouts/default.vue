@@ -16,33 +16,9 @@
 </template>
 
 <script>
-import 'spectre.css';
-
 export default {
   mounted() {
     window.routes = this.$router.options.routes;
   },
 };
 </script>
-
-<style>
-#app > .columns {
-  height: 100vh;
-}
-.t-aside {
-  display: flex;
-  flex-direction: column;
-  width: 12rem;
-  flex: 0 0 auto;
-  padding: 1rem;
-  background: #f8f9fa;
-  &-menu {
-    flex: 1;
-  }
-}
-.t-content {
-  flex: 1;
-  padding: 1rem;
-  overflow: auto;
-}
-</style>

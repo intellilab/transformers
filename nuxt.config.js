@@ -12,6 +12,21 @@ module.exports = {
     ],
   },
   loading: { color: '#3B8070' },
+  css: [
+    'spectre.css',
+    '~/assets/default.css',
+  ],
+  build: {
+    postcss: {
+      // Transform inline comments
+      parser: require('postcss-scss'),
+      plugins: [
+        require('autoprefixer'),
+        // Transform SCSS into CSS
+        require('precss'),
+      ],
+    },
+  },
 };
 
 if (IS_PRD) {
@@ -20,4 +35,5 @@ if (IS_PRD) {
       base: '/tools/',
     },
   });
+  module.exports.build.extractCSS = true;
 }
