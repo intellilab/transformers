@@ -73,7 +73,7 @@ export default {
       const repr = Object.keys(options)
       .map(key => `${key}=${options[key]}`)
       .join(';');
-      return `[${repr}]`;
+      return repr ? `[${repr}]` : '';
     },
     onRemovePipe(index) {
       this.appliedPipes.splice(index, 1);
