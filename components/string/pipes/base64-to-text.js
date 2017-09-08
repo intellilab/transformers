@@ -1,4 +1,4 @@
-export function handle(input, options) {
+export function handle(input) {
   const bin = atob(input);
   return utf8Decode(bin);
 }
@@ -21,11 +21,13 @@ function utf8Decode(binary) {
       i += 1;
     } else if (c1 > 191 && c1 < 224) {
       c2 = binary.charCodeAt(i + 1);
+      // eslint-disable-next-line no-bitwise
       chars.push(((c1 & 31) << 6) | (c2 & 63));
       i += 2;
     } else {
       c2 = binary.charCodeAt(i + 1);
       c3 = binary.charCodeAt(i + 2);
+      // eslint-disable-next-line no-bitwise
       chars.push(((c1 & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
       i += 3;
     }
