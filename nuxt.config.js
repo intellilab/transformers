@@ -14,6 +14,7 @@ module.exports = {
   loading: { color: '#3B8070' },
   css: [
     'spectre.css',
+    'spectre.css/dist/spectre-icons.css',
     '~/assets/default.css',
   ],
   build: {
