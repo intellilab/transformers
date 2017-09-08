@@ -1,6 +1,6 @@
 import yaml from 'js-yaml';
 
-export function handle(input, options) {
+export function handle(input) {
   const obj = JSON.parse(input);
   return yaml.safeDump(obj);
 }

@@ -10,6 +10,10 @@ module.exports = {
     browser: true,
   },
   extends: 'airbnb-base',
+  // required to lint *.vue files
+  plugins: [
+    'html'
+  ],
   // check if imports actually resolve
   // add your custom rules here
   'rules': {
@@ -34,6 +38,7 @@ module.exports = {
     'no-bitwise': ['error', {int32Hint: true}],
     'no-underscore-dangle': ['off'],
     'arrow-parens': 0,
+    indent: 0,
   },
   globals: {
   },

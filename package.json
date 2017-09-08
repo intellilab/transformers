@@ -8,19 +8,25 @@
   "scripts": {
     "dev": "nuxt",
     "build": "nuxt generate",
+    "lint": "eslint --ext .js,.vue .",
+    "prepush": "npm run lint",
     "deploy": "sh scripts/deploy.sh"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
+    "babel-eslint": "^7.2.3",
     "eslint": "^4.5.0",
     "eslint-config-airbnb-base": "^11.3.2",
+    "eslint-plugin-html": "^3.2.1",
     "eslint-plugin-import": "^2.7.0",
+    "husky": "^0.14.3",
     "nuxt": "^1.0.0-rc7",
     "postcss-loader": "^2.0.6",
     "postcss-scss": "^1.0.2",
     "precss": "^2.0.0"
   },
   "dependencies": {
+    "js-yaml": "^3.9.1",
     "spectre.css": "^0.3.1",
     "vue": "^2.4.2",
     "vue-router": "^2.7.0"
