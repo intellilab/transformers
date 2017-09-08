@@ -20,10 +20,16 @@
         <span v-text="reprOptions(item.options)"></span>
         <button class="btn btn-clear" @click="onRemovePipe(index)"></button>
       </div>
+      <p class="text-gray" v-if="!appliedPipes.length">No pipe is applied.</p>
     </section>
     <section class="container">
       <h3>Pipes</h3>
-      <button v-for="pipe in pipes" class="btn btn-primary mr-2" v-text="pipe.meta.name" @click="addPipe(pipe)"></button>
+      <div class="form-group has-icon-right">
+        <input type="search" class="form-input" placeholder="Filter pipes..." v-model="search">
+        <i class="form-icon icon icon-cross" @click="search = ''"></i>
+      </div>
+      <button v-for="pipe in filteredPipes" class="btn btn-primary mr-2" v-text="pipe.meta.name" @click="addPipe(pipe)"></button>
+      <p class="text-gray" v-if="!filteredPipes.length">No pipe is found.</p>
     </section>
   </div>
 </template>
@@ -31,6 +37,9 @@
 <script>
 const requirePipe = require.context('~/components/string/pipes', false, /\.js$/);
 const pipes = requirePipe.keys().map(key => requirePipe(key));
+pipes.forEach(pipe => {
+  pipe.meta._search = pipe.meta.name.toLowerCase();
+});
 
 export default {
   meta: {
@@ -40,6 +49,7 @@ export default {
   data() {
     return {
       input: '',
+      search: '',
       error: false,
       pipes,
       appliedPipes: [],
@@ -56,6 +66,11 @@ export default {
         this.error = true;
         return e.toString();
       }
+    },
+    filteredPipes() {
+      if (!this.search) return pipes;
+      const search = this.search.toLowerCase();
+      return pipes.filter(pipe => pipe.meta._search.includes(search));
     },
   },
   methods: {
