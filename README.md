@@ -1,9 +1,9 @@
-tools
+Transformers
 ---
 
-A group of tools to facilitate your daily life.
+A bunch of pipe based transformers to facilitate your daily life.
 
-- String tools: a series of pipes to transform strings.
+- String pipes
 
 Development
 ---

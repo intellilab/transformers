@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Tools</h1>
-    <p>A group of front-end tools to facilitate your life.</p>
+    <h1>Transformers</h1>
+    <p>A bunch of pipe based transformers to facilitate your daily life.</p>
   </div>
 </template>

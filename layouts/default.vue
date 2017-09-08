@@ -2,7 +2,7 @@
   <div id="app" class="container">
     <div class="columns">
       <aside class="t-aside">
-        <router-link to="/"><h2>Tools</h2></router-link>
+        <router-link to="/"><h2>Transformers</h2></router-link>
         <div class="t-aside-menu">
           <nuxt-link to="/string/">String pipes</nuxt-link>
         </div>

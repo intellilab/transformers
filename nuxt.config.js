@@ -2,7 +2,7 @@ const IS_PRD = process.env.NODE_ENV === 'production';
 
 module.exports = {
   head: {
-    title: 'Tools',
+    title: 'Transformers',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -32,7 +32,7 @@ module.exports = {
 if (IS_PRD) {
   Object.assign(module.exports, {
     router: {
-      base: '/tools/',
+      base: '/transformers/',
     },
   });
   module.exports.build.extractCSS = true;

@@ -1,8 +1,8 @@
 {
-  "name": "tools",
+  "name": "Transformers",
   "version": "0.0.0",
   "private": true,
-  "description": "Frontend tools",
+  "description": "Pipe based transformers for front-end",
   "author": "",
   "license": "ISC",
   "scripts": {
