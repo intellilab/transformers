@@ -95,7 +95,9 @@ function join(rendered, options, level) {
     const next = rendered[i + 1];
     if (item.data) arr.push(...item.data);
     // trailing separators
-    if (item.separator) arr.push(...item.separator);
+    if (item.separator && (next || options.trailing)) {
+      arr.push(...item.separator);
+    }
     if (next) {
       if (
         next.type === KEY ||
@@ -123,13 +125,18 @@ export const meta = {
   options: [
     {
       name: 'quote',
-      description: 'Quote (0 for as needed, 1 for always, default as 0)',
+      description: 'Quote (0 for as needed, 1 for always)',
       default: 0,
     },
     {
       name: 'indent',
-      description: 'Indent (default as 2)',
+      description: 'Indent',
       default: 2,
+    },
+    {
+      name: 'trailing',
+      description: 'Trailing commas (0 for no, 1 for yes)',
+      default: 1,
     },
   ],
 };
