@@ -26,6 +26,7 @@
     "precss": "^2.0.0"
   },
   "dependencies": {
+    "plist": "^2.1.0",
     "js-yaml": "^3.9.1",
     "spectre.css": "^0.3.1",
     "vue": "^2.4.2",
