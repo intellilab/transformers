@@ -14,16 +14,24 @@
       </div>
     </section>
     <section class="container">
-      <h3>Applied pipes</h3>
-      <div v-for="(item, index) in appliedPipes" class="tool-string-pipe mr-2 mb-2">
-        <strong v-text="item.pipe.meta.name" class="mr-2"></strong>
-        <span v-text="reprOptions(item.options)"></span>
-        <button class="btn btn-clear" @click="onRemovePipe(index)"></button>
+      <div class="mt-2">
+        <h3 class="d-inline-block">Applied pipes</h3>
+        <button class="btn btn-sm ml-2" v-if="appliedPipes.length" @click="clearPipes">Clear</button>
       </div>
-      <p class="text-gray" v-if="!appliedPipes.length">No pipe is applied.</p>
+      <div class="tool-string-pipe mr-2 disabled">Input</div>
+      <template v-for="(item, index) in appliedPipes">
+        <span class="mr-2">&rarr;</span>
+        <div class="tool-string-pipe mr-2 mb-2">
+          <strong v-text="item.pipe.meta.name" class="mr-2"></strong>
+          <span v-text="reprOptions(item.options)"></span>
+          <button class="btn btn-clear" @click="onRemovePipe(index)"></button>
+        </div>
+      </template>
+      <span class="mr-2">&rarr;</span>
+      <div class="tool-string-pipe disabled">Output</div>
     </section>
     <section class="container">
-      <h3>Pipes</h3>
+      <h3 class="mt-2">Pipes</h3>
       <div class="form-group has-icon-right">
         <input type="search" class="form-input" placeholder="Filter pipes..." v-model="search">
         <i class="form-icon icon icon-cross" @click="search = ''"></i>
@@ -92,6 +100,9 @@ export default {
     onRemovePipe(index) {
       this.appliedPipes.splice(index, 1);
     },
+    clearPipes() {
+      this.appliedPipes.splice(0);
+    },
   },
 };
 </script>
@@ -102,11 +113,14 @@ export default {
     font-family: monospace;
     resize: none;
   }
-  .tool-string-pipe {
+  &-pipe {
     display: inline-block;
     padding: .2rem .3rem;
     border: .05rem solid #5764c6;
     border-radius: .1rem;
+    &.disabled {
+      border-color: #caced7;
+    }
   }
 }
 </style>
