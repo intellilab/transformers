@@ -8,7 +8,8 @@ export const meta = {
   options: [
     {
       name: 'indent',
-      description: 'Indent (default as 2)',
+      description: 'Indent',
+      type: 'number',
       default: 2,
     },
   ],

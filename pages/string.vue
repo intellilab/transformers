@@ -21,7 +21,7 @@
       <div class="tool-string-pipe mr-2 disabled">Input</div>
       <template v-for="(item, index) in appliedPipes">
         <span class="mr-2">&rarr;</span>
-        <div class="tool-string-pipe mr-2 mb-2">
+        <div class="tool-string-pipe mr-2 mb-2" @click="editing = item">
           <strong v-text="item.pipe.meta.name" class="mr-2"></strong>
           <span v-text="reprOptions(item.options)"></span>
           <button class="btn btn-clear" @click="onRemovePipe(index)"></button>
@@ -38,6 +38,43 @@
       </div>
       <button v-for="pipe in filteredPipes" class="btn btn-primary mr-2" v-text="pipe.meta.name" @click="addPipe(pipe)"></button>
       <p class="text-gray" v-if="!filteredPipes.length">No pipe is found.</p>
+    </section>
+    <section class="modal active" v-if="editing">
+      <div class="modal-overlay" @click="onStopEditing"></div>
+      <div class="modal-container">
+        <div class="modal-header">
+          <button class="btn btn-clear float-right" @click="onStopEditing"></button>
+          <div class="modal-title h5" v-text="editing.pipe.meta.name"></div>
+        </div>
+        <div class="modal-body">
+          <div class="content" v-if="editing.pipe.meta.options.length">
+            <div class="form-group" v-for="option in editing.pipe.meta.options">
+              <div v-if="option.type === 'checkbox'">
+                <label class="form-switch">
+                  <input type="checkbox" v-model="editing.options[option.name]">
+                  <i class="form-icon"></i>
+                  <span v-text="option.description"></span>
+                </label>
+              </div>
+              <div v-else>
+                <label class="form-label" v-text="option.description"></label>
+                <div v-if="option.type === 'radio'">
+                  <label v-for="choice in option.choices" class="form-radio">
+                    <input type="radio" :value="choice.value" v-model="editing.options[option.name]">
+                    <i class="form-icon"></i>
+                    <span v-text="choice.label"></span>
+                  </label>
+                </div>
+                <input v-else-if="option.type === 'number'" class="form-input" type="number" v-model.number="editing.options[option.name]">
+                <input v-else class="form-input" v-model="editing.options[option.name]">
+              </div>
+            </div>
+          </div>
+          <div class="empty" v-else>
+            <div class="empty-title">No options available</div>
+          </div>
+        </div>
+      </div>
     </section>
   </div>
 </template>
@@ -61,6 +98,7 @@ export default {
       error: false,
       pipes,
       appliedPipes: [],
+      editing: null,
     };
   },
   computed: {
@@ -103,6 +141,9 @@ export default {
     clearPipes() {
       this.appliedPipes.splice(0);
     },
+    onStopEditing() {
+      this.editing = null;
+    },
   },
 };
 </script>
@@ -121,6 +162,10 @@ export default {
     &.disabled {
       border-color: #caced7;
     }
+  }
+  .modal-container {
+    width: 80%;
+    max-width: 20rem;
   }
 }
 </style>
