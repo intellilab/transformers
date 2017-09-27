@@ -125,18 +125,25 @@ export const meta = {
   options: [
     {
       name: 'quote',
-      description: 'Quote (0 for as needed, 1 for always)',
+      description: 'Quote',
+      type: 'radio',
+      choices: [
+        { value: 0, label: 'as needed' },
+        { value: 1, label: 'always' },
+      ],
       default: 0,
     },
     {
       name: 'indent',
       description: 'Indent',
+      type: 'number',
       default: 2,
     },
     {
       name: 'trailing',
-      description: 'Trailing commas (0 for no, 1 for yes)',
-      default: 1,
+      description: 'Trailing commas',
+      type: 'checkbox',
+      default: true,
     },
   ],
 };
