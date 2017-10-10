@@ -3,9 +3,7 @@
 }
 .t-aside {
   display: flex;
-  flex-direction: column;
   width: 12rem;
-  flex: 0 0 auto;
   padding: 1rem;
   background: #f8f9fa;
   &-menu {
@@ -20,4 +18,12 @@
   flex: 1;
   padding: 1rem;
   overflow: auto;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.flex-auto {
+  flex: 0 0 auto;
 }

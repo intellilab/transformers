@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "nuxt",
     "build": "nuxt generate",
+    "start": "nuxt start",
     "lint": "eslint --ext .js,.vue .",
     "prepush": "npm run lint",
     "deploy": "sh scripts/deploy.sh"
