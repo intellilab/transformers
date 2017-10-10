@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="container">
     <div class="columns">
-      <aside class="t-aside">
+      <aside class="t-aside d-flex flex-column flex-auto">
         <router-link to="/"><h2>Transformers</h2></router-link>
         <div class="t-aside-menu">
           <nuxt-link to="/string/">String pipes</nuxt-link>
