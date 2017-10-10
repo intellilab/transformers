@@ -5,6 +5,7 @@
         <router-link to="/"><h2>Transformers</h2></router-link>
         <div class="t-aside-menu">
           <nuxt-link to="/string/">String pipes</nuxt-link>
+          <nuxt-link to="/qrcode/">QRCode</nuxt-link>
         </div>
         <footer>
           <p>Designed with &hearts; by <a href="https://gerald.top">Gerald</a></p>
@@ -19,7 +20,9 @@
 <script>
 export default {
   mounted() {
-    window.routes = this.$router.options.routes;
+    if (process.env.NODE_ENV === 'development') {
+      window.routes = this.$router.options.routes;
+    }
   },
 };
 </script>
