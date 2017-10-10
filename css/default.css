@@ -10,6 +10,10 @@
   background: #f8f9fa;
   &-menu {
     flex: 1;
+    > a {
+      display: block;
+      padding: .3rem 0;
+    }
   }
 }
 .t-content {
