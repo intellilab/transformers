@@ -3,22 +3,20 @@ Transformers
 
 A bunch of pipe based transformers to facilitate your daily life.
 
-- String pipes
-
 Development
 ---
 ``` sh
-$ npm run dev
+$ yarn dev
 ```
 
 Building
 ---
 ```sh
-$ npm run build
+$ yarn build
 ```
 
 Lint
 ---
 ``` sh
-$ npm run lint
+$ yarn lint
 ```
