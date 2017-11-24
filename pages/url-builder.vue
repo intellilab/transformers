@@ -3,11 +3,14 @@
     <h1>URL Builder</h1>
     <section class="container">
       <div class="columns">
-        <div class="column col-9">
-          <vl-code class="t-code" v-if="mounted" :value="content.config" @input="onUpdate" :options="options" />
-          <div class="form-group mt-2">
-            <div class="form-label">URL</div>
-            <textarea class="form-input t-url" :value="content.result" @input="onParse" rows="4" />
+        <div class="column col-5">
+          <div class="form-group">
+            <div class="form-label">Yaml config</div>
+            <vl-code class="t-code" v-if="mounted" :value="content.config" @input="onUpdate" :options="optionsCodeMirror" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Label (shown on QRCode)</label>
+            <input class="form-input" v-model="content.label" />
           </div>
           <div class="form-group">
             <div class="form-label">Name</div>
@@ -19,6 +22,15 @@
             <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave(1)">Save as new bookmark</button>
           </div>
           <div class="toast toast-error mt-2" v-if="error" v-text="error" />
+        </div>
+        <div class="column col-4">
+          <div class="form-group">
+            <div class="form-label">URL</div>
+            <textarea class="form-input t-url" :value="content.result" @input="onParse" rows="4" />
+          </div>
+          <div class="form-group">
+            <qr-canvas :options="optionsQR"></qr-canvas>
+          </div>
         </div>
         <bookmarks
           ref="bookmarks"
@@ -33,11 +45,12 @@
 </template>
 
 <script>
+import QrCanvas from 'qrcanvas-vue';
 import yaml from 'js-yaml';
 import { debounce } from '~/components/utils';
 import Bookmarks from '~/components/bookmarks';
 
-const codeMirrorOptions = {
+const optionsCodeMirror = {
   mode: 'yaml',
 };
 
@@ -45,6 +58,7 @@ export default {
   components: {
     VlCode: () => import('~/components/vl-code'),
     Bookmarks,
+    QrCanvas,
   },
   data() {
     return {
@@ -52,14 +66,32 @@ export default {
       active: null,
       error: null,
       mounted: false,
-      options: codeMirrorOptions,
+      optionsCodeMirror,
+      optionsQR: null,
     };
   },
+  watch: {
+    'content.result': 'updateQR',
+    'content.label': 'updateQR',
+  },
   methods: {
+    updateQR() {
+      const { result, label } = this.content;
+      const logo = label && {
+        text: label,
+        clearEdges: 3,
+      };
+      this.optionsQR = {
+        cellSize: 4,
+        data: result,
+        logo,
+      };
+    },
     onReset() {
       this.active = null;
       this.content = {
         name: null,
+        label: null,
         config: '',
         result: null,
       };
@@ -89,6 +121,7 @@ export default {
       this.activeIndex = index;
       this.content = {
         name: item.name,
+        label: item.label,
         config: item.data.config,
         result: '',
       };
@@ -97,9 +130,9 @@ export default {
     onSave(asNew) {
       const item = {
         name: this.content.name || 'No name',
-        data: {
-          config: this.content.config,
-        },
+        data: Object.assign({}, this.content, {
+          result: undefined,
+        }),
       };
       this.active = this.$refs.bookmarks.update(item, asNew ? -1 : this.activeIndex);
     },
