@@ -18,6 +18,7 @@
     "babel-eslint": "^8.0.1",
     "eslint": "^4.8.0",
     "eslint-config-airbnb-base": "^12.0.2",
+    "eslint-import-resolver-webpack": "^0.8.3",
     "eslint-plugin-html": "^3.2.2",
     "eslint-plugin-import": "^2.7.0",
     "husky": "^0.14.3",
@@ -27,9 +28,11 @@
     "precss": "^2.0.0"
   },
   "dependencies": {
+    "codemirror": "^5.32.0",
     "js-yaml": "^3.10.0",
     "plist": "^2.1.0",
     "qrcanvas-vue": "^1.0.3",
-    "spectre.css": "^0.4.4"
+    "spectre.css": "^0.4.4",
+    "vueleton": "^0.5.0"
   }
 }
