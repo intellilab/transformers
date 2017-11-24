@@ -53,3 +53,13 @@ export default {
   },
 };
 </script>
+
+<style>
+.bookmarks {
+  max-height: 400px;
+  overflow: auto;
+  > :not(:hover) > .btn-clear {
+    display: none;
+  }
+}
+</style>

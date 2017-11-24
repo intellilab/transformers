@@ -5,7 +5,6 @@
         <router-link to="/"><h2>Transformers</h2></router-link>
         <div class="t-aside-menu">
           <nuxt-link to="/string/">String pipes</nuxt-link>
-          <nuxt-link to="/qrcode/">QRCode</nuxt-link>
           <nuxt-link to="/url-builder/">URL Builder</nuxt-link>
         </div>
         <footer>
