@@ -11,6 +11,9 @@
     > a {
       display: block;
       padding: .3rem 0;
+      &.nuxt-link-active {
+        background: #f1f1fc;
+      }
     }
   }
 }
