@@ -123,7 +123,7 @@ export default {
         name: item.name,
         label: item.label,
         config: item.data.config,
-        result: '',
+        result: this.content.result,
       };
       this.onUpdate();
     },
