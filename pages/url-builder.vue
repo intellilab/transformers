@@ -171,7 +171,7 @@ function buildData(raw) {
     if (Array.isArray(data)) return data.map(buildData).map(encodeURIComponent).join(',');
     return Object.keys(config.data).map(key => {
       const value = config.data[key];
-      if (!value) return;
+      if (value == null) return;
       return `${encodeURIComponent(key)}=${encodeURIComponent(buildData(value))}`;
     }).filter(Boolean).join('&');
   }
