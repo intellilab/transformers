@@ -21,7 +21,6 @@
             <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave()">Save as bookmark</button>
             <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave(1)">Save as new bookmark</button>
           </div>
-          <div class="toast toast-error mt-2" v-if="error" v-text="error" />
         </div>
         <div class="column col-4">
           <div class="form-group">
@@ -31,6 +30,7 @@
           <div class="form-group">
             <qr-canvas :options="optionsQR"></qr-canvas>
           </div>
+          <div class="toast toast-error mt-2" v-if="error" v-text="error" />
         </div>
         <bookmarks
           ref="bookmarks"
