@@ -17,26 +17,21 @@
             <input class="form-input" v-model="qr.name" />
           </div>
           <div>
-            <button class="btn mr-2" @click="onReset">Reset</button>
-            <button class="btn mr-2" :disabled="!qr.content" @click="onSave">Bookmark</button>
+            <button class="btn mr-2 mb-1" @click="onReset">Reset</button>
+            <button class="btn mr-2 mb-1" :disabled="!qr.content" @click="onSave()">Save as bookmark</button>
+            <button class="btn mr-2 mb-1" :disabled="!qr.content" @click="onSave(1)">Save as new bookmark</button>
           </div>
         </div>
         <div class="column col-6">
           <qr-canvas :options="options"></qr-canvas>
         </div>
-        <div class="column col-3 mt-2 d-flex flex-column">
-          <h3>My bookmarks</h3>
-          <!-- div class="mb-2">
-            <input class="form-input" placeholder="Search..." />
-          </div -->
-          <div class="empty" v-if="!store.bookmarks.length"><div class="empty-title">Nothing</div></div>
-          <ul class="menu bookmarks" v-else>
-            <li class="menu-item" v-for="(item, index) in store.bookmarks">
-              <button class="btn btn-clear float-right mt-2" @click="onRemove(index)"></button>
-              <a href="#" v-text="item.name" @click.prevent="onPick(item)"></a>
-            </li>
-          </ul>
-        </div>
+        <bookmarks
+          ref="bookmarks"
+          class="column col-3 mt-2 d-flex flex-column"
+          :active="active"
+          storage-key="qrcode/bookmarks"
+          @pick="onPick"
+        />
       </div>
     </section>
   </div>
@@ -44,42 +39,18 @@
 
 <script>
 import QrCanvas from 'qrcanvas-vue';
-
-const store = {
-  bookmarks: [],
-};
-const lsKey = 'qrcode/bookmarks';
-
-function debounce(func, time) {
-  let timer;
-  return () => {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(func, time);
-  };
-}
-
-function loadData() {
-  let bookmarks;
-  try {
-    bookmarks = JSON.parse(localStorage.getItem(lsKey));
-  } catch (e) {
-    // ignore error
-  }
-  store.bookmarks = bookmarks || [];
-}
-
-function dumpData() {
-  localStorage.setItem(lsKey, JSON.stringify(store.bookmarks));
-}
+import { debounce } from '~/components/utils';
+import Bookmarks from '~/components/bookmarks';
 
 export default {
   components: {
     QrCanvas,
+    Bookmarks,
   },
   data() {
     return {
-      store,
       qr: {},
+      active: null,
       options: null,
     };
   },
@@ -105,31 +76,30 @@ export default {
       };
     },
     onReset() {
+      this.active = null;
       this.qr = {
         content: '',
         label: '',
         name: '',
       };
     },
-    onSave() {
-      this.store.bookmarks.push(Object.assign({}, this.qr, {
+    onSave(asNew) {
+      const item = {
         name: this.qr.name || this.qr.label || 'No name',
-      }));
-      dumpData();
+        data: Object.assign({}, this.qr),
+      };
+      this.active = this.$refs.bookmarks.update(item, asNew ? -1 : this.activeIndex);
     },
-    onPick(item) {
-      this.qr = Object.assign({}, item);
-    },
-    onRemove(index) {
-      this.store.bookmarks.splice(index, 1);
-      dumpData();
+    onPick(item, index) {
+      this.active = item;
+      this.activeIndex = index;
+      this.qr = Object.assign({}, item, item.data);
     },
   },
   mounted() {
     this.onReset();
     this.updateOptionsLater = debounce(this.updateOptions, 200);
     this.updateOptions();
-    loadData();
   },
 };
 </script>

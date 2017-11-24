@@ -12,7 +12,8 @@ module.exports = {
   extends: 'airbnb-base',
   // required to lint *.vue files
   plugins: [
-    'html'
+    'html',
+    'import',
   ],
   // check if imports actually resolve
   // add your custom rules here
@@ -41,5 +42,19 @@ module.exports = {
     indent: 0,
   },
   globals: {
+  },
+  settings: {
+    'import/resolver': {
+      webpack: {
+        config: {
+          resolve: {
+            extensions: ['.js', '.vue'],
+            alias: {
+              '~': __dirname,
+            },
+          },
+        },
+      },
+    },
   },
 }
