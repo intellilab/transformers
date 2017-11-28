@@ -116,9 +116,8 @@ export default {
       this.cachedData = yaml.safeDump(config);
       this.content.config = this.cachedData;
     }, 300),
-    onPick(item, index) {
+    onPick(item) {
       this.active = item;
-      this.activeIndex = index;
       this.content = {
         name: item.name,
         label: item.label,
@@ -134,7 +133,7 @@ export default {
           result: undefined,
         }),
       };
-      this.active = this.$refs.bookmarks.update(item, asNew ? -1 : this.activeIndex);
+      this.active = this.$refs.bookmarks.update(item, !asNew && this.active);
     },
   },
   created() {

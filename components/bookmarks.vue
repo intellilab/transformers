@@ -36,9 +36,10 @@ export default {
     dump() {
       this.storage.dump(this.bookmarks);
     },
-    update({ name, data }, index) {
+    update({ name, data }, oldItem) {
       const item = { name, data };
-      if (this.bookmarks[index]) {
+      const index = this.bookmarks.findIndex(oldItem);
+      if (index >= 0) {
         Vue.set(this.bookmarks, index, item);
       } else {
         this.bookmarks.push(item);
