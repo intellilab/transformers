@@ -38,7 +38,7 @@ export default {
     },
     update({ name, data }, oldItem) {
       const item = { name, data };
-      const index = this.bookmarks.findIndex(oldItem);
+      const index = this.bookmarks.indexOf(oldItem);
       if (index >= 0) {
         Vue.set(this.bookmarks, index, item);
       } else {
