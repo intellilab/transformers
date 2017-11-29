@@ -62,5 +62,8 @@ export default {
   > :not(:hover) > .btn-clear {
     display: none;
   }
+  .menu-item > a:not(.active):focus {
+    background: none;
+  }
 }
 </style>

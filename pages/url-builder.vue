@@ -6,7 +6,7 @@
         <div class="column col-5">
           <div class="form-group">
             <div class="form-label">Yaml config</div>
-            <vl-code class="t-code" v-if="mounted" :value="content.config" @input="onUpdate" :options="optionsCodeMirror" />
+            <vl-code class="t-code" v-if="mounted" :value="content.config" @input="onChange" :options="optionsCodeMirror" />
           </div>
           <div class="form-group">
             <label class="form-label">Label (shown on QRCode)</label>
@@ -96,18 +96,11 @@ export default {
         result: null,
       };
     },
-    onUpdate: debounce(function update(data) {
+    onChange: debounce(function onChange(data) {
       if (data === this.cachedData) return;
       this.cachedData = data;
       this.content.config = data;
-      try {
-        const config = yaml.safeLoad(data);
-        this.content.result = buildData(config);
-        this.error = null;
-      } catch (err) {
-        this.error = err.toString();
-        console.error(err);
-      }
+      this.onUpdate();
     }, 300),
     onParse: debounce(function onParse(e) {
       const { value } = e.target;
@@ -116,8 +109,18 @@ export default {
       this.cachedData = yaml.safeDump(config);
       this.content.config = this.cachedData;
     }, 300),
+    onUpdate() {
+      try {
+        const config = yaml.safeLoad(this.content.config);
+        this.content.result = buildData(config);
+        this.error = null;
+      } catch (err) {
+        this.error = err.toString();
+        console.error(err);
+      }
+    },
     onPick(item) {
-      this.active = item;
+      this.active = this.active === item ? null : item;
       this.content = {
         name: item.name,
         label: item.label,
