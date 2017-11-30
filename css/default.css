@@ -30,3 +30,10 @@
 .flex-auto {
   flex: 0 0 auto;
 }
+
+body {
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.t-code > .CodeMirror {
+  font-family: Monaco, Consolas, monospace;
+}
