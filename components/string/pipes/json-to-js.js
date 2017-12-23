@@ -4,9 +4,16 @@ const KEY = 'KEY';
 const COMMA = { type: 'comma', value: ',' };
 const BR = { type: 'br', value: '\n' };
 
+const charMap = {
+  '\\': '\\\\',
+  '\'': '\\\'',
+  '\r': '\\r',
+  '\n': '\\n',
+  '\t': '\\t',
+};
 function quoteString(str, shouldQuote = 1) {
   if (shouldQuote || /\W/.test(str)) {
-    const quoted = str.replace(/([\\'])/g, '\\$1');
+    const quoted = str.replace(/[\\'\r\n\t]/g, m => charMap[m]);
     return `'${quoted}'`;
   }
   return str;
