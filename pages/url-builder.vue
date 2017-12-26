@@ -181,7 +181,7 @@ function buildData(raw) {
 }
 
 function parseData(str) {
-  if (/:\/\/|\?/.test(str)) {
+  if (/^[\w-]+:\/\/|\?/.test(str)) {
     const [path, query] = str.split('?');
     const config = {
       _type: 'url',
@@ -197,9 +197,9 @@ function parseData(str) {
       return res;
     }, {});
   }
-  if (/,/.test(str)) {
-    return str.split(',').map(decodeURIComponent).map(parseData);
-  }
+  // if (/,/.test(str)) {
+  //   return str.split(',').map(decodeURIComponent).map(parseData);
+  // }
   return decodeURIComponent(str);
 }
 </script>
