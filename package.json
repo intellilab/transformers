@@ -30,6 +30,7 @@
   "dependencies": {
     "codemirror": "^5.32.0",
     "js-yaml": "^3.10.0",
+    "json5": "^0.5.1",
     "plist": "^2.1.0",
     "qrcanvas-vue": "^1.1.0",
     "spectre.css": "^0.4.6",

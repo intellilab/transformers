@@ -1,3 +1,5 @@
+import JSON5 from 'json5';
+
 const MULTILINE = 'MULTILINE';
 const SINGLELINE = 'SINGLELINE';
 const KEY = 'KEY';
@@ -122,13 +124,13 @@ function join(rendered, options, level) {
 }
 
 export function handle(input, options) {
-  const obj = JSON.parse(input);
+  const obj = JSON5.parse(input);
   const rendered = render(obj, options);
   return rendered.data.map(({ value }) => `${value}`).join('');
 }
 
 export const meta = {
-  name: 'JSON to JavaScript',
+  name: 'JSON5 to JavaScript',
   options: [
     {
       name: 'quote',
