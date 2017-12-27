@@ -1,10 +1,12 @@
+import JSON5 from 'json5';
+
 export function handle(input, options) {
-  const obj = JSON.parse(input);
+  const obj = JSON5.parse(input);
   return JSON.stringify(obj, null, options.indent);
 }
 
 export const meta = {
-  name: 'Format JSON',
+  name: 'JSON5 to JSON',
   options: [
     {
       name: 'indent',
