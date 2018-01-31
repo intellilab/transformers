@@ -122,8 +122,8 @@ export default {
     onPick(item) {
       this.active = this.active === item ? null : item;
       this.content = {
-        name: item.name,
-        label: item.label,
+        name: item.data.name,
+        label: item.data.label,
         config: item.data.config,
         result: this.content.result,
       };
