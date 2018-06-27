@@ -24,7 +24,7 @@
         <div class="tool-string-pipe mr-2 mb-2" @click="editing = item">
           <strong v-text="item.pipe.meta.name" class="mr-2"></strong>
           <span v-text="reprOptions(item.options)"></span>
-          <button class="btn btn-clear" @click="onRemovePipe(index)"></button>
+          <button class="btn btn-clear" @click.stop="onRemovePipe(index)"></button>
         </div>
       </template>
       <span class="mr-2">&rarr;</span>
