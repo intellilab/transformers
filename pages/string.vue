@@ -36,7 +36,7 @@
         <input type="search" class="form-input" placeholder="Filter pipes..." v-model="search">
         <i class="form-icon icon icon-cross" @click="search = ''"></i>
       </div>
-      <button v-for="pipe in filteredPipes" class="btn btn-primary mr-2" v-text="pipe.meta.name" @click="addPipe(pipe)"></button>
+      <button v-for="pipe in filteredPipes" class="btn btn-primary mr-2 mb-2" v-text="pipe.meta.name" @click="addPipe(pipe)"></button>
       <p class="text-gray" v-if="!filteredPipes.length">No pipe is found.</p>
     </section>
     <section class="modal active" v-if="editing">
