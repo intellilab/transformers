@@ -9,6 +9,7 @@
     "dev": "nuxt",
     "build": "nuxt generate",
     "start": "nuxt start",
+    "analyze": "nuxt build -a",
     "lint": "eslint --ext .js,.vue .",
     "deploy": "sh scripts/deploy.sh"
   },
