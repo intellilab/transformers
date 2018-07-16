@@ -1,9 +1,9 @@
 <template>
   <div>
-    <h3>My bookmarks</h3>
-    <div class="empty" v-if="!bookmarks.length"><div class="empty-title">Nothing</div></div>
-    <ul class="menu bookmarks" v-else>
-      <li class="menu-item" v-for="(item, index) in bookmarks">
+    <h3>My Snapshots</h3>
+    <div class="empty" v-if="!snapshots.length"><div class="empty-title">Nothing</div></div>
+    <ul class="menu snapshots" v-else>
+      <li class="menu-item" v-for="(item, index) in snapshots">
         <button class="btn btn-clear float-right mt-2" @click="onRemove(index)"></button>
         <a href="#" :class="{active: active === item}" v-text="item.name" @click.prevent="onPick(item, index)"></a>
       </li>
@@ -22,27 +22,27 @@ export default {
   ],
   data() {
     return {
-      bookmarks: [],
+      snapshots: [],
     };
   },
   methods: {
     onRemove(index) {
-      this.bookmarks.splice(index, 1);
+      this.snapshots.splice(index, 1);
       this.dump();
     },
     onPick(item, index) {
       this.$emit('pick', item, index);
     },
     dump() {
-      this.storage.dump(this.bookmarks);
+      this.storage.dump(this.snapshots);
     },
     update({ name, data }, oldItem) {
       const item = { name, data };
-      const index = this.bookmarks.indexOf(oldItem);
+      const index = this.snapshots.indexOf(oldItem);
       if (index >= 0) {
-        Vue.set(this.bookmarks, index, item);
+        Vue.set(this.snapshots, index, item);
       } else {
-        this.bookmarks.push(item);
+        this.snapshots.push(item);
       }
       this.dump();
       return item;
@@ -50,13 +50,13 @@ export default {
   },
   mounted() {
     this.storage = getStorage(this.storageKey);
-    this.bookmarks = this.storage.load([]);
+    this.snapshots = this.storage.load([]);
   },
 };
 </script>
 
 <style>
-.bookmarks {
+.snapshots {
   max-height: 400px;
   overflow: auto;
   > :not(:hover) > .btn-clear {
