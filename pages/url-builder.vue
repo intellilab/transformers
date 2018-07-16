@@ -18,8 +18,8 @@
           </div>
           <div>
             <button class="btn mr-2 mb-1" @click="onReset">Reset</button>
-            <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave()">Save as bookmark</button>
-            <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave(1)">Save as new bookmark</button>
+            <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave()">Save</button>
+            <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave(1)">Save as New</button>
           </div>
         </div>
         <div class="column col-4">
@@ -32,11 +32,11 @@
           </div>
           <div class="toast toast-error mt-2" v-if="error" v-text="error" />
         </div>
-        <bookmarks
-          ref="bookmarks"
+        <snapshots
+          ref="snapshots"
           class="column col-3 mt-2 d-flex flex-column"
           :active="active"
-          storage-key="url-builder/bookmarks"
+          storage-key="url-builder/snapshots"
           @pick="onPick"
         />
       </div>
@@ -48,7 +48,7 @@
 import QrCanvas from 'qrcanvas-vue';
 import yaml from 'js-yaml';
 import { debounce } from '~/components/utils';
-import Bookmarks from '~/components/bookmarks';
+import Snapshots from '~/components/snapshots';
 
 const optionsCodeMirror = {
   mode: 'yaml',
@@ -57,7 +57,7 @@ const optionsCodeMirror = {
 export default {
   components: {
     VlCode: () => import('~/components/vl-code'),
-    Bookmarks,
+    Snapshots,
     QrCanvas,
   },
   data() {
@@ -136,7 +136,7 @@ export default {
           result: undefined,
         }),
       };
-      this.active = this.$refs.bookmarks.update(item, !asNew && this.active);
+      this.active = this.$refs.snapshots.update(item, !asNew && this.active);
     },
   },
   created() {
