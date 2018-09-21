@@ -109,8 +109,8 @@ function join(rendered, options, level) {
     }
     if (next) {
       if (
-        next.type === KEY ||
-        (item.type !== KEY && (
+        next.type === KEY
+        || (item.type !== KEY && (
           item.type === SINGLELINE || next.type === SINGLELINE
         ))
       ) {
