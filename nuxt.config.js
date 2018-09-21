@@ -18,9 +18,6 @@ module.exports = {
     '~/css/default.css',
   ],
   build: {
-    vendor: [
-      'js-yaml',
-    ],
     postcss: {
       // Transform inline comments
       parser: require('postcss-scss'),

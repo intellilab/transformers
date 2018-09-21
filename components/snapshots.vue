@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3>My Snapshots</h3>
-    <div class="empty" v-if="!snapshots.length"><div class="empty-title">Nothing</div></div>
+    <div class="empty" v-if="!snapshots.length"><div class="empty-title">None</div></div>
     <ul class="menu snapshots" v-else>
       <li class="menu-item" v-for="(item, index) in snapshots">
         <button class="btn btn-clear float-right mt-2" @click="onRemove(index)"></button>

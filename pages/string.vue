@@ -105,8 +105,10 @@ export default {
     output() {
       try {
         this.error = false;
-        return this.appliedPipes.reduce((result, { pipe, options }) =>
-          pipe.handle(result, options), this.input);
+        return this.appliedPipes.reduce(
+          (result, { pipe, options }) => pipe.handle(result, options),
+          this.input,
+        );
       } catch (e) {
         this.error = true;
         return e.toString();

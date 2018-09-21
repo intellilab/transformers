@@ -79,7 +79,10 @@ export default {
       const { result, label } = this.content;
       const logo = label && {
         text: label,
-        clearEdges: 3,
+        options: {
+          mode: 0,
+          fontSize: 64,
+        },
       };
       this.optionsQR = {
         cellSize: 4,
