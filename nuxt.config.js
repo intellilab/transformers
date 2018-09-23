@@ -28,6 +28,11 @@ module.exports = {
       ],
     },
   },
+  render: {
+    bundleRenderer: {
+      shouldPrefetch: () => true,
+    },
+  },
 };
 
 if (IS_PRD) {
