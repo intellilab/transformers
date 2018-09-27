@@ -13,7 +13,6 @@ module.exports = {
   // required to lint *.vue files
   plugins: [
     'html',
-    'import',
   ],
   // check if imports actually resolve
   // add your custom rules here
