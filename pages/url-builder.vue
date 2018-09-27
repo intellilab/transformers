@@ -9,7 +9,7 @@
             <vl-code class="t-code" v-if="mounted" :value="content.config" @input="onChange" :options="optionsCodeMirror" />
           </div>
           <div class="form-group">
-            <label class="form-label">Label (shown on QRCode)</label>
+            <label class="form-label">Label</label>
             <input class="form-input" v-model="content.label" />
           </div>
           <div class="form-group">
@@ -28,7 +28,7 @@
             <textarea class="form-input t-url" :value="content.result" @input="onParse" rows="4" />
           </div>
           <div class="form-group">
-            <qr-canvas :options="optionsQR"></qr-canvas>
+            <qr-canvas :options="optionsQR" @beforeUpdate="onBeforeUpdate" @updated="onUpdated"></qr-canvas>
           </div>
           <div class="toast toast-error mt-2" v-if="error" v-text="error" />
         </div>
@@ -76,19 +76,25 @@ export default {
   },
   methods: {
     updateQR() {
-      const { result, label } = this.content;
-      const logo = label && {
-        text: label,
-        options: {
-          mode: 0,
-          fontSize: 64,
-        },
-      };
+      const { result } = this.content;
       this.optionsQR = {
-        cellSize: 4,
         data: result,
-        logo,
       };
+    },
+    onBeforeUpdate(canvas) {
+      const { label } = this.content;
+      canvas.width = 300;
+      canvas.height = label ? 340 : 300;
+    },
+    onUpdated(canvas) {
+      const { label } = this.content;
+      if (label) {
+        const context = canvas.getContext('2d');
+        context.font = '24px -apple-system, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, "Segoe UI", Roboto, "Helvetica Neue", sans-serif';
+        context.fillStyle = 'dodgerblue';
+        context.textAlign = 'center';
+        context.fillText(label, 150, 330);
+      }
     },
     onReset() {
       this.active = null;
