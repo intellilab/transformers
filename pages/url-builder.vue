@@ -6,7 +6,7 @@
         <div class="column col-5">
           <div class="form-group">
             <div class="form-label">Yaml config</div>
-            <vl-code class="t-code" v-if="mounted" :value="content.config" @input="onChange" :options="optionsCodeMirror" />
+            <vl-code class="t-code" v-if="mounted" :value="content.config" @ready="onReady" @input="onChange" :options="optionsCodeMirror" />
           </div>
           <div class="form-group">
             <label class="form-label">Label</label>
@@ -20,7 +20,7 @@
             <button class="btn mr-2 mb-1" @click="onReset">Reset</button>
             <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave()">Save</button>
             <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave(1)">Save as New</button>
-            <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onShare">Share</button>
+            <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onShare" ref="share">Share</button>
           </div>
           <div v-if="shareContent">
             <input class="form-input" readonly :value="shareContent.url" @click="onSelectAll" />
@@ -51,7 +51,7 @@
 <script>
 import QrCanvas from 'qrcanvas-vue';
 import yaml from 'js-yaml';
-import { debounce } from '~/components/utils';
+import { debounce, getStorage } from '~/components/utils';
 import Snapshots from '~/components/snapshots';
 
 const optionsCodeMirror = {
@@ -154,7 +154,7 @@ export default {
       this.active = this.$refs.snapshots.update(item, !asNew && this.active);
     },
     onShare() {
-      const { origin, pathname } = window.location;
+      const { origin, pathname, search } = window.location;
       const query = {
         name: this.content.name,
         label: this.content.label,
@@ -165,13 +165,40 @@ export default {
       .filter(Boolean)
       .join('&');
       qs = `${qs}&_=`; // in case url is modified by other apps
-      const url = `${origin}${pathname}#${qs}`;
+      const url = `${origin}${pathname}${search}#${qs}`;
       this.shareContent = {
         url,
       };
     },
     onSelectAll(e) {
       e.target.select();
+    },
+    async onReady() {
+      const VERSION = '20180930';
+      const store = getStorage('url-builder/settings');
+      const settings = store.load({});
+      if (settings.version === VERSION) return;
+      settings.version = VERSION;
+      store.dump(settings);
+      const [{ default: Driver }] = await Promise.all([
+        import('driver.js'),
+        import('driver.js/dist/driver.min.css'),
+      ]);
+      const driver = new Driver();
+      driver.defineSteps([{
+        element: this.$refs.share,
+        popover: {
+          title: 'Share your QRCode with others',
+        },
+      }, {
+        element: this.$refs.snapshots.$el,
+        popover: {
+          title: 'Save your snapshots',
+          description: 'You can sort them with drag and drop now.',
+          position: 'left',
+        },
+      }]);
+      driver.start();
     },
   },
   created() {
