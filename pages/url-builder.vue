@@ -160,10 +160,11 @@ export default {
         label: this.content.label,
         result: this.content.result,
       };
-      const qs = Object.entries(query)
+      let qs = Object.entries(query)
       .map(([key, value]) => value && [key, value].map(encodeURIComponent).join('='))
       .filter(Boolean)
       .join('&');
+      qs = `${qs}&_=`; // in case url is modified by other apps
       const url = `${origin}${pathname}#${qs}`;
       this.shareContent = {
         url,
