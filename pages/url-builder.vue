@@ -20,12 +20,16 @@
             <button class="btn mr-2 mb-1" @click="onReset">Reset</button>
             <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave()">Save</button>
             <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave(1)">Save as New</button>
+            <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onShare">Share</button>
+          </div>
+          <div v-if="shareContent">
+            <input class="form-input" readonly :value="shareContent.url" @click="onSelectAll" />
           </div>
         </div>
         <div class="column col-4">
           <div class="form-group">
             <div class="form-label">URL</div>
-            <textarea class="form-input t-url" :value="content.result" @input="onParse" rows="4" />
+            <textarea class="form-input t-url" ref="result" :value="content.result" @input="onParse" rows="4" />
           </div>
           <div class="form-group">
             <qr-canvas :options="optionsQR" @beforeUpdate="onBeforeUpdate" @updated="onUpdated"></qr-canvas>
@@ -63,6 +67,7 @@ export default {
   data() {
     return {
       content: {},
+      shareContent: null,
       active: null,
       error: null,
       mounted: false,
@@ -80,6 +85,7 @@ export default {
       this.optionsQR = {
         data: result,
       };
+      this.shareContent = null;
     },
     onBeforeUpdate(canvas) {
       const { label } = this.content;
@@ -111,8 +117,8 @@ export default {
       this.content.config = data;
       this.onUpdate();
     }, 300),
-    onParse: debounce(function onParse(e) {
-      const { value } = e.target;
+    onParse: debounce(function onParse() {
+      const { value } = this.$refs.result;
       this.content.result = value;
       const config = parseData(value);
       this.cachedData = yaml.safeDump(config);
@@ -147,12 +153,45 @@ export default {
       };
       this.active = this.$refs.snapshots.update(item, !asNew && this.active);
     },
+    onShare() {
+      const { origin, pathname } = window.location;
+      const query = {
+        name: this.content.name,
+        label: this.content.label,
+        result: this.content.result,
+      };
+      const qs = Object.entries(query)
+      .map(([key, value]) => value && [key, value].map(encodeURIComponent).join('='))
+      .filter(Boolean)
+      .join('&');
+      const url = `${origin}${pathname}#${qs}`;
+      this.shareContent = {
+        url,
+      };
+    },
+    onSelectAll(e) {
+      e.target.select();
+    },
   },
   created() {
     this.onReset();
   },
   mounted() {
     this.mounted = true;
+    const query = new URLSearchParams(window.location.hash.slice(1));
+    const content = {
+      name: query.get('name'),
+      label: query.get('label'),
+      result: query.get('result'),
+    };
+    if (content.result) {
+      this.content = {
+        ...this.content,
+        ...content,
+      };
+      this.onParse();
+      window.location.hash = '';
+    }
   },
 };
 
