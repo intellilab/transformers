@@ -17,6 +17,9 @@ module.exports = {
     'spectre.css/dist/spectre-icons.css',
     '~/css/default.css',
   ],
+  modules: [
+    '@nuxtjs/pwa',
+  ],
   build: {
     postcss: {
       // Transform inline comments
