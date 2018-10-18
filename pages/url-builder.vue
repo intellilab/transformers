@@ -20,7 +20,7 @@
             <button class="btn mr-2 mb-1" @click="onReset">Reset</button>
             <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave()">Save</button>
             <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave(1)">Save as New</button>
-            <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onShare" ref="share">Share</button>
+            <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onShare">Share</button>
           </div>
           <div v-if="shareContent">
             <input class="form-input" readonly :value="shareContent.url" @click="onSelectAll" />
@@ -180,25 +180,25 @@ export default {
       if (settings.version === VERSION) return;
       settings.version = VERSION;
       store.dump(settings);
-      const [{ default: Driver }] = await Promise.all([
-        import('driver.js'),
-        import('driver.js/dist/driver.min.css'),
-      ]);
-      const driver = new Driver();
-      driver.defineSteps([{
-        element: this.$refs.share,
-        popover: {
-          title: 'Share your QRCode with others',
-        },
-      }, {
-        element: this.$refs.snapshots.$el,
-        popover: {
-          title: 'Save your snapshots',
-          description: 'You can sort them with drag and drop now.',
-          position: 'left',
-        },
-      }]);
-      driver.start();
+      // const [{ default: Driver }] = await Promise.all([
+      //   import('driver.js'),
+      //   import('driver.js/dist/driver.min.css'),
+      // ]);
+      // const driver = new Driver();
+      // driver.defineSteps([{
+      //   element: this.$refs.share,
+      //   popover: {
+      //     title: 'Share your QRCode with others',
+      //   },
+      // }, {
+      //   element: this.$refs.snapshots.$el,
+      //   popover: {
+      //     title: 'Save your snapshots',
+      //     description: 'You can sort them with drag and drop now.',
+      //     position: 'left',
+      //   },
+      // }]);
+      // driver.start();
     },
   },
   created() {
