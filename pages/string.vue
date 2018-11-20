@@ -5,11 +5,11 @@
       <div class="columns">
         <div class="column col-6">
           <h6>Input</h6>
-          <textarea class="form-input" :class="{'is-error': error}" rows="18" v-model="input"></textarea>
+          <textarea class="form-input" :class="{'is-error': output.error}" rows="18" v-model="input"></textarea>
         </div>
         <div class="column col-6">
           <h6>Output</h6>
-          <textarea class="form-input" rows="18" readonly :value="output"></textarea>
+          <textarea class="form-input" rows="18" readonly :value="output.content"></textarea>
         </div>
       </div>
     </section>
@@ -20,8 +20,8 @@
       </div>
       <div class="tool-string-pipe mr-2 disabled">Input</div>
       <template v-for="(item, index) in appliedPipes">
-        <span class="mr-2">&rarr;</span>
-        <div class="tool-string-pipe mr-2 mb-2" @click="editing = item">
+        <span :key="`arrow-${index}`" class="mr-2">&rarr;</span>
+        <div :key="index" class="tool-string-pipe mr-2 mb-2" @click="editing = item">
           <strong v-text="item.pipe.meta.name" class="mr-2"></strong>
           <span v-text="reprOptions(item.options)"></span>
           <button class="btn btn-clear" @click.stop="onRemovePipe(index)"></button>
@@ -36,7 +36,13 @@
         <input type="search" class="form-input" placeholder="Filter pipes..." v-model="search">
         <i class="form-icon icon icon-cross" @click="search = ''"></i>
       </div>
-      <button v-for="pipe in filteredPipes" class="btn btn-primary mr-2 mb-2" v-text="pipe.meta.name" @click="addPipe(pipe)"></button>
+      <button
+        v-for="(pipe, index) in filteredPipes"
+        :key="index"
+        class="btn btn-primary mr-2 mb-2"
+        v-text="pipe.meta.name"
+        @click="addPipe(pipe)"
+      />
       <p class="text-gray" v-if="!filteredPipes.length">No pipe is found.</p>
     </section>
     <section class="modal active" v-if="editing">
@@ -48,7 +54,7 @@
         </div>
         <div class="modal-body">
           <div class="content" v-if="editing.pipe.meta.options.length">
-            <div class="form-group" v-for="option in editing.pipe.meta.options">
+            <div class="form-group" v-for="(option, index) in editing.pipe.meta.options" :key="index">
               <div v-if="option.type === 'checkbox'">
                 <label class="form-switch">
                   <input type="checkbox" v-model="editing.options[option.name]">
@@ -59,7 +65,7 @@
               <div v-else>
                 <label class="form-label" v-text="option.description"></label>
                 <div v-if="option.type === 'radio'">
-                  <label v-for="choice in option.choices" class="form-radio">
+                  <label v-for="(choice, index) in option.choices" class="form-radio" :key="index">
                     <input type="radio" :value="choice.value" v-model="editing.options[option.name]">
                     <i class="form-icon"></i>
                     <span v-text="choice.label"></span>
@@ -95,7 +101,6 @@ export default {
     return {
       input: '',
       search: '',
-      error: false,
       pipes,
       appliedPipes: [],
       editing: null,
@@ -104,14 +109,17 @@ export default {
   computed: {
     output() {
       try {
-        this.error = false;
-        return this.appliedPipes.reduce(
-          (result, { pipe, options }) => pipe.handle(result, options),
-          this.input,
-        );
+        return {
+          content: this.input && this.appliedPipes.reduce(
+            (result, { pipe, options }) => pipe.handle(result, options),
+            this.input,
+          ),
+        };
       } catch (e) {
-        this.error = true;
-        return e.toString();
+        return {
+          error: e,
+          content: e.toString(),
+        };
       }
     },
     filteredPipes() {
