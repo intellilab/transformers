@@ -1,21 +1,19 @@
 <template>
-  <div>
-    <h3>My Snapshots</h3>
-    <div class="empty" v-if="!snapshots.length"><div class="empty-title">None</div></div>
-    <ul class="menu snapshots" v-else>
-      <li
-        class="menu-item"
-        v-for="(item, index) in snapshots"
-        :class="{'snapshot-placeholder': dragging && dragging.index === index}"
-        draggable="true"
-        @dragstart="onDragStart($event, index)"
-        @dragend="onDragEnd"
-        @dragover="onDragOver($event, index)">
-        <button class="btn btn-clear float-right mt-2" @click="onRemove(index)"></button>
-        <a href="#" :class="{active: active === item}" v-text="item.name" @click.prevent="onPick(item, index)"></a>
-      </li>
-    </ul>
-  </div>
+  <div class="empty" v-if="!snapshots.length"><div class="empty-title">None</div></div>
+  <ul class="menu snapshots" v-else>
+    <li
+      class="menu-item"
+      v-for="(item, index) in snapshots"
+      :key="index"
+      :class="{'snapshot-placeholder': dragging && dragging.index === index}"
+      draggable="true"
+      @dragstart="onDragStart($event, index)"
+      @dragend="onDragEnd"
+      @dragover="onDragOver($event, index)">
+      <button class="btn btn-clear float-right mt-2" @click="onRemove(index)"></button>
+      <a href="#" :class="{active: active === item}" v-text="item.name" @click.prevent="onPick(item, index)"></a>
+    </li>
+  </ul>
 </template>
 
 <script>
@@ -98,7 +96,7 @@ export default {
 
 <style>
 .snapshots {
-  max-height: 400px;
+  max-height: 70vh;
   overflow: auto;
   > :not(:hover) > .btn-clear {
     display: none;

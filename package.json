@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "Pipe based transformers for front-end",
-  "author": "",
+  "author": "Gerald <i@gerald.top>",
   "license": "ISC",
   "scripts": {
     "dev": "nuxt",
@@ -14,28 +14,28 @@
     "deploy": "sh scripts/deploy.sh"
   },
   "devDependencies": {
-    "autoprefixer": "^9.2.1",
+    "autoprefixer": "^9.3.1",
     "babel-eslint": "^10.0.1",
-    "eslint": "^5.7.0",
+    "eslint": "^5.9.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-import-resolver-webpack": "^0.10.1",
-    "eslint-plugin-html": "^4.0.6",
     "eslint-plugin-import": "^2.14.0",
-    "husky": "^1.1.2",
-    "nuxt": "^2.2.0",
+    "eslint-plugin-vue": "^5.0.0-beta.4",
+    "husky": "^1.1.4",
+    "nuxt": "^2.3.1",
     "postcss-loader": "^3.0.0",
     "postcss-scss": "^2.0.0",
     "precss": "^3.1.2"
   },
   "dependencies": {
     "@nuxtjs/pwa": "^2.6.0",
-    "codemirror": "^5.40.2",
+    "codemirror": "^5.41.0",
     "driver.js": "^0.8.1",
     "js-yaml": "^3.12.0",
     "json5": "^2.1.0",
     "plist": "^3.0.1",
     "qrcanvas-vue": "^1.2.1",
-    "spectre.css": "^0.5.3",
+    "spectre.css": "^0.5.5",
     "vueleton": "^0.6.1"
   },
   "husky": {

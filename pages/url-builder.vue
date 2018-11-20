@@ -3,10 +3,24 @@
     <h1>URL Builder</h1>
     <section class="container">
       <div class="columns">
-        <div class="column col-5">
-          <div class="form-group">
-            <div class="form-label">Yaml config</div>
-            <vl-code class="t-code" v-if="mounted" :value="content.config" @ready="onReady" @input="onChange" :options="optionsCodeMirror" />
+        <div class="column col-9 col-lg-6">
+          <div class="columns">
+            <div class="column col-7 col-lg-12">
+              <div class="form-group">
+                <div class="form-label">Yaml config</div>
+                <vl-code class="t-code" v-if="mounted" :value="content.config" @ready="onReady" @input="onChange" :options="optionsCodeMirror" />
+              </div>
+            </div>
+            <div class="column col-5 col-lg-12">
+              <div class="form-group">
+                <div class="form-label">URL</div>
+                <textarea class="form-input t-url" ref="result" :value="content.result" @input="onParse" rows="4" />
+              </div>
+              <div class="form-group">
+                <qr-canvas class="qrcode" :options="optionsQR" @beforeUpdate="onBeforeUpdate" @updated="onUpdated"></qr-canvas>
+              </div>
+              <div class="toast toast-error mt-2" v-if="error" v-text="error" />
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Label</label>
@@ -26,23 +40,15 @@
             <input class="form-input" readonly :value="shareContent.url" @click="onSelectAll" />
           </div>
         </div>
-        <div class="column col-4">
-          <div class="form-group">
-            <div class="form-label">URL</div>
-            <textarea class="form-input t-url" ref="result" :value="content.result" @input="onParse" rows="4" />
-          </div>
-          <div class="form-group">
-            <qr-canvas :options="optionsQR" @beforeUpdate="onBeforeUpdate" @updated="onUpdated"></qr-canvas>
-          </div>
-          <div class="toast toast-error mt-2" v-if="error" v-text="error" />
+        <div class="column col-3 col-lg-6 mt-2 d-flex flex-column">
+          <div>Snapshots</div>
+          <snapshots
+            ref="snapshots"
+            :active="active"
+            storage-key="url-builder/snapshots"
+            @pick="onPick"
+          />
         </div>
-        <snapshots
-          ref="snapshots"
-          class="column col-3 mt-2 d-flex flex-column"
-          :active="active"
-          storage-key="url-builder/snapshots"
-          @pick="onPick"
-        />
       </div>
     </section>
   </div>
@@ -290,5 +296,9 @@ function parseData(str) {
 
 .t-url {
   word-break: break-all;
+}
+
+.qrcode {
+  max-width: 100%;
 }
 </style>
