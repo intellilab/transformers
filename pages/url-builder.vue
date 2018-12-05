@@ -44,9 +44,10 @@
           <div>Snapshots</div>
           <snapshots
             ref="snapshots"
-            :active="active"
+            :active-index="activeIndex"
             storage-key="url-builder/snapshots"
             @pick="onPick"
+            @update="onUpdateIndex"
           />
         </div>
       </div>
@@ -63,6 +64,8 @@ import Snapshots from '~/components/snapshots';
 const optionsCodeMirror = {
   mode: 'yaml',
 };
+const store = getStorage('url-builder/settings');
+const settings = store.load({});
 
 export default {
   components: {
@@ -74,7 +77,7 @@ export default {
     return {
       content: {},
       shareContent: null,
-      active: null,
+      activeIndex: null,
       error: null,
       mounted: false,
       optionsCodeMirror,
@@ -109,7 +112,7 @@ export default {
       }
     },
     onReset() {
-      this.active = null;
+      this.activeIndex = -1;
       this.content = {
         name: null,
         label: null,
@@ -117,11 +120,24 @@ export default {
         result: null,
       };
     },
+    onAutoSave() {
+      const {
+        content: {
+          name, label, config,
+        },
+        activeIndex,
+      } = this;
+      settings.autoSaved = {
+        name, label, config, activeIndex,
+      };
+      store.dump(settings);
+    },
     onChange: debounce(function onChange(data) {
       if (data === this.cachedData) return;
       this.cachedData = data;
       this.content.config = data;
       this.onUpdate();
+      this.onAutoSave();
     }, 300),
     onParse: debounce(function onParse() {
       const { value } = this.$refs.result;
@@ -129,6 +145,7 @@ export default {
       const config = parseData(value);
       this.cachedData = yaml.safeDump(config);
       this.content.config = this.cachedData;
+      this.onAutoSave();
     }, 300),
     onUpdate() {
       try {
@@ -140,15 +157,23 @@ export default {
         console.error(err);
       }
     },
-    onPick(item) {
-      this.active = this.active === item ? null : item;
+    loadData({ name, label, config, activeIndex }) {
       this.content = {
-        name: item.data.name,
-        label: item.data.label,
-        config: item.data.config,
+        name,
+        label,
+        config,
         result: this.content.result,
       };
+      if (activeIndex != null) this.activeIndex = activeIndex;
       this.onUpdate();
+    },
+    onPick(index) {
+      this.activeIndex = this.activeIndex === index ? -1 : index;
+      const item = this.$refs.snapshots.get(this.activeIndex);
+      if (item) this.loadData(item.data);
+    },
+    onUpdateIndex(index) {
+      this.activeIndex = index;
     },
     onSave(asNew) {
       const item = {
@@ -157,7 +182,7 @@ export default {
           result: undefined,
         }),
       };
-      this.active = this.$refs.snapshots.update(item, !asNew && this.active);
+      this.activeIndex = this.$refs.snapshots.update(item, asNew ? -1 : this.activeIndex);
     },
     onShare() {
       const { origin, pathname, search } = window.location;
@@ -181,8 +206,7 @@ export default {
     },
     async onReady() {
       const VERSION = '20180930';
-      const store = getStorage('url-builder/settings');
-      const settings = store.load({});
+      if (settings.autoSaved) this.loadData(settings.autoSaved);
       if (settings.version === VERSION) return;
       settings.version = VERSION;
       store.dump(settings);
