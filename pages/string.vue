@@ -4,11 +4,12 @@
     <section class="container">
       <div class="columns">
         <div class="column col-6">
-          <h6>Input</h6>
+          <h5 class="d-inline-block">Input</h5>
+          <button v-if="input" class="btn btn-sm" @click="onClear">Clear</button>
           <textarea class="form-input" :class="{'is-error': output.error}" rows="18" v-model="input"></textarea>
         </div>
         <div class="column col-6">
-          <h6>Output</h6>
+          <h5>Output</h5>
           <textarea class="form-input" rows="18" readonly :value="output.content"></textarea>
         </div>
       </div>
@@ -16,7 +17,7 @@
     <section class="container">
       <div class="mt-2">
         <h3 class="d-inline-block">Applied pipes</h3>
-        <button class="btn btn-sm ml-2" v-if="appliedPipes.length" @click="clearPipes">Clear</button>
+        <button class="btn btn-sm ml-2" v-if="appliedPipes.length" @click="onClearPipes">Clear</button>
       </div>
       <div class="tool-string-pipe mr-2 disabled">Input</div>
       <template v-for="(item, index) in appliedPipes">
@@ -145,10 +146,13 @@ export default {
       .join(';');
       return repr ? `[${repr}]` : '';
     },
+    onClear() {
+      this.input = '';
+    },
     onRemovePipe(index) {
       this.appliedPipes.splice(index, 1);
     },
-    clearPipes() {
+    onClearPipes() {
       this.appliedPipes.splice(0);
     },
     onStopEditing() {
