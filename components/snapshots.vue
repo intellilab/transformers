@@ -11,7 +11,7 @@
       @dragend="onDragEnd"
       @dragover="onDragOver($event, index)">
       <button class="btn btn-clear float-right mt-2" @click="onRemove(index)"></button>
-      <a href="#" :class="{active: active === item}" v-text="item.name" @click.prevent="onPick(item, index)"></a>
+      <a href="#" :class="{active: activeIndex === index}" v-text="item.name" @click.prevent="onPick(item, index)"></a>
     </li>
   </ul>
 </template>
@@ -23,7 +23,7 @@ import { getStorage } from '~/components/utils';
 export default {
   props: [
     'storageKey',
-    'active',
+    'activeIndex',
   ],
   data() {
     return {
@@ -37,21 +37,23 @@ export default {
       this.dump();
     },
     onPick(item, index) {
-      this.$emit('pick', item, index);
+      this.$emit('pick', index, item);
     },
     dump() {
       this.storage.dump(this.snapshots);
     },
-    update({ name, data }, oldItem) {
+    update({ name, data }, index) {
       const item = { name, data };
-      const index = this.snapshots.indexOf(oldItem);
-      if (index >= 0) {
-        Vue.set(this.snapshots, index, item);
-      } else {
+      if (index < 0) {
         this.snapshots.push(item);
+      } else {
+        Vue.set(this.snapshots, index, item);
       }
       this.dump();
-      return item;
+      return index < 0 ? this.snapshots.length - 1 : index;
+    },
+    get(index) {
+      return this.snapshots[index];
     },
     onDragStart(e, index) {
       const {
@@ -68,19 +70,36 @@ export default {
         left: `${clientX - offsetX}px`,
       };
       this.dragging = {
-        index,
+        currentIndex: index,
         style,
         offsetX,
         offsetY,
-        item: this.snapshots[index],
+        currentItem: this.snapshots[index],
       };
     },
     onDragOver(e, index) {
-      const { dragging } = this;
-      if (dragging.index === index) return;
-      const item = this.snapshots[index];
-      Vue.set(this.snapshots, dragging.index, item);
-      Vue.set(this.snapshots, dragging.index = index, dragging.item);
+      const {
+        snapshots,
+        dragging,
+        activeIndex,
+      } = this;
+      const {
+        currentIndex,
+        currentItem,
+      } = dragging;
+      if (currentIndex === index) return;
+      const item = snapshots[index];
+      Vue.set(snapshots, currentIndex, item);
+      let newIndex = -1;
+      if (activeIndex === currentIndex) {
+        newIndex = index;
+      } else if (activeIndex > currentIndex && activeIndex <= index) {
+        newIndex = activeIndex - 1;
+      } else if (activeIndex < currentIndex && activeIndex >= index) {
+        newIndex = activeIndex + 1;
+      }
+      Vue.set(snapshots, dragging.currentIndex = index, currentItem);
+      if (newIndex >= 0) this.$emit('update', newIndex);
       this.storage.dump(this.snapshots);
     },
     onDragEnd() {

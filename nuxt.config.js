@@ -1,6 +1,7 @@
 const IS_PRD = process.env.NODE_ENV === 'production';
 
 module.exports = {
+  mode: 'spa',
   head: {
     title: 'Transformers',
     meta: [
@@ -25,7 +26,6 @@ module.exports = {
       // Transform inline comments
       parser: require('postcss-scss'),
       plugins: [
-        require('autoprefixer'),
         // Transform SCSS into CSS
         require('precss'),
       ],
