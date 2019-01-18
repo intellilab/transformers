@@ -296,7 +296,8 @@ function parseData(str) {
     if (query) config.query = parseData(query);
     return config;
   }
-  if (/[&=]/.test(str)) {
+  // Exclude ending `=` since it may be base64
+  if (/&|=[^=]/.test(str)) {
     return str.split('&').reduce((res, part) => {
       const [rkey, rval] = part.split('=');
       res[decodeURIComponent(rkey)] = parseData(decodeURIComponent(rval));
