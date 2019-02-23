@@ -18,6 +18,9 @@ module.exports = {
     'spectre.css/dist/spectre-icons.css',
     '~/css/default.css',
   ],
+  plugins: [
+    '~/plugins/error.js',
+  ],
   modules: [
     '@nuxtjs/pwa',
   ],
