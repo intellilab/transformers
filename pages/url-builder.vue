@@ -269,10 +269,12 @@ function buildData(raw) {
     };
   }
   if (config._type === 'url') {
-    const path = config.path || config.p || '';
-    const query = config.query || config.q;
-    const search = buildData(query);
-    return search ? `${path}?${search}` : path;
+    let url = config.path || config.p || '';
+    const search = buildData(config.query || config.q);
+    const hash = buildData(config.hash || config.h);
+    if (search) url += `?${search}`;
+    if (hash) url += `#${hash}`;
+    return url;
   }
   if (config._type === 'object' && config.data) {
     const { data } = config;
@@ -288,12 +290,14 @@ function buildData(raw) {
 
 function parseData(str) {
   if (/^[\w-]+:\/\/|\?/.test(str)) {
-    const [path, query] = str.split('?');
+    const [pathquery, hash] = str.split('#');
+    const [path, query] = pathquery.split('?');
     const config = {
       _type: 'url',
     };
     if (path) config.path = path;
     if (query) config.query = parseData(query);
+    if (hash) config.hash = parseData(hash);
     return config;
   }
   // Exclude ending `=` since it may be base64
