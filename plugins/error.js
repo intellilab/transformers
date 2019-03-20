@@ -25,10 +25,17 @@ function reprError(err) {
   return (err instanceof Error ? `${err}` : JSON.stringify(err)) || 'no error';
 }
 
-Vue.config.errorHandler = (err, vm) => {
+function trackError(err, extra) {
   setTimeout(track, 0, {
+    ...extra,
     c1: reprError(err),
     c2: `${(err && err.stack) || ''}`.slice(0, 512),
   });
+}
+
+Vue.prototype.trackError = trackError;
+
+Vue.config.errorHandler = (err) => {
+  trackError(err);
   console.error(err);
 };

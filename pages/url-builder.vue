@@ -251,6 +251,15 @@ export default {
       window.location.hash = '';
     }
   },
+  errorCaptured(err, vm, info) {
+    this.trackError(err, {
+      message: 'qrcode',
+      c3: JSON.stringify({
+        config: this.content.config,
+        info,
+      }),
+    });
+  },
 };
 
 function buildData(raw) {
