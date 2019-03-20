@@ -1,5 +1,5 @@
 {
-  "name": "Transformers",
+  "name": "transformers",
   "version": "0.0.0",
   "private": true,
   "description": "Pipe based transformers for front-end",
@@ -11,7 +11,8 @@
     "start": "nuxt start",
     "analyze": "nuxt build -a",
     "lint": "eslint --ext .js,.vue .",
-    "deploy": "sh scripts/deploy.sh"
+    "predeploy": "npm run build --production",
+    "deploy": "gh-pages -td dist"
   },
   "devDependencies": {
     "autoprefixer": "^9.3.1",
@@ -21,6 +22,7 @@
     "eslint-import-resolver-webpack": "^0.10.1",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-vue": "^5.0.0-beta.4",
+    "gh-pages": "^2.0.1",
     "husky": "^1.1.4",
     "nuxt": "^2.3.1",
     "postcss-loader": "^3.0.0",
