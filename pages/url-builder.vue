@@ -17,7 +17,7 @@
                 <textarea class="form-input t-url" ref="result" :value="content.result" @input="onParse" rows="4" />
               </div>
               <div class="form-group">
-                <qr-canvas class="qrcode" :options="optionsQR" @beforeUpdate="onBeforeUpdate" @updated="onUpdated"></qr-canvas>
+                <QRCanvas class="qrcode" :options="optionsQR" @beforeUpdate="onBeforeUpdate" @updated="onUpdated" />
               </div>
               <div class="toast toast-error mt-2" v-if="error" v-text="error" />
             </div>
@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import QrCanvas from 'qrcanvas-vue';
+import { QRCanvas } from 'qrcanvas-vue';
 import yaml from 'js-yaml';
 import { debounce, getStorage } from '~/components/utils';
 import Snapshots from '~/components/snapshots';
@@ -71,7 +71,7 @@ export default {
   components: {
     VlCode: () => import('~/components/vl-code'),
     Snapshots,
-    QrCanvas,
+    QRCanvas,
   },
   data() {
     return {
