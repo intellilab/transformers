@@ -207,6 +207,7 @@ export default {
     async onReady() {
       const VERSION = '20180930';
       if (settings.autoSaved) this.loadData(settings.autoSaved);
+      this.checkHash();
       if (settings.version === VERSION) return;
       settings.version = VERSION;
       store.dump(settings);
@@ -230,26 +231,29 @@ export default {
       // }]);
       // driver.start();
     },
+    checkHash() {
+      const query = new URLSearchParams(window.location.hash.slice(1));
+      const content = {
+        name: query.get('name'),
+        label: query.get('label'),
+        result: query.get('result'),
+      };
+      if (content.result) {
+        this.activeIndex = -1;
+        this.content = {
+          ...this.content,
+          ...content,
+        };
+        this.onParse();
+        window.location.hash = '';
+      }
+    },
   },
   created() {
     this.onReset();
   },
   mounted() {
     this.mounted = true;
-    const query = new URLSearchParams(window.location.hash.slice(1));
-    const content = {
-      name: query.get('name'),
-      label: query.get('label'),
-      result: query.get('result'),
-    };
-    if (content.result) {
-      this.content = {
-        ...this.content,
-        ...content,
-      };
-      this.onParse();
-      window.location.hash = '';
-    }
   },
   errorCaptured(err, vm, info) {
     this.trackError(err, {
