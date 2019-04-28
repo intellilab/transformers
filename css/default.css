@@ -1,6 +1,3 @@
-#app > .columns {
-  height: 100vh;
-}
 .t-aside {
   display: flex;
   width: 12rem;
@@ -19,6 +16,7 @@
 }
 .t-content {
   flex: 1;
+  height: 100vh;
   padding: 1rem;
   overflow: auto;
 }
