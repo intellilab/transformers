@@ -16,7 +16,8 @@ module.exports = {
     '~/css/default.css',
   ],
   plugins: [
-    '~/plugins/error.js',
+    { src: '~/plugins/error.js', ssr: false },
+    { src: '~/plugins/analytics.js', ssr: false },
   ],
   modules: [
     '@nuxtjs/pwa',
