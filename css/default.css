@@ -4,7 +4,6 @@
   padding: 1rem;
   background: #f8f9fa;
   &-menu {
-    flex: 1;
     > a {
       display: block;
       padding: .3rem 0;
@@ -25,8 +24,15 @@
   flex-direction: column;
 }
 
-.flex-auto {
-  flex: 0 0 auto;
+.flex-1 {
+  flex: 1;
+  overflow: auto;
+  .flex-column > & {
+    height: 0;
+  }
+  :not(.flex-column) > & {
+    width: 0;
+  }
 }
 
 body {

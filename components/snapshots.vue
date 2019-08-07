@@ -1,19 +1,25 @@
 <template>
-  <div class="empty" v-if="!snapshots.length"><div class="empty-title">None</div></div>
-  <ul class="menu snapshots" v-else>
-    <li
-      class="menu-item"
-      v-for="(item, index) in snapshots"
-      :key="index"
-      :class="{'snapshot-placeholder': dragging && dragging.index === index}"
-      draggable="true"
-      @dragstart="onDragStart($event, index)"
-      @dragend="onDragEnd"
-      @dragover="onDragOver($event, index)">
-      <button class="btn btn-clear float-right mt-2" @click="onRemove(index)"></button>
-      <a href="#" :class="{active: activeIndex === index}" v-text="item.name" @click.prevent="onPick(item, index)"></a>
-    </li>
-  </ul>
+  <div class="menu snapshots d-flex flex-column">
+    <div class="form-group has-icon-right">
+      <input class="form-input" v-model="search" />
+      <i class="form-icon icon" :class="search ? 'icon-cross' : 'icon-search'" @click="onClear" />
+    </div>
+    <div class="flex-1 empty" v-if="!filtered.length"><div class="empty-title">None</div></div>
+    <div class="flex-1" v-else>
+      <div
+        class="menu-item"
+        v-for="(item, index) in filtered"
+        :key="index"
+        :class="{'snapshot-placeholder': dragging && dragging.currentIndex === index}"
+        :draggable="search ? 'false' : 'true'"
+        @dragstart="onDragStart($event, index)"
+        @dragend="onDragEnd"
+        @dragover="onDragOver($event, index)">
+        <button class="btn btn-clear float-right mt-2" @click="onRemove(index)"></button>
+        <a href="#" :class="{active: activeIndex === index}" v-text="item.name" @click.prevent="onPick(item, index)"></a>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -28,8 +34,16 @@ export default {
   data() {
     return {
       dragging: null,
+      search: null,
       snapshots: [],
     };
+  },
+  computed: {
+    filtered() {
+      const { search, snapshots } = this;
+      if (!search) return snapshots;
+      return snapshots.filter(item => item.name.includes(search));
+    },
   },
   methods: {
     onRemove(index) {
@@ -56,6 +70,10 @@ export default {
       return this.snapshots[index];
     },
     onDragStart(e, index) {
+      if (this.search) {
+        e.preventDefault();
+        return;
+      }
       const {
         clientX,
         clientY,
@@ -105,6 +123,9 @@ export default {
     onDragEnd() {
       this.dragging = null;
     },
+    onClear() {
+      this.search = null;
+    },
   },
   mounted() {
     this.storage = getStorage(this.storageKey);
@@ -115,13 +136,14 @@ export default {
 
 <style>
 .snapshots {
-  max-height: 70vh;
-  overflow: auto;
-  > :not(:hover) > .btn-clear {
-    display: none;
-  }
-  .menu-item > a:not(.active):focus {
-    background: none;
+  height: 70vh;
+  .menu-item {
+    &:not(:hover) > .btn-clear {
+      display: none;
+    }
+    > a:not(.active):focus {
+      background: none;
+    }
   }
 }
 

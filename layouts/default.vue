@@ -1,9 +1,9 @@
 <template>
   <div id="app" class="container">
     <div class="columns">
-      <aside class="t-aside d-flex flex-column flex-auto hide-md">
+      <aside class="t-aside d-flex flex-column hide-md">
         <router-link to="/"><h2>Transformers</h2></router-link>
-        <div class="t-aside-menu">
+        <div class="t-aside-menu flex-1">
           <nuxt-link to="/string/">String pipes</nuxt-link>
           <nuxt-link to="/url-builder/">URL Builder</nuxt-link>
         </div>
