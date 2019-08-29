@@ -15,16 +15,16 @@
     "deploy": "gh-pages -td dist"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.1",
+    "babel-eslint": "^10.0.3",
     "cross-env": "^5.2.0",
-    "eslint": "^6.1.0",
-    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint": "^6.2.2",
+    "eslint-config-airbnb-base": "^14.0.0",
     "eslint-import-resolver-webpack": "^0.11.0",
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-vue": "^5.2.2",
-    "gh-pages": "^2.0.1",
-    "husky": "^3.0.2",
-    "nuxt": "^2.6.1",
+    "gh-pages": "^2.1.1",
+    "husky": "^3.0.4",
+    "nuxt": "^2.9.2",
     "postcss-loader": "^3.0.0",
     "postcss-scss": "^2.0.0",
     "precss": "^4.0.0"
@@ -32,7 +32,7 @@
   "dependencies": {
     "@iarna/toml": "^2.2.3",
     "@nuxtjs/pwa": "^3.0.0-beta.14",
-    "codemirror": "^5.45.0",
+    "codemirror": "^5.48.4",
     "driver.js": "^0.9.5",
     "js-yaml": "^3.13.0",
     "json5": "^2.1.0",
