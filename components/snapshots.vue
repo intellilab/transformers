@@ -9,12 +9,7 @@
       <div
         class="menu-item"
         v-for="(item, index) in filtered"
-        :key="index"
-        :class="{'snapshot-placeholder': dragging && dragging.currentIndex === index}"
-        :draggable="search ? 'false' : 'true'"
-        @dragstart="onDragStart($event, index)"
-        @dragend="onDragEnd"
-        @dragover="onDragOver($event, index)">
+        :key="index">
         <button class="btn btn-clear float-right mt-2" @click="onRemove(index)"></button>
         <a href="#" :class="{active: activeIndex === index}" v-text="item.name" @click.prevent="onPick(item, index)"></a>
       </div>
@@ -33,7 +28,6 @@ export default {
   ],
   data() {
     return {
-      dragging: null,
       search: null,
       snapshots: [],
     };
@@ -58,78 +52,36 @@ export default {
     },
     update({ name, data }, index) {
       const item = { name, data };
-      if (index < 0) {
-        this.snapshots.push(item);
-      } else {
-        Vue.set(this.snapshots, index, item);
-      }
+      const { snapshots } = this;
+      // Remove current item
+      if (index >= 0) snapshots.splice(index, 1);
+      // Find proper place of the new item
+      let activeIndex = 0;
+      while (
+        activeIndex < snapshots.length
+        && this.compare(snapshots[activeIndex].name, name) < 0
+      ) activeIndex += 1;
+      // Insert new item into proper place
+      snapshots.splice(activeIndex, 0, item);
       this.dump();
-      return index < 0 ? this.snapshots.length - 1 : index;
+      return activeIndex;
     },
     get(index) {
       return this.snapshots[index];
     },
-    onDragStart(e, index) {
-      if (this.search) {
-        e.preventDefault();
-        return;
-      }
-      const {
-        clientX,
-        clientY,
-        offsetX,
-        offsetY,
-        target: { offsetWidth, offsetHeight },
-      } = e;
-      const style = {
-        width: `${offsetWidth}px`,
-        height: `${offsetHeight}px`,
-        top: `${clientY - offsetY}px`,
-        left: `${clientX - offsetX}px`,
-      };
-      this.dragging = {
-        currentIndex: index,
-        style,
-        offsetX,
-        offsetY,
-        currentItem: this.snapshots[index],
-      };
-    },
-    onDragOver(e, index) {
-      const {
-        snapshots,
-        dragging,
-        activeIndex,
-      } = this;
-      const {
-        currentIndex,
-        currentItem,
-      } = dragging;
-      if (currentIndex === index) return;
-      const item = snapshots[index];
-      Vue.set(snapshots, currentIndex, item);
-      let newIndex = -1;
-      if (activeIndex === currentIndex) {
-        newIndex = index;
-      } else if (activeIndex > currentIndex && activeIndex <= index) {
-        newIndex = activeIndex - 1;
-      } else if (activeIndex < currentIndex && activeIndex >= index) {
-        newIndex = activeIndex + 1;
-      }
-      Vue.set(snapshots, dragging.currentIndex = index, currentItem);
-      if (newIndex >= 0) this.$emit('update', newIndex);
-      this.storage.dump(this.snapshots);
-    },
-    onDragEnd() {
-      this.dragging = null;
-    },
     onClear() {
       this.search = null;
+    },
+    compare(s1, s2) {
+      s1 = `${s1 || ''}`;
+      s2 = `${s2 || ''}`;
+      return s1.localeCompare(s2, 'zh-CN');
     },
   },
   mounted() {
     this.storage = getStorage(this.storageKey);
     this.snapshots = this.storage.load([]);
+    this.snapshots.sort((a, b) => this.compare(a.name, b.name));
   },
 };
 </script>
