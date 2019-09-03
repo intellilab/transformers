@@ -179,7 +179,7 @@ export default {
   }
   .modal-container {
     width: 80%;
-    max-width: 20rem;
+    max-width: 24rem;
   }
 }
 </style>
