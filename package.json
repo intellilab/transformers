@@ -16,14 +16,14 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
-    "cross-env": "^5.2.0",
-    "eslint": "^6.2.2",
+    "cross-env": "^5.2.1",
+    "eslint": "^6.3.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-import-resolver-webpack": "^0.11.0",
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-vue": "^5.2.2",
     "gh-pages": "^2.1.1",
-    "husky": "^3.0.4",
+    "husky": "^3.0.5",
     "nuxt": "^2.9.2",
     "postcss-loader": "^3.0.0",
     "postcss-scss": "^2.0.0",
@@ -39,7 +39,7 @@
     "plist": "^3.0.1",
     "qrcanvas-vue": "^2.0.1",
     "spectre.css": "^0.5.8",
-    "vueleton": "^1.0.1"
+    "vueleton": "^1.0.3"
   },
   "husky": {
     "hooks": {
