@@ -41,9 +41,9 @@
           </div>
         </div>
         <div class="column col-3 col-lg-6 mt-2 d-flex flex-column">
-          <div>Snapshots</div>
           <snapshots
             ref="snapshots"
+            title="Snapshots"
             :active-index="activeIndex"
             storage-key="url-builder/snapshots"
             @pick="onPick"
@@ -176,21 +176,17 @@ export default {
       this.activeIndex = index;
     },
     onSave(asNew) {
+      const { name, label, config } = this.content;
       const item = {
-        name: this.content.name || 'No name',
-        data: Object.assign({}, this.content, {
-          result: undefined,
-        }),
+        name: name || 'No name',
+        data: { name, label, config },
       };
       this.activeIndex = this.$refs.snapshots.update(item, asNew ? -1 : this.activeIndex);
     },
     onShare() {
       const { origin, pathname, search } = window.location;
-      const query = {
-        name: this.content.name,
-        label: this.content.label,
-        result: this.content.result,
-      };
+      const { name, label, result } = this.content;
+      const query = { name, label, result };
       let qs = Object.entries(query)
       .map(([key, value]) => value && [key, value].map(encodeURIComponent).join('='))
       .filter(Boolean)
