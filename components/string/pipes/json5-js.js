@@ -6,16 +6,27 @@ const KEY = 'KEY';
 const COMMA = { type: 'comma', value: ',' };
 const BR = { type: 'br', value: '\n' };
 
-const charMap = {
+const charMapBase = {
   '\\': '\\\\',
-  '\'': '\\\'',
   '\r': '\\r',
-  '\n': '\\n',
   '\t': '\\t',
 };
-function quoteString(str, shouldQuote = 1) {
-  if (shouldQuote || /\W/.test(str)) {
-    const quoted = str.replace(/[\\'\r\n\t]/g, m => charMap[m]);
+const charMapQuote = {
+  ...charMapBase,
+  '\'': '\\\'',
+  '\n': '\\n',
+};
+const charMapTemplate = {
+  ...charMapBase,
+  '`': '\\`',
+};
+function quoteString(str, { quote, template }) {
+  if (template && /\n/.test(str)) {
+    const quoted = str.replace(/[\\`\r\t]/g, m => charMapTemplate[m]);
+    return `\`${quoted}\``;
+  }
+  if (quote || /\W/.test(str)) {
+    const quoted = str.replace(/[\\'\r\n\t]/g, m => charMapQuote[m]);
     return `'${quoted}'`;
   }
   return str;
@@ -71,7 +82,7 @@ function render(data, options, level = 0) {
       ...res,
       {
         type: KEY,
-        data: [{ value: quoteString(key, options.quote), type: 'key' }],
+        data: [{ value: quoteString(key, options), type: 'key' }],
         separator: [{ value: ':' }],
       },
       render(data[key], options, level + 1),
@@ -93,7 +104,7 @@ function render(data, options, level = 0) {
   return {
     type: SINGLELINE,
     separator: [COMMA],
-    data: [{ value: typeof data === 'string' ? quoteString(data) : data }],
+    data: [{ value: typeof data === 'string' ? quoteString(data, { ...options, quote: 1 }) : data }],
   };
 }
 
@@ -150,7 +161,13 @@ export const meta = {
     },
     {
       name: 'trailing',
-      description: 'Trailing commas',
+      description: 'Always add trailing commas',
+      type: 'checkbox',
+      default: true,
+    },
+    {
+      name: 'template',
+      description: 'Quote multiline strings as template literals',
       type: 'checkbox',
       default: true,
     },
