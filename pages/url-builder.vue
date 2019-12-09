@@ -58,6 +58,7 @@
 <script>
 import { QRCanvas } from 'qrcanvas-vue';
 import yaml from 'js-yaml';
+import hotkeys from 'hotkeys-js';
 import { debounce, getStorage } from '~/components/utils';
 import Snapshots from '~/components/snapshots';
 
@@ -182,6 +183,7 @@ export default {
         data: { name, label, config },
       };
       this.activeIndex = this.$refs.snapshots.update(item, asNew ? -1 : this.activeIndex);
+      this.showToast('Saved');
     },
     onShare() {
       const { origin, pathname, search } = window.location;
@@ -207,25 +209,6 @@ export default {
       if (settings.version === VERSION) return;
       settings.version = VERSION;
       store.dump(settings);
-      // const [{ default: Driver }] = await Promise.all([
-      //   import('driver.js'),
-      //   import('driver.js/dist/driver.min.css'),
-      // ]);
-      // const driver = new Driver();
-      // driver.defineSteps([{
-      //   element: this.$refs.share,
-      //   popover: {
-      //     title: 'Share your QRCode with others',
-      //   },
-      // }, {
-      //   element: this.$refs.snapshots.$el,
-      //   popover: {
-      //     title: 'Save your snapshots',
-      //     description: 'You can sort them with drag and drop now.',
-      //     position: 'left',
-      //   },
-      // }]);
-      // driver.start();
     },
     checkHash() {
       const query = new URLSearchParams(window.location.hash.slice(1));
@@ -247,9 +230,17 @@ export default {
   },
   created() {
     this.onReset();
+    hotkeys.filter = () => true;
+    hotkeys('ctrl+s,command+s', (e) => {
+      e.preventDefault();
+      this.onSave();
+    });
   },
   mounted() {
     this.mounted = true;
+  },
+  beforeDestroy() {
+    hotkeys.unbind('ctrl+s,command+s');
   },
   errorCaptured(err, vm, info) {
     this.trackError(err, {
