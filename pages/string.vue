@@ -87,6 +87,8 @@
 </template>
 
 <script>
+import tracker from '~/components/tracker';
+
 const requirePipe = require.context('~/components/string/pipes', false, /\.js$/);
 const pipes = requirePipe.keys().map(key => requirePipe(key));
 pipes.forEach(pipe => {
@@ -94,6 +96,7 @@ pipes.forEach(pipe => {
 });
 
 export default {
+  mixins: [tracker],
   meta: {
     name: 'string',
     title: 'String pipes',
