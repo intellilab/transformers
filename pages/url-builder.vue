@@ -61,6 +61,7 @@ import yaml from 'js-yaml';
 import hotkeys from 'hotkeys-js';
 import { debounce, getStorage } from '~/components/utils';
 import Snapshots from '~/components/snapshots';
+import tracker from '~/components/tracker';
 
 const optionsCodeMirror = {
   mode: 'yaml',
@@ -69,6 +70,7 @@ const store = getStorage('url-builder/settings');
 const settings = store.load({});
 
 export default {
+  mixins: [tracker],
   components: {
     VlCode: () => import('~/components/vl-code'),
     Snapshots,
