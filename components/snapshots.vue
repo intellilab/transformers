@@ -22,10 +22,10 @@
       <div class="flex-1" v-else>
         <div
           class="menu-item"
-          v-for="(item, index) in filtered"
-          :key="index">
-          <button class="btn btn-clear float-right mt-2" @click="onRemove(index)"></button>
-          <a href="#" :class="{active: activeIndex === index}" v-text="item.name" @click.prevent="onPick(item, index)"></a>
+          v-for="item in filtered"
+          :key="item.index">
+          <button class="btn btn-clear float-right mt-2" @click="onRemove(item)"></button>
+          <a href="#" :class="{active: activeIndex === item.index}" v-text="item.data.name" @click.prevent="onPick(item)"></a>
         </div>
       </div>
     </div>
@@ -73,17 +73,20 @@ export default {
   computed: {
     filtered() {
       const { search, snapshots } = this;
-      if (!search) return snapshots;
-      return snapshots.filter(item => item.name.includes(search));
+      let items = snapshots.map((data, index) => ({ data, index }));
+      if (search) {
+        items = items.filter(({ data }) => data.name.includes(search));
+      }
+      return items;
     },
   },
   methods: {
-    onRemove(index) {
+    onRemove({ index }) {
       this.snapshots.splice(index, 1);
       this.dump();
     },
-    onPick(item, index) {
-      this.$emit('pick', index, item);
+    onPick({ index, data }) {
+      this.$emit('pick', index, data);
     },
     dump() {
       this.storage.dump(this.snapshots);
