@@ -8,7 +8,7 @@
           <nuxt-link to="/url-builder/">URL Builder</nuxt-link>
         </div>
         <footer>
-          <p>Designed with &hearts; by <a href="https://gerald.top">Gerald</a></p>
+          <p>Designed with &hearts; by <a href="https://gera2ld.space" target="_blank" rel="noopener noreferrer">Gerald</a></p>
         </footer>
       </aside>
       <div class="t-content"><nuxt /></div>
