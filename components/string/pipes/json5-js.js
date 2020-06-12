@@ -46,10 +46,7 @@ function render(data, options, level = 0) {
     };
     arr.push({ value: '[' });
     if (data.length) {
-      const rendered = data.reduce((res, item) => [
-        ...res,
-        render(item, options, level + 1),
-      ], []);
+      const rendered = data.map(item => render(item, options, level + 1));
       arr.push(
         BR,
         getSpace(level + 1, options.indent),
@@ -78,15 +75,14 @@ function render(data, options, level = 0) {
       data: arr,
     };
     arr.push({ value: '{' });
-    const rendered = Object.keys(data).reduce((res, key) => [
-      ...res,
+    const rendered = Object.keys(data).flatMap(key => [
       {
         type: KEY,
         data: [{ value: quoteString(key, options), type: 'key' }],
         separator: [{ value: ':' }],
       },
       render(data[key], options, level + 1),
-    ], []);
+    ]);
     if (rendered.length) {
       arr.push(
         BR,
@@ -119,15 +115,10 @@ function join(rendered, options, level) {
       arr.push(...item.separator);
     }
     if (next) {
-      if (
-        next.type === KEY
-        || (item.type !== KEY && (
-          item.type === SINGLELINE || next.type === SINGLELINE
-        ))
-      ) {
-        arr.push(BR, getSpace(level, options.indent));
-      } else {
+      if (item.type === KEY) {
         arr.push({ value: ' ' });
+      } else {
+        arr.push(BR, getSpace(level, options.indent));
       }
     }
   }

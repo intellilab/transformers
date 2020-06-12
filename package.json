@@ -10,10 +10,14 @@
     "build": "nuxt generate",
     "start": "nuxt start",
     "analyze": "nuxt build -a",
-    "lint": "eslint --ext .js,.vue ."
+    "lint": "eslint --ext .js,.vue .",
+    "test": "tape -r ./tests/register 'tests/**/*.test.js'"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.10.1",
+    "@babel/register": "^7.10.1",
     "babel-eslint": "^10.1.0",
+    "babel-plugin-module-resolver": "^4.0.0",
     "eslint": "^7.2.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-import-resolver-webpack": "^0.12.1",
@@ -23,7 +27,8 @@
     "nuxt": "^2.12.2",
     "postcss-loader": "^3.0.0",
     "postcss-scss": "^2.1.1",
-    "precss": "^4.0.0"
+    "precss": "^4.0.0",
+    "tape": "^5.0.1"
   },
   "dependencies": {
     "@iarna/toml": "^2.2.5",
