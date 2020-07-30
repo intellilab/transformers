@@ -31,6 +31,7 @@
     "tape": "^5.0.1"
   },
   "dependencies": {
+    "@gera2ld/format-json": "^0.1.0",
     "@iarna/toml": "^2.2.5",
     "@nuxtjs/pwa": "^3.0.0-beta.20",
     "codemirror": "^5.54.0",
