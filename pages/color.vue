@@ -5,15 +5,15 @@
       <div class="flex-1 mr-4">
         <label>Input</label>
         <div class="flex">
-          <input class="form-input flex-1" v-model="input" :class="{'bg-red-300': output.error}">
-          <div class="w-8 ml-2 border border-gray-400" :style="renderBg(input)"></div>
+          <input class="form-input flex-1" :value="input" @input="onInput" :class="{'bg-red-300': output.error}">
+          <div class="w-8 h-8 ml-2 border border-gray-400" :style="renderBg(input)"></div>
         </div>
       </div>
       <div class="flex-1">
         <label>Output</label>
         <div class="flex">
-          <input class="form-input flex-1" readonly :value="output.content">
-          <div class="w-8 ml-2 border border-gray-400" :style="renderBg(output.content)"></div>
+          <input v-for="(item, key) in output.data" :key="key" class="form-input flex-1" readonly :value="item">
+          <div class="w-8 h-8 ml-2 border border-gray-400" :style="renderBg(output.content)"></div>
         </div>
       </div>
     </section>
@@ -62,6 +62,7 @@
 <script>
 import tracker from '~/components/tracker';
 import { parseColor, reprColor } from '~/components/color/util';
+import { debounce } from '~/components/utils';
 
 const requirePipe = require.context('~/components/color/pipes', false, /\.js$/);
 const pipes = requirePipe.keys().map(key => requirePipe(key));
@@ -85,19 +86,30 @@ export default {
   },
   computed: {
     output() {
+      const result = {
+        error: null,
+        data: { simple: '', rgb: '' },
+      };
       try {
-        return {
-          content: this.input && reprColor(this.appliedPipes.reduce(
-            (result, { pipe, options }) => pipe.handle(result, options),
-            parseColor(this.input),
-          )),
-        };
+        const color = this.input && this.appliedPipes.reduce(
+          (result, { pipe, options }) => pipe.handle(result, options),
+          parseColor(this.input),
+        );
+        if (color) {
+          const { data } = result;
+          data.simple = reprColor(color);
+          const { r, g, b } = color;
+          const a = `${+color.a.toFixed(3)}`.replace(/^0/, '');
+          if (a === '1') {
+            data.rgb = `rgb(${r},${g},${b})`;
+          } else {
+            data.rgb = `rgba(${r},${g},${b},${a})`;
+          }
+        }
       } catch (e) {
-        return {
-          error: e,
-          content: e.toString(),
-        };
+        result.error = e;
       }
+      return result;
     },
     filteredPipes() {
       if (!this.search) return pipes;
@@ -106,6 +118,9 @@ export default {
     },
   },
   methods: {
+    onInput: debounce(function onInput(e) {
+      this.input = e.target.value;
+    }, 300),
     addPipe(pipe) {
       const options = pipe.meta.options.reduce((res, item) => {
         if (item.default != null) res[item.name] = item.default;
