@@ -1,17 +1,17 @@
 <template>
-  <div id="app" class="container">
-    <div class="columns">
-      <aside class="t-aside d-flex flex-column hide-md">
+  <div>
+    <div class="flex h-screen">
+      <aside class="flex flex-col p-3 bg-gray-100">
         <router-link to="/"><h2>Transformers</h2></router-link>
-        <div class="t-aside-menu flex-1">
-          <nuxt-link to="/string/">String pipes</nuxt-link>
-          <nuxt-link to="/url-builder/">URL Builder</nuxt-link>
+        <div class="flex-1 my-2">
+          <nuxt-link class="menu-item" to="/string/">String pipes</nuxt-link>
+          <nuxt-link class="menu-item" to="/url-builder/">URL Builder</nuxt-link>
         </div>
-        <footer>
+        <footer class="text-gray-600">
           <p>Designed with &hearts; by <a href="https://gera2ld.space" target="_blank" rel="noopener noreferrer">Gerald</a></p>
         </footer>
       </aside>
-      <div class="t-content"><nuxt /></div>
+      <div class="flex-1 p-4"><nuxt /></div>
       <transition-group class="t-toast" name="anim-toast" appear>
         <div class="toast" v-for="toast in toasts" :key="toast.id" v-text="toast.text"></div>
       </transition-group>
@@ -54,32 +54,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.t-toast {
-  position: fixed;
-  top: 20px;
-  right: 0;
-  > .toast {
-    position: absolute;
-    width: 300px;
-    top: 20px;
-    right: 0;
-    transform: translateX(-10vw);
-
-    &.anim-toast-enter {
-      transform: translateX(150%);
-    }
-
-    &.anim-toast-enter-active {
-      transition: transform .3s;
-    }
-
-    &.anim-toast-leave-active {
-      transition: all .3s;
-      transform: translate(-7vw,20px);
-      opacity: 0;
-    }
-  }
-}
-</style>

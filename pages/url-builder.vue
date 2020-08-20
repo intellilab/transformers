@@ -1,55 +1,53 @@
 <template>
-  <div class="container grid-960">
+  <div>
     <h1>URL Builder</h1>
-    <section class="container">
-      <div class="columns">
-        <div class="column col-9 col-lg-6">
-          <div class="columns">
-            <div class="column col-7 col-lg-12">
-              <div class="form-group">
-                <div class="form-label">Yaml config</div>
+    <section>
+      <div class="flex items-start">
+        <div class="flex-1">
+          <div class="flex">
+            <div class="flex-1 min-w-0 mr-4">
+              <div>
+                <div class="mb-1">Yaml config</div>
                 <vl-code class="t-code" v-if="mounted" :value="content.config" @ready="onReady" @input="onChange" :options="optionsCodeMirror" />
               </div>
             </div>
-            <div class="column col-5 col-lg-12">
-              <div class="form-group">
-                <div class="form-label">URL</div>
-                <textarea class="form-input t-url" ref="result" :value="content.result" @input="onParse" rows="4" />
+            <div class="flex-1 mr-4">
+              <div>
+                <div class="mb-1">URL</div>
+                <textarea class="form-input" ref="result" :value="content.result" @input="onParse" rows="4" />
               </div>
-              <div class="form-group">
+              <div class="mt-4">
                 <QRCanvas class="qrcode" :options="optionsQR" @beforeUpdate="onBeforeUpdate" @updated="onUpdated" />
               </div>
-              <div class="toast toast-error mt-2" v-if="error" v-text="error" />
+              <div class="mt-2 bg-red-500 text-white" v-if="error" v-text="error" />
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Label</label>
+          <div class="mt-4 mr-4">
+            <label class="mb-1">Label</label>
             <input class="form-input" v-model="content.label" />
           </div>
-          <div class="form-group">
-            <div class="form-label">Name</div>
+          <div class="mt-4 mr-4">
+            <label class="mb-1">Name</label>
             <input class="form-input" v-model="content.name">
           </div>
-          <div>
-            <button class="btn mr-2 mb-1" @click="onReset">Reset</button>
-            <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave()">Save</button>
-            <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onSave(1)">Save as New</button>
-            <button class="btn mr-2 mb-1" :disabled="!content.config" @click="onShare">Share</button>
+          <div class="mt-4">
+            <button class="mr-2 mb-1" @click="onReset">Reset</button>
+            <button class="mr-2 mb-1" :disabled="!content.config" @click="onSave()">Save</button>
+            <button class="mr-2 mb-1" :disabled="!content.config" @click="onSave(1)">Save as New</button>
+            <button class="mr-2 mb-1" :disabled="!content.config" @click="onShare">Share</button>
           </div>
           <div v-if="shareContent">
             <input class="form-input" readonly :value="shareContent.url" @click="onSelectAll" />
           </div>
         </div>
-        <div class="column col-3 col-lg-6 mt-2 d-flex flex-column">
-          <snapshots
-            ref="snapshots"
-            title="Snapshots"
-            :active-index="activeIndex"
-            storage-key="url-builder/snapshots"
-            @pick="onPick"
-            @update="onUpdateIndex"
-          />
-        </div>
+        <snapshots
+          ref="snapshots"
+          title="Snapshots"
+          :active-index="activeIndex"
+          storage-key="url-builder/snapshots"
+          @pick="onPick"
+          @update="onUpdateIndex"
+        />
       </div>
     </section>
   </div>

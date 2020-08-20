@@ -1,43 +1,107 @@
-.t-aside {
-  display: flex;
-  width: 12rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  &-menu {
-    > a {
-      display: block;
-      padding: .3rem 0;
-      &.nuxt-link-active {
-        background: #f1f1fc;
-      }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply text-gray-800;
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+h1 {
+  @apply text-3xl;
+}
+
+h2 {
+  @apply text-2xl;
+}
+
+a {
+  @apply text-blue-600;
+  &:hover {
+    @apply text-blue-500;
+  }
+}
+
+button {
+  @apply rounded border border-gray-600 px-2 py-1;
+  &:hover {
+    @apply bg-gray-200;
+  }
+}
+
+.menu-item {
+  @apply flex px-2 py-1 cursor-pointer text-gray-600;
+  &:hover {
+    @apply bg-gray-100;
+  }
+  &.active,
+  &.nuxt-link-active {
+    @apply bg-gray-300 text-gray-800;
+  }
+}
+
+.form-input {
+  @apply block border border-gray-400 p-1 w-full;
+}
+
+.t-code {
+  > .CodeMirror {
+    font-family: Monaco, Consolas, monospace;
+  }
+}
+
+.t-toast {
+  @apply fixed right-0;
+  top: 20px;
+  > .toast {
+    @apply absolute right-0 bg-gray-700 rounded p-2 text-white;
+    width: 300px;
+    top: 20px;
+    transform: translateX(-10vw);
+
+    &.anim-toast-enter {
+      transform: translateX(150%);
+    }
+
+    &.anim-toast-enter-active {
+      transition: transform .3s;
+    }
+
+    &.anim-toast-leave-active {
+      transition: all .3s;
+      transform: translate(-7vw,20px);
+      opacity: 0;
     }
   }
 }
-.t-content {
-  flex: 1;
-  height: 100vh;
-  padding: 1rem;
-  overflow: auto;
-}
 
-.flex-column {
-  flex-direction: column;
-}
-
-.flex-1 {
-  flex: 1;
-  overflow: auto;
-  .flex-column > & {
-    height: 0;
-  }
-  :not(.flex-column) > & {
-    width: 0;
+.snapshots {
+  .menu-item {
+    &:not(:hover) .x {
+      display: none;
+    }
   }
 }
 
-body {
-  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+.tool-string {
+  textarea {
+    font-family: monospace;
+    resize: none;
+  }
+  &-pipe {
+    @apply inline-block px-2 py-1 border border-gray-600 rounded align-top;
+    &.disabled {
+      @apply text-gray-400 border-gray-400;
+    }
+  }
 }
-.t-code > .CodeMirror {
-  font-family: Monaco, Consolas, monospace;
+
+.modal {
+  @apply fixed inset-0 flex items-center justify-center z-10;
+  &-overlay {
+    @apply absolute inset-0 bg-gray-300 bg-opacity-50;
+  }
+  &-content {
+    @apply z-10 p-4 rounded shadow bg-white w-1/2;
+  }
 }

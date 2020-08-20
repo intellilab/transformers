@@ -26,11 +26,15 @@ function reprError(err) {
 }
 
 function trackError(err, extra) {
-  setTimeout(track, 0, {
-    ...extra,
-    c1: reprError(err),
-    c2: `${(err && err.stack) || ''}`.slice(0, 512),
-  });
+  if (process.env.NODE_ENV === 'production') {
+    setTimeout(track, 0, {
+      ...extra,
+      c1: reprError(err),
+      c2: `${(err && err.stack) || ''}`.slice(0, 512),
+    });
+  } else {
+    console.error('Error:', err, extra);
+  }
 }
 
 Vue.prototype.trackError = trackError;
