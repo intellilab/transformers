@@ -6,6 +6,7 @@
         <div class="flex-1 my-2">
           <nuxt-link class="menu-item" to="/string/">String pipes</nuxt-link>
           <nuxt-link class="menu-item" to="/url-builder/">URL Builder</nuxt-link>
+          <nuxt-link class="menu-item" to="/color/">Color pipes</nuxt-link>
         </div>
         <footer class="text-gray-600">
           <p>Designed with &hearts; by <a href="https://gera2ld.space" target="_blank" rel="noopener noreferrer">Gerald</a></p>
