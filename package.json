@@ -14,7 +14,7 @@
     "test": "tape -r ./tests/register 'tests/**/*.test.js'"
   },
   "devDependencies": {
-    "@babel/plugin-transform-runtime": "^7.10.1",
+    "@babel/plugin-transform-runtime": "^7.11.0",
     "@babel/register": "^7.10.1",
     "@gera2ld/plaid": "^2.0.6",
     "@gera2ld/plaid-common-vue": "^2.0.6",
@@ -26,7 +26,7 @@
   "dependencies": {
     "@gera2ld/format-json": "^0.1.0",
     "@iarna/toml": "^2.2.5",
-    "@nuxtjs/pwa": "^3.0.0-beta.20",
+    "@nuxtjs/pwa": "^3.0.1",
     "codemirror": "^5.54.0",
     "hotkeys-js": "^3.8.1",
     "js-yaml": "^3.14.0",
