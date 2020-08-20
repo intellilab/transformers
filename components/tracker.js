@@ -1,11 +1,13 @@
 export default {
   methods: {
     onVisibilityChange() {
+      if (process.env.NODE_ENV !== 'production') return;
       if (document.visibilityState === 'visible') this.tracker.track();
       else this.tracker.revoke();
     },
   },
   mounted() {
+    if (process.env.NODE_ENV !== 'production') return;
     const tracker = {
       track() {
         tracker.revoke();
@@ -26,7 +28,7 @@ export default {
     window.addEventListener('visibilitychange', this.onVisibilityChange, false);
   },
   beforeDestroy() {
-    this.tracker.revoke();
+    this.tracker?.revoke();
     window.removeEventListener('visibilitychange', this.onVisibilityChange, false);
   },
 };

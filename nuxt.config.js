@@ -11,8 +11,6 @@ module.exports = {
   },
   loading: { color: '#3B8070' },
   css: [
-    'spectre.css/dist/spectre.css',
-    'spectre.css/dist/spectre-icons.css',
     '~/css/default.css',
   ],
   plugins: [
@@ -29,6 +27,12 @@ module.exports = {
       plugins: [
         // Transform SCSS into CSS
         require('precss'),
+        // tailwind CSS
+        require('tailwindcss')({
+          purge: [
+            './@(pages|components|layouts)/**/*.@(js|vue)',
+          ],
+        }),
       ],
     },
     extractCSS: isProd,

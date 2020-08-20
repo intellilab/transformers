@@ -1,25 +1,19 @@
 <template>
-  <div class="modal active">
+  <div class="modal">
     <div class="modal-overlay" @click="onClose"></div>
-    <div class="modal-container">
-      <div class="modal-header">
-        <div class="modal-title" v-text="title"></div>
+    <div class="modal-content">
+      <div class="mb-2" v-text="title"></div>
+      <div class="mb-2">
+        <textarea
+          class="form-input"
+          rows="10"
+          :value="content"
+          :readOnly="readOnly"
+          @input="onChange"
+          @click="onClick"
+        />
       </div>
-      <div class="modal-body">
-        <div class="content">
-          <textarea
-            class="form-input"
-            rows="10"
-            :value="content"
-            :readOnly="readOnly"
-            @input="onChange"
-            @click="onClick"
-          />
-        </div>
-      </div>
-      <div class="modal-footer">
-        <slot></slot>
-      </div>
+      <slot></slot>
     </div>
   </div>
 </template>

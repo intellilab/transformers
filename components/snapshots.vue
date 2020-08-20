@@ -1,31 +1,30 @@
 <template>
   <div class="snapshots">
-    <div class="d-flex">
-      <div class="flex-1">
-        <slot name="title"><span v-text="title"></span></slot>
-      </div>
-      <div>
-        <a href="#" class="ml-1 tooltip" data-tooltip="Import" @click.prevent="onImport">
-          <i class="icon icon-upload"></i>
-        </a>
-        <a href="#" class="ml-1 tooltip" data-tooltip="Export" @click.prevent="onExport">
-          <i class="icon icon-download"></i>
-        </a>
-      </div>
+    <div class="flex mb-1">
+      <slot name="title"><span v-text="title"></span></slot>
+      <a href="#" class="ml-1 tooltip inline-block" data-tooltip="Import" @click.prevent="onImport">
+        <svg viewBox="0 0 20 20" fill="currentColor" class="upload w-6 h-6"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+      </a>
+      <a href="#" class="ml-1 tooltip inline-block" data-tooltip="Export" @click.prevent="onExport">
+        <svg viewBox="0 0 20 20" fill="currentColor" class="download w-6 h-6"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+      </a>
     </div>
-    <div class="menu d-flex flex-column">
-      <div class="form-group has-icon-right">
+    <div class="flex flex-col shadow p-2 rounded" style="height:70vh">
+      <div class="form-group has-icon-right mb-2">
         <input class="form-input" v-model="search" />
         <i class="form-icon icon" :class="search ? 'icon-cross' : 'icon-search'" @click="onClear" />
       </div>
       <div class="flex-1 empty" v-if="!filtered.length"><div class="empty-title">None</div></div>
-      <div class="flex-1" v-else>
+      <div class="flex-1 overflow-y-auto" v-else>
         <div
           class="menu-item"
+          :class="{active: activeIndex === item.index}"
           v-for="item in filtered"
           :key="item.index">
-          <button class="btn btn-clear float-right mt-2" @click="onRemove(item)"></button>
-          <a href="#" :class="{active: activeIndex === item.index}" v-text="item.data.name" @click.prevent="onPick(item)"></a>
+          <div class="flex-1" v-text="item.data.name" @click.prevent="onPick(item)"></div>
+          <a href="#" @click.prevent="onRemove(item)">
+            <svg viewBox="0 0 20 20" fill="currentColor" class="x w-6 h-6"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+          </a>
         </div>
       </div>
     </div>
@@ -171,25 +170,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.snapshots {
-  > .menu {
-    height: 70vh;
-  }
-  .menu-item {
-    &:not(:hover) > .btn-clear {
-      display: none;
-    }
-    > a:not(.active):focus {
-      background: none;
-    }
-  }
-}
-
-.snapshot {
-  &-placeholder {
-    opacity: 0.2;
-  }
-}
-</style>
