@@ -10,7 +10,7 @@
               <svg viewBox="0 0 20 20" fill="currentColor" class="trash w-6 h-6"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
             </a>
           </div>
-          <textarea class="form-input" :class="{'is-error': output.error}" rows="18" v-model="input"></textarea>
+          <textarea class="form-input" :class="{'is-error': output.error}" rows="18" :value="input" @input="onInput"></textarea>
         </div>
         <div class="flex-1">
           <label>Output</label>
@@ -92,6 +92,7 @@
 
 <script>
 import tracker from '~/components/tracker';
+import { debounce } from '~/components/utils';
 
 const requirePipe = require.context('~/components/string/pipes', false, /\.js$/);
 const pipes = requirePipe.keys().map(key => requirePipe(key));
@@ -137,6 +138,9 @@ export default {
     },
   },
   methods: {
+    onInput: debounce(function onInput(e) {
+      this.input = e.target.value;
+    }, 300),
     addPipe(pipe) {
       const options = pipe.meta.options.reduce((res, item) => {
         if (item.default != null) res[item.name] = item.default;
