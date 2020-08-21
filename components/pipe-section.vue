@@ -10,7 +10,7 @@
       <div class="tool-string-pipe mr-2 disabled">Input</div>
       <template v-for="(item, index) in appliedPipes">
         <span :key="`arrow-${index}`" class="mr-2">&rarr;</span>
-        <div :key="index" class="tool-string-pipe mr-2 mb-2" @click="editing = item">
+        <div :key="index" class="tool-string-pipe mr-2 mb-2" :class="{'bg-red-300': item.pipe === errorPipe}" @click="editing = item">
           <div class="flex">
             <strong v-text="item.pipe.meta.name" class="flex-1 mr-2"></strong>
             <a href="#" @click.prevent.stop="onRemovePipe(index)">
@@ -78,6 +78,7 @@ export default {
       appliedPipes: [],
       search: '',
       editing: null,
+      errorPipe: null,
     };
   },
   computed: {
@@ -100,18 +101,26 @@ export default {
   methods: {
     update: debounce(function update() {
       let output;
+      let lastPipe;
       try {
+        let data = this.input;
+        if (this.input) {
+          for (const { pipe, options } of this.appliedPipes) {
+            lastPipe = pipe;
+            data = pipe.handle(data, options);
+          }
+        }
+        lastPipe = null;
         output = {
-          data: this.input && this.appliedPipes.reduce(
-            (result, { pipe, options }) => pipe.handle(result, options),
-            this.input,
-          ),
+          data,
         };
       } catch (e) {
         output = {
           error: e,
         };
       }
+      this.errorPipe = lastPipe;
+      console.log(output);
       this.$emit('change', output);
     }, 300),
     addPipe(pipe) {
