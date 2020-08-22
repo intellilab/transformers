@@ -12,7 +12,7 @@
           <p>Designed with &hearts; by <a href="https://gera2ld.space" target="_blank" rel="noopener noreferrer">Gerald</a></p>
         </footer>
       </aside>
-      <div class="flex-1 p-4"><nuxt /></div>
+      <div class="flex-1 p-4 min-w-0 overflow-auto"><nuxt /></div>
       <transition-group class="t-toast" name="anim-toast" appear>
         <div class="toast" v-for="toast in toasts" :key="toast.id" v-text="toast.text"></div>
       </transition-group>
