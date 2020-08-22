@@ -3,7 +3,7 @@
     <h1>URL Builder</h1>
     <section>
       <div class="flex items-start">
-        <div class="flex-1">
+        <div class="flex-1 min-w-0">
           <div class="flex">
             <div class="flex-1 min-w-0 mr-4">
               <div>
