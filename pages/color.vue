@@ -11,9 +11,10 @@
       </div>
       <div class="flex-1">
         <label>Output</label>
-        <div class="flex">
-          <input v-for="(item, key) in output.data" :key="key" class="form-input flex-1" readonly :value="item">
-          <div class="w-8 h-8 ml-2 border border-gray-400" :style="renderBg(outputColor)"></div>
+        <div class="flex items-center" v-for="(item, key) in output.data" :key="key">
+          <div class="w-16 text-gray-600" v-text="key"></div>
+          <input class="form-input flex-1" readonly :value="item" @click="$event.target.select()">
+          <div class="w-8 h-8 ml-2 border border-gray-400" :style="{ background: item }"></div>
         </div>
       </div>
     </section>
@@ -24,7 +25,7 @@
 <script>
 import tracker from '~/components/tracker';
 import PipeSection from '~/components/pipe-section';
-import { parseColor, reprColor } from '~/components/color/util';
+import { parseColor, reprHex, reprRgba, reprHsla } from '~/components/color/util';
 import { debounce } from '~/components/utils';
 
 const requirePipe = require.context('~/components/color/pipes', false, /\.js$/);
@@ -57,33 +58,25 @@ export default {
         return null;
       }
     },
-    outputColor() {
-      return this.output.data?.simple;
-    },
   },
   methods: {
     onChange(output) {
       const { error, data: color } = output;
       const result = {
         error,
-        data: { simple: '', rgb: '' },
+        data: { Hex: '', RGBA: '', HSLA: '' },
       };
       if (color) {
         const { data } = result;
-        data.simple = reprColor(color);
-        const { r, g, b } = color;
-        const a = `${+color.a.toFixed(3)}`.replace(/^0/, '');
-        if (a === '1') {
-          data.rgb = `rgb(${r},${g},${b})`;
-        } else {
-          data.rgb = `rgba(${r},${g},${b},${a})`;
-        }
+        data.Hex = reprHex(color);
+        data.RGBA = reprRgba(color);
+        data.HSLA = reprHsla(color);
       }
       this.output = result;
     },
     renderBg(color) {
       try {
-        const normalized = reprColor(parseColor(color));
+        const normalized = reprHex(parseColor(color));
         return `background-color: ${normalized}`;
       } catch {
         return null;

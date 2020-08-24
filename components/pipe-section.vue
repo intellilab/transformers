@@ -120,7 +120,6 @@ export default {
         };
       }
       this.errorPipe = lastPipe;
-      console.log(output);
       this.$emit('change', output);
     }, 300),
     addPipe(pipe) {
