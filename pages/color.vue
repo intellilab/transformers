@@ -5,7 +5,7 @@
       <div class="flex-1 mr-4">
         <label>Input</label>
         <div class="flex">
-          <input class="form-input flex-1" v-model="input" :class="{'bg-red-300': output.error}">
+          <input class="form-input flex-1" :value="input" @input="onInput" :class="{'bg-red-300': error || output.error}">
           <div class="w-8 h-8 ml-2 border border-gray-400" :style="renderBg(input)"></div>
         </div>
       </div>
@@ -45,21 +45,25 @@ export default {
   },
   data() {
     return {
-      input: '',
+      input: null,
+      inputColor: null,
+      error: null,
       output: {},
       pipes,
     };
   },
-  computed: {
-    inputColor() {
+  methods: {
+    onInput(e) {
+      const { value } = e.target;
+      this.input = value;
       try {
-        return this.input && parseColor(this.input);
-      } catch {
-        return null;
+        this.inputColor = value && parseColor(value);
+        this.error = null;
+      } catch (e) {
+        this.inputColor = null;
+        this.error = e;
       }
     },
-  },
-  methods: {
     onChange(output) {
       const { error, data: color } = output;
       const result = {
