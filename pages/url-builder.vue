@@ -17,7 +17,7 @@
                 <textarea class="form-input" ref="result" :value="content.result" @input="onParse" rows="4" />
               </div>
               <div class="mt-4">
-                <QRCanvas class="qrcode" :options="optionsQR" @beforeUpdate="onBeforeUpdate" @updated="onUpdated" />
+                <QRCanvas class="qrcode" width="300" :height="content.label ? 340 : 300" :options="optionsQR" @updated="onUpdated" />
               </div>
               <div class="mt-2 bg-red-500 text-white" v-if="error" v-text="error" />
             </div>
@@ -97,15 +97,11 @@ export default {
       };
       this.shareContent = null;
     },
-    onBeforeUpdate(canvas) {
-      const { label } = this.content;
-      canvas.width = 300;
-      canvas.height = label ? 340 : 300;
-    },
     onUpdated(canvas) {
       const { label } = this.content;
       if (label) {
         const context = canvas.getContext('2d');
+        context.clearRect(0, 300, 300, 40);
         context.font = '24px -apple-system, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, "Segoe UI", Roboto, "Helvetica Neue", sans-serif';
         context.fillStyle = 'dodgerblue';
         context.textAlign = 'center';
@@ -230,14 +226,14 @@ export default {
   },
   created() {
     this.onReset();
+  },
+  mounted() {
+    this.mounted = true;
     hotkeys.filter = () => true;
     hotkeys('ctrl+s,command+s', (e) => {
       e.preventDefault();
       this.onSave();
     });
-  },
-  mounted() {
-    this.mounted = true;
   },
   beforeDestroy() {
     hotkeys.unbind('ctrl+s,command+s');
