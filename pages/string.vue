@@ -18,7 +18,13 @@
         </div>
       </div>
     </section>
-    <pipe-section :input="input" :pipes="pipes" @change="onChange"></pipe-section>
+    <pipe-section ref="pipe" :input="input" :pipes="pipes" @change="onChange"></pipe-section>
+    <div class="mt-4">
+      <button class="mr-2 mb-1" @click="onShare">Share</button>
+    </div>
+    <div v-if="shareContent">
+      <input class="form-input" readonly :value="shareContent.url" @click="onSelectAll" />
+    </div>
   </div>
 </template>
 
@@ -27,9 +33,11 @@ import tracker from '~/components/tracker';
 import PipeSection from '~/components/pipe-section';
 
 const requirePipe = require.context('~/components/string/pipes', false, /\.js$/);
-const pipes = requirePipe.keys().map(key => requirePipe(key));
-pipes.forEach(pipe => {
+const pipes = requirePipe.keys().map(key => {
+  const pipe = requirePipe(key);
   pipe.meta._search = pipe.meta.name.toLowerCase();
+  pipe.meta.key = key;
+  return pipe;
 });
 
 export default {
@@ -46,6 +54,7 @@ export default {
       input: '',
       output: {},
       pipes,
+      shareContent: null,
     };
   },
   methods: {
@@ -55,6 +64,43 @@ export default {
     onChange(output) {
       this.output = output;
     },
+    onShare() {
+      const { origin, pathname, search } = window.location;
+      const { input } = this;
+      const pipeData = this.$refs.pipe.dumpPipes();
+      const query = {
+        i: input,
+        p: JSON.stringify(pipeData),
+      };
+      let qs = Object.entries(query)
+      .map(([key, value]) => value && [key, value].map(encodeURIComponent).join('='))
+      .filter(Boolean)
+      .join('&');
+      qs = `${qs}&_=`; // in case url is modified by other apps
+      const url = `${origin}${pathname}${search}#${qs}`;
+      this.shareContent = {
+        url,
+      };
+    },
+    onSelectAll(e) {
+      e.target.select();
+    },
+    checkHash() {
+      const query = new URLSearchParams(window.location.hash.slice(1));
+      try {
+        const input = query.get('i');
+        const pipes = JSON.parse(query.get('p'));
+        if (input && pipes) {
+          this.input = input;
+          this.$refs.pipe.loadPipes(pipes);
+        }
+      } finally {
+        window.location.hash = '';
+      }
+    },
+  },
+  mounted() {
+    this.checkHash();
   },
 };
 </script>
