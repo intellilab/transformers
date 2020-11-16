@@ -36,7 +36,7 @@ const requirePipe = require.context('~/components/string/pipes', false, /\.js$/)
 const pipes = requirePipe.keys().map(key => {
   const pipe = requirePipe(key);
   pipe.meta._search = pipe.meta.name.toLowerCase();
-  pipe.meta.key = key;
+  pipe.meta.key = key.slice(2, -3);
   return pipe;
 });
 
