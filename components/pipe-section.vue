@@ -147,6 +147,18 @@ export default {
     onStopEditing() {
       this.editing = null;
     },
+    dumpPipes() {
+      return this.appliedPipes.map(({ pipe, options }) => ({
+        key: pipe.meta.key,
+        options,
+      }));
+    },
+    loadPipes(items) {
+      this.appliedPipes = items.map(({ key, options }) => {
+        const pipe = this.pipes.find(pipe => pipe.meta.key === key);
+        return pipe && { pipe, options };
+      }).filter(Boolean);
+    },
   },
 };
 </script>
