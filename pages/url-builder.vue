@@ -8,7 +8,7 @@
             <div class="flex-1 min-w-0 mr-4">
               <div>
                 <div class="mb-1">Yaml config</div>
-                <vl-code class="t-code" v-if="mounted" :value="content.config" @ready="onReady" @input="onChange" :options="optionsCodeMirror" />
+                <vl-code class="t-code" :value="content.config" @ready="onReady" @input="onChange" :options="optionsCodeMirror" />
               </div>
             </div>
             <div class="flex-1 mr-4">
@@ -80,7 +80,6 @@ export default {
       shareContent: null,
       activeIndex: null,
       error: null,
-      mounted: false,
       optionsCodeMirror,
       optionsQR: null,
     };
@@ -228,7 +227,6 @@ export default {
     this.onReset();
   },
   mounted() {
-    this.mounted = true;
     hotkeys.filter = () => true;
     hotkeys('ctrl+s,command+s', (e) => {
       e.preventDefault();
