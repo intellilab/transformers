@@ -2,6 +2,7 @@ const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
   ssr: false,
+  target: 'static',
   head: {
     title: 'Transformers',
     meta: [

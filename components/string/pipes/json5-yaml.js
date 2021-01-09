@@ -3,7 +3,7 @@ import yaml from 'js-yaml';
 
 export function handle(input) {
   const obj = JSON5.parse(input);
-  return yaml.safeDump(obj);
+  return yaml.dump(obj);
 }
 
 export const meta = {
