@@ -140,13 +140,13 @@ export default {
       const { value } = this.$refs.result;
       this.content.result = value;
       const config = parseData(value);
-      this.cachedData = yaml.safeDump(config);
+      this.cachedData = yaml.dump(config);
       this.content.config = this.cachedData;
       this.onAutoSave();
     }, 300),
     onUpdate() {
       try {
-        const config = yaml.safeLoad(this.content.config);
+        const config = yaml.load(this.content.config);
         this.content.result = buildData(config);
         this.error = null;
       } catch (err) {
