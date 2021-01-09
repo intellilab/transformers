@@ -1,11 +1,33 @@
 export function debounce(func, time) {
+  let startTime;
   let timer;
-  return function debouncedFunc(...args) {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
-      func.apply(this, args);
-    }, time);
-  };
+  let callback;
+  let result;
+  time = Math.max(0, +time || 0);
+  function checkTime() {
+    timer = null;
+    if (performance.now() >= startTime) {
+      callback();
+    } else {
+      checkTimer();
+    }
+  }
+  function checkTimer() {
+    if (!timer) {
+      const delta = startTime - performance.now();
+      timer = setTimeout(checkTime, delta);
+    }
+  }
+  function debouncedFunction(...args) {
+    startTime = performance.now() + time;
+    callback = () => {
+      callback = null;
+      result = func.apply(this, args);
+    };
+    checkTimer();
+    return result;
+  }
+  return debouncedFunction;
 }
 
 export function getStorage(key) {
