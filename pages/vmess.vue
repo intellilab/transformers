@@ -11,6 +11,9 @@
           <div class="mb-1">Detail</div>
           <vl-code class="t-code" :value="urlDetail.value" @input="onDetailChange" :options="optionsDetail" />
         </div>
+        <div>
+          <QRCanvas class="qrcode" width="300" :height="300" :options="optionsQR" />
+        </div>
       </div>
     </section>
   </div>
@@ -18,6 +21,7 @@
 
 <script>
 import yaml from 'js-yaml';
+import { QRCanvas } from 'qrcanvas-vue';
 import tracker from '~/components/tracker';
 import { debounce } from '~/components/utils';
 
@@ -34,11 +38,13 @@ export default {
   mixins: [tracker],
   components: {
     VlCode: () => import('~/components/vl-code'),
+    QRCanvas,
   },
   data() {
     return {
       optionsContent,
       optionsDetail,
+      optionsQR: null,
       urlContent: {
         value: '',
       },
@@ -65,6 +71,9 @@ export default {
         line,
         url,
         value,
+      };
+      this.optionsQR = {
+        data: url,
       };
     },
     updateCurrent(value) {
