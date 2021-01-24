@@ -106,3 +106,7 @@ button {
     @apply z-10 p-4 rounded shadow bg-white w-1/2;
   }
 }
+
+code {
+  @apply bg-gray-100 border border-gray-300 rounded px-1;
+}

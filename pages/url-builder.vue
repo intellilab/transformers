@@ -7,13 +7,19 @@
           <div class="flex">
             <div class="flex-1 min-w-0 mr-4">
               <div>
-                <div class="mb-1">Yaml config</div>
+                <div class="mb-1">
+                  Parsed data
+                  <span class="ml-1 text-sm">(in Yaml)</span>
+                </div>
                 <vl-code class="t-code" :value="content.config" @ready="onReady" @input="onChange" :options="optionsCodeMirror" />
               </div>
             </div>
             <div class="flex-1 mr-4">
               <div>
-                <div class="mb-1">URL</div>
+                <div class="mb-1">
+                  URL
+                  <span class="ml-1 text-sm">(Special protocols like <code>otpauth:</code>, <code>vmess:</code> are supported)</span>
+                </div>
                 <textarea class="form-input" ref="result" :value="content.result" @input="onParse" rows="4" />
               </div>
               <div class="mt-4">
@@ -60,6 +66,7 @@ import hotkeys from 'hotkeys-js';
 import { debounce, getStorage } from '~/components/utils';
 import Snapshots from '~/components/snapshots';
 import tracker from '~/components/tracker';
+import { parseData, buildData } from '~/components/url';
 
 const optionsCodeMirror = {
   mode: 'yaml',
@@ -246,67 +253,6 @@ export default {
     });
   },
 };
-
-function buildData(raw) {
-  let config;
-  if (raw && raw._type) {
-    config = raw;
-  } else if (!raw || typeof raw !== 'object') {
-    config = {
-      _type: 'primitive',
-      data: raw,
-    };
-  } else {
-    config = {
-      _type: 'object',
-      data: raw,
-    };
-  }
-  if (config._type === 'url') {
-    let url = config.path || config.p || '';
-    const search = buildData(config.query || config.q);
-    const hash = buildData(config.hash || config.h);
-    if (search) url += `?${search}`;
-    if (hash) url += `#${hash}`;
-    return url;
-  }
-  if (config._type === 'object' && config.data) {
-    const { data } = config;
-    if (Array.isArray(data)) return data.map(buildData).map(encodeURIComponent).join(',');
-    return Object.keys(config.data).map(key => {
-      const value = config.data[key];
-      if (value == null) return;
-      return `${encodeURIComponent(key)}=${encodeURIComponent(buildData(value))}`;
-    }).filter(Boolean).join('&');
-  }
-  return config.data == null ? '' : config.data;
-}
-
-function parseData(str) {
-  if (/^[\w-]+:\/\/|\?/.test(str)) {
-    const [pathquery, hash] = str.split('#');
-    const [path, query] = pathquery.split('?');
-    const config = {
-      _type: 'url',
-    };
-    if (path) config.path = path;
-    if (query) config.query = parseData(query);
-    if (hash) config.hash = parseData(hash);
-    return config;
-  }
-  // Exclude ending `=` since it may be base64
-  if (/&|=[^=]/.test(str)) {
-    return str.split('&').reduce((res, part) => {
-      const [rkey, rval] = part.split('=');
-      res[decodeURIComponent(rkey)] = parseData(decodeURIComponent(rval));
-      return res;
-    }, {});
-  }
-  // if (/,/.test(str)) {
-  //   return str.split(',').map(decodeURIComponent).map(parseData);
-  // }
-  return decodeURIComponent(str);
-}
 </script>
 
 <style>
