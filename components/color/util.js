@@ -101,7 +101,7 @@ export function reprRgba(color) {
 export function reprHsla(color) {
   const { r, g, b } = color;
   let [h, s, l] = rgb2hsl(...[r, g, b].map(v => v / 255));
-  h = ~~(h * 360);
+  h = ~~h;
   s = ~~(s * 100);
   l = ~~(l * 100);
   const a = `${+color.a.toFixed(3)}`.replace(/^0/, '');
@@ -140,17 +140,16 @@ function rgb2hsl(R, G, B) {
 }
 
 function hue(R, G, B, Cmax, chroma) {
-  let H;
-  if (chroma === 0) {
-    return H;
+  let H = 0;
+  if (chroma) {
+    if (Cmax === R) {
+      H = ((G - B) / chroma) % 6;
+    } else if (Cmax === G) {
+      H = ((B - R) / chroma) + 2;
+    } else if (Cmax === B) {
+      H = ((R - G) / chroma) + 4;
+    }
+    H *= 60;
   }
-  if (Cmax === R) {
-    H = ((G - B) / chroma) % 6;
-  } else if (Cmax === G) {
-    H = ((B - R) / chroma) + 2;
-  } else if (Cmax === B) {
-    H = ((R - G) / chroma) + 4;
-  }
-  H *= 60;
   return H < 0 ? H + 360 : H;
 }
