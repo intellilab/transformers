@@ -11,7 +11,7 @@
                   Parsed data
                   <span class="ml-1 text-sm">(in Yaml)</span>
                 </div>
-                <vl-code class="t-code" :value="content.config" @ready="onReady" @input="onChange" :options="optionsCodeMirror" />
+                <vl-code class="t-code" :value="content.config" @ready="onReady" @input="onConfigInput" :options="optionsCodeMirror" />
               </div>
             </div>
             <div class="flex-1 mr-4">
@@ -20,7 +20,8 @@
                   URL
                   <span class="ml-1 text-sm">(Special protocols like <code>otpauth:</code>, <code>vmess:</code> are supported)</span>
                 </div>
-                <textarea class="form-input" ref="result" :value="content.result" @input="onParse" rows="4" />
+                <textarea class="form-input" ref="result" :value="content.result" @input="onUrlInput" rows="4" />
+                <TOTP v-if="totp" :data="totp" />
               </div>
               <div class="mt-4">
                 <QRCanvas class="qrcode" width="300" :height="content.label ? 340 : 300" :options="optionsQR" @updated="onUpdated" />
@@ -67,6 +68,7 @@ import { debounce, getStorage } from '~/components/utils';
 import Snapshots from '~/components/snapshots';
 import tracker from '~/components/tracker';
 import { parseData, buildData } from '~/components/url';
+import TOTP from '~/components/totp';
 
 const optionsCodeMirror = {
   mode: 'yaml',
@@ -80,20 +82,34 @@ export default {
     VlCode: () => import('~/components/vl-code'),
     Snapshots,
     QRCanvas,
+    TOTP,
   },
   data() {
     return {
       content: {},
       shareContent: null,
       activeIndex: null,
+      config: null,
       error: null,
       optionsCodeMirror,
       optionsQR: null,
+      totp: null,
     };
   },
   watch: {
     'content.result': 'updateQR',
     'content.label': 'updateQR',
+    'content.config'(config) {
+      try {
+        this.error = null;
+        this.config = yaml.load(config);
+      } catch (err) {
+        this.error = err.toString();
+        this.config = null;
+        console.error(err);
+      }
+    },
+    config: 'onConfigChange',
   },
   methods: {
     updateQR() {
@@ -123,7 +139,7 @@ export default {
         result: null,
       };
     },
-    onAutoSave() {
+    saveData() {
       const {
         content: {
           name, label, config,
@@ -135,30 +151,34 @@ export default {
       };
       store.dump(settings);
     },
-    onChange: debounce(function onChange(data) {
+    onConfigInput: debounce(function onConfigInput(data) {
       if (data === this.cachedData) return;
       this.cachedData = data;
       this.content.config = data;
-      this.onUpdate();
-      this.onAutoSave();
+      this.updateUrl();
     }, 300),
-    onParse: debounce(function onParse() {
+    onUrlInput: debounce(function onUrlInput() {
       const { value } = this.$refs.result;
       this.content.result = value;
       const config = parseData(value);
       this.cachedData = yaml.dump(config);
       this.content.config = this.cachedData;
-      this.onAutoSave();
     }, 300),
-    onUpdate() {
-      try {
-        const config = yaml.load(this.content.config);
-        this.content.result = buildData(config);
-        this.error = null;
-      } catch (err) {
-        this.error = err.toString();
-        console.error(err);
+    onConfigChange() {
+      this.saveData();
+      const { config } = this;
+      if (config?.payload?.type === 'totp' && config.query?.secret) {
+        this.totp = {
+          ...config.payload,
+          ...config.query,
+        };
+      } else {
+        this.totp = null;
       }
+    },
+    updateUrl() {
+      const { config } = this;
+      this.content.result = config && buildData(config);
     },
     loadData({ name, label, config, activeIndex }) {
       this.content = {
@@ -168,7 +188,7 @@ export default {
         result: this.content.result,
       };
       if (activeIndex != null) this.activeIndex = activeIndex;
-      this.onUpdate();
+      this.updateUrl();
     },
     onPick(index) {
       this.activeIndex = this.activeIndex === index ? -1 : index;
@@ -225,7 +245,7 @@ export default {
           ...this.content,
           ...content,
         };
-        this.onParse();
+        this.onUrlInput();
         window.location.hash = '';
       }
     },
