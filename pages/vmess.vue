@@ -33,6 +33,19 @@ const optionsDetail = {
   mode: 'yaml',
 };
 const VMESS = 'vmess://';
+const defaults = {
+  add: '',
+  aid: '',
+  host: '',
+  id: 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx',
+  net: 'ws',
+  path: '/ws',
+  port: '',
+  ps: 'example',
+  tls: '',
+  type: 'none',
+  v: '2',
+};
 
 export default {
   mixins: [tracker],
@@ -60,12 +73,17 @@ export default {
       const url = cm.getLine(line).trim();
       if (line === this.urlDetail.line && url === this.urlDetail.url) return;
       let value = '';
-      try {
-        if (url.startsWith(VMESS)) {
-          value = yaml.dump(JSON.parse(atob(url.slice(VMESS.length))));
+      if (url.startsWith(VMESS)) {
+        let data = defaults;
+        try {
+          data = {
+            ...data,
+            ...JSON.parse(atob(url.slice(VMESS.length))),
+          };
+        } catch {
+          // noop
         }
-      } catch {
-        // noop
+        value = yaml.dump(data);
       }
       this.urlDetail = {
         line,
@@ -80,7 +98,10 @@ export default {
       let url;
       if (value) {
         try {
-          url = VMESS + btoa(JSON.stringify(yaml.load(value)));
+          const data = Object.entries(yaml.load(value))
+            .filter(([, v]) => v !== '')
+            .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+          url = VMESS + btoa(JSON.stringify(data));
         } catch {
           // noop
         }
