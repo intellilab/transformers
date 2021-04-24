@@ -30,6 +30,7 @@
     </div>
     <data-modal
       v-if="modal"
+      visible
       :title="modal.title"
       :content="modal.content"
       :readOnly="modal.readOnly"
@@ -48,8 +49,6 @@
 </template>
 
 <script>
-import Vue from 'vue'; // eslint-disable-line
-import VlModal from 'vueleton/lib/modal/bundle';
 import { getStorage } from '~/components/utils';
 import DataModal from '~/components/data-modal';
 
