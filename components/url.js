@@ -1,10 +1,8 @@
 function dropEmpty(query) {
   if (!query || typeof query !== 'object') return query;
-  const result = {};
-  Object.entries(query).forEach(([key, value]) => {
-    if (value != null && value !== '') result[key] = value;
-  });
-  return result;
+  return Object.entries(query)
+    .filter(([, v]) => v!= null && v !== '')
+    .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
 }
 
 export function buildData(raw) {
@@ -37,9 +35,7 @@ export function buildData(raw) {
       }
       query = dropEmpty(query);
     } else if (config.protocol === 'vmess:') {
-      if (config.payload) {
-        pathname = '//' + btoa(JSON.stringify(dropEmpty(config.payload))).replace(/=+$/, '');
-      }
+      pathname = dumpVMess(config.payload).pathname;
     }
     parts.push(pathname);
     const search = buildData(query);
@@ -100,29 +96,7 @@ export function parseData(str) {
         counter: '',
       };
     } else if (url.protocol === 'vmess:') {
-      config.payload = {
-        add: '',
-        aid: '',
-        host: '',
-        id: 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx',
-        net: 'ws',
-        path: '/ws',
-        port: '',
-        ps: 'example',
-        tls: '',
-        type: 'none',
-        v: '2',
-      };
-      if (url.pathname.startsWith('//')) {
-        try {
-          config.payload = {
-            ...config.payload,
-            ...JSON.parse(atob(url.pathname.slice(2))),
-          };
-        } catch {
-          // noop
-        }
-      }
+      config.payload = loadVMess(url);
     } else {
       config.pathname = url.pathname;
     }
@@ -152,4 +126,40 @@ export function parseData(str) {
   //   return str.split(',').map(decodeURIComponent).map(parseData);
   // }
   return decodeURIComponent(str);
+}
+
+const vmessDefaults = {
+  add: '',
+  aid: '',
+  host: '',
+  id: 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx',
+  net: 'tcp',
+  path: '/ws',
+  port: 1080,
+  ps: 'example',
+  tls: '',
+  type: 'none',
+  v: '2',
+};
+
+export function loadVMess(url) {
+  if (url.protocol === 'vmess:') {
+    let data = vmessDefaults;
+    if (url.pathname.startsWith('//')) {
+      try {
+        data = {
+          ...data,
+          ...JSON.parse(atob(url.pathname.slice(2))),
+        };
+      } catch {
+        // noop
+      }
+    }
+    return data;
+  }
+}
+
+export function dumpVMess(data) {
+  const pathname = '//' + btoa(JSON.stringify(dropEmpty(data))).replace(/=+$/, '');
+  return new URL('vmess:' + pathname);
 }

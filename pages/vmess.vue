@@ -24,6 +24,7 @@ import yaml from 'js-yaml';
 import { QRCanvas } from 'qrcanvas-vue';
 import tracker from '~/components/tracker';
 import { debounce } from '~/components/utils';
+import { loadVMess, dumpVMess } from '~/components/url';
 
 const optionsContent = {
   mode: null,
@@ -31,20 +32,6 @@ const optionsContent = {
 };
 const optionsDetail = {
   mode: 'yaml',
-};
-const VMESS = 'vmess://';
-const defaults = {
-  add: '',
-  aid: '',
-  host: '',
-  id: 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx',
-  net: 'ws',
-  path: '/ws',
-  port: '',
-  ps: 'example',
-  tls: '',
-  type: 'none',
-  v: '2',
 };
 
 export default {
@@ -73,17 +60,11 @@ export default {
       const url = cm.getLine(line).trim();
       if (line === this.urlDetail.line && url === this.urlDetail.url) return;
       let value = '';
-      if (url.startsWith(VMESS)) {
-        let data = defaults;
-        try {
-          data = {
-            ...data,
-            ...JSON.parse(atob(url.slice(VMESS.length))),
-          };
-        } catch {
-          // noop
-        }
+      try {
+        const data = loadVMess(new URL(url));
         value = yaml.dump(data);
+      } catch {
+        // noop
       }
       this.urlDetail = {
         line,
@@ -98,10 +79,7 @@ export default {
       let url;
       if (value) {
         try {
-          const data = Object.entries(yaml.load(value))
-            .filter(([, v]) => v !== '')
-            .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
-          url = VMESS + btoa(JSON.stringify(data));
+          url = dumpVMess(yaml.load(value)).toString();
         } catch {
           // noop
         }
