@@ -1,6 +1,5 @@
 <template>
-  <div class="modal">
-    <div class="modal-overlay" @click="onClose"></div>
+  <vl-modal :visible="visible" @close="$emit('close')">
     <div class="modal-content">
       <div class="mb-2" v-text="title"></div>
       <div class="mb-2">
@@ -15,16 +14,22 @@
       </div>
       <slot></slot>
     </div>
-  </div>
+  </vl-modal>
 </template>
 
 <script>
+import VlModal from './vl-modal';
+
 export default {
-  props: {
-    title: {},
-    content: {},
-    readOnly: {},
+  components: {
+    VlModal,
   },
+  props: [
+    'visible',
+    'title',
+    'content',
+    'readOnly',
+  ],
   methods: {
     onChange(e) {
       this.$emit('change', e.target.value);

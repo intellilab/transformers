@@ -97,14 +97,8 @@ button {
   }
 }
 
-.modal {
-  @apply fixed inset-0 flex items-center justify-center z-10;
-  &-overlay {
-    @apply absolute inset-0 bg-gray-300 bg-opacity-50;
-  }
-  &-content {
-    @apply z-10 p-4 rounded shadow bg-white w-1/2;
-  }
+.modal-content {
+  @apply mx-auto p-4 rounded shadow bg-white w-1/2;
 }
 
 code {
