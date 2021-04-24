@@ -63,13 +63,14 @@
 <script>
 import { QRCanvas } from 'qrcanvas-vue';
 import yaml from 'js-yaml';
-import hotkeys from 'hotkeys-js';
+import { KeyboardService } from '@violentmonkey/shortcut';
 import { debounce, getStorage } from '~/components/utils';
 import Snapshots from '~/components/snapshots';
 import tracker from '~/components/tracker';
 import { parseData, buildData } from '~/components/url';
 import TOTP from '~/components/totp';
 
+const keyboardService = new KeyboardService();
 const optionsCodeMirror = {
   mode: 'yaml',
 };
@@ -254,14 +255,17 @@ export default {
     this.onReset();
   },
   mounted() {
-    hotkeys.filter = () => true;
-    hotkeys('ctrl+s,command+s', (e) => {
-      e.preventDefault();
-      this.onSave();
-    });
+    keyboardService.enable();
+    this.disposeList = [
+      keyboardService.register('ctrlcmd-s', e => {
+        e.preventDefault();
+        this.onSave();
+      }),
+    ];
   },
   beforeDestroy() {
-    hotkeys.unbind('ctrl+s,command+s');
+    keyboardService.disable();
+    this.disposeList?.forEach(dispose => dispose());
   },
   errorCaptured(err, vm, info) {
     this.trackError(err, {
