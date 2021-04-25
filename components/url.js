@@ -130,7 +130,7 @@ export function parseData(str) {
 
 const vmessDefaults = {
   add: '',
-  aid: '',
+  aid: 4,
   host: '',
   id: 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx',
   net: 'tcp',
@@ -142,9 +142,13 @@ const vmessDefaults = {
   v: '2',
 };
 
+function getRandomHex() {
+  return '0123456789abcdef'[~~(Math.random() * 16)];
+}
+
 export function loadVMess(url) {
   if (url.protocol === 'vmess:') {
-    let data = vmessDefaults;
+    let data = { ...vmessDefaults };
     if (url.pathname.startsWith('//')) {
       try {
         data = {
@@ -154,6 +158,9 @@ export function loadVMess(url) {
       } catch {
         // noop
       }
+    }
+    if (/x/.test(data.id)) {
+      data.id = data.id.replace(/x/g, getRandomHex);
     }
     return data;
   }
