@@ -20,7 +20,7 @@
                   URL
                   <span class="ml-1 text-sm">(Special protocols like <code>otpauth:</code>, <code>vmess:</code> are supported)</span>
                 </div>
-                <textarea class="form-input" ref="result" :value="content.result" @input="onUrlInput" rows="4" />
+                <textarea class="form-input" ref="url" :value="content.url" @input="onUrlInput" rows="4" />
                 <TOTP v-if="totp" :data="totp" />
               </div>
               <div class="mt-4">
@@ -70,6 +70,16 @@ import tracker from '~/components/tracker';
 import { parseData, buildData } from '~/components/url';
 import TOTP from '~/components/totp';
 
+/**
+ * Left panel: config -> parsedConfig
+ * Right panel: url -> QRCode
+ *
+ * change: config -> parsedConfig
+ *                -> url -> QRCode
+ * change: url -> QRCode
+ *             -> config -> parsedConfig
+ */
+
 const keyboardService = new KeyboardService();
 const optionsCodeMirror = {
   mode: 'yaml',
@@ -90,7 +100,6 @@ export default {
       content: {},
       shareContent: null,
       activeIndex: null,
-      config: null,
       error: null,
       optionsCodeMirror,
       optionsQR: null,
@@ -98,25 +107,14 @@ export default {
     };
   },
   watch: {
-    'content.result': 'updateQR',
+    'content.url': 'updateQR',
     'content.label': 'updateQR',
-    'content.config'(config) {
-      try {
-        this.error = null;
-        this.config = yaml.load(config);
-      } catch (err) {
-        this.error = err.toString();
-        this.config = null;
-        console.error(err);
-      }
-    },
-    config: 'onConfigChange',
   },
   methods: {
     updateQR() {
-      const { result } = this.content;
+      const { url } = this.content;
       this.optionsQR = {
-        data: result,
+        data: url,
       };
       this.shareContent = null;
     },
@@ -137,7 +135,7 @@ export default {
         name: null,
         label: null,
         config: '',
-        result: null,
+        url: null,
       };
     },
     saveData() {
@@ -152,44 +150,55 @@ export default {
       };
       store.dump(settings);
     },
-    onConfigInput: debounce(function onConfigInput(data) {
-      if (data === this.cachedData) return;
+    setConfig(data, update = true) {
+      if (this.cachedData === data) return;
       this.cachedData = data;
       this.content.config = data;
-      this.updateUrl();
-    }, 300),
-    onUrlInput: debounce(function onUrlInput() {
-      const { value } = this.$refs.result;
-      this.content.result = value;
-      const config = parseData(value);
-      this.cachedData = yaml.dump(config);
-      this.content.config = this.cachedData;
-    }, 300),
-    onConfigChange() {
-      this.saveData();
-      const { config } = this;
-      if (config?.payload?.type === 'totp' && config.query?.secret) {
+
+      let parsedConfig;
+      try {
+        this.error = null;
+        parsedConfig = data && yaml.load(data);
+      } catch (err) {
+        this.error = err.toString();
+        console.error(err);
+      }
+
+      // TOTP
+      if (parsedConfig?.payload?.type === 'totp' && parsedConfig.query?.secret) {
         this.totp = {
-          ...config.payload,
-          ...config.query,
+          ...parsedConfig.payload,
+          ...parsedConfig.query,
         };
       } else {
         this.totp = null;
       }
+
+      this.saveData();
+
+      // need update URL if the config is changed directly
+      if (update) this.updateUrl(parsedConfig);
     },
-    updateUrl() {
-      const { config } = this;
-      this.content.result = config && buildData(config);
+    onConfigInput: debounce(function onConfigInput(data) {
+      this.setConfig(data);
+    }, 300),
+    onUrlInput: debounce(function onUrlInput() {
+      const { value } = this.$refs.url;
+      this.content.url = value;
+      const config = parseData(value);
+      this.setConfig(yaml.dump(config), false);
+    }, 300),
+    updateUrl(parsedConfig) {
+      this.content.url = parsedConfig && buildData(parsedConfig);
     },
     loadData({ name, label, config, activeIndex }) {
       this.content = {
         name,
         label,
         config,
-        result: this.content.result,
+        url: this.content.url,
       };
       if (activeIndex != null) this.activeIndex = activeIndex;
-      this.updateUrl();
     },
     onPick(index) {
       this.activeIndex = this.activeIndex === index ? -1 : index;
@@ -210,16 +219,16 @@ export default {
     },
     onShare() {
       const { origin, pathname, search } = window.location;
-      const { name, label, result } = this.content;
-      const query = { name, label, result };
+      const { name, label, url } = this.content;
+      const query = { name, label, url };
       let qs = Object.entries(query)
       .map(([key, value]) => value && [key, value].map(encodeURIComponent).join('='))
       .filter(Boolean)
       .join('&');
       qs = `${qs}&_=`; // in case url is modified by other apps
-      const url = `${origin}${pathname}${search}#${qs}`;
+      const shareUrl = `${origin}${pathname}${search}#${qs}`;
       this.shareContent = {
-        url,
+        url: shareUrl,
       };
     },
     onSelectAll(e) {
@@ -238,9 +247,9 @@ export default {
       const content = {
         name: query.get('name'),
         label: query.get('label'),
-        result: query.get('result'),
+        url: query.get('url'),
       };
-      if (content.result) {
+      if (content.url) {
         this.activeIndex = -1;
         this.content = {
           ...this.content,
