@@ -27,7 +27,11 @@ export default {
       };
     },
     totp() {
-      return new TOTP(this.options);
+      try {
+        return new TOTP(this.options);
+      } catch {
+        return null;
+      }
     },
   },
   watch: {
