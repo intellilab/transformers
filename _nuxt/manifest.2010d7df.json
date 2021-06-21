@@ -1,0 +1,53 @@
+{
+  "name": "transformers",
+  "short_name": "transformers",
+  "description": "Pipe based transformers for front-end",
+  "icons": [
+    {
+      "src": "/transformers/_nuxt/icons/icon_64x64.b9b0b0.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/transformers/_nuxt/icons/icon_120x120.b9b0b0.png",
+      "sizes": "120x120",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/transformers/_nuxt/icons/icon_144x144.b9b0b0.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/transformers/_nuxt/icons/icon_152x152.b9b0b0.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/transformers/_nuxt/icons/icon_192x192.b9b0b0.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/transformers/_nuxt/icons/icon_384x384.b9b0b0.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/transformers/_nuxt/icons/icon_512x512.b9b0b0.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/transformers/?standalone=true",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "lang": "en"
+}
