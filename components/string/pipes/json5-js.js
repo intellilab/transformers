@@ -1,7 +1,8 @@
+import JSON5 from 'json5';
 import { format } from '@gera2ld/format-json';
 
 export function handle(input, options) {
-  return format(input, {
+  return format(JSON5.parse(input), {
     ...options,
     quoteAsNeeded: !!+options.quoteAsNeeded,
   });

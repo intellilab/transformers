@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { TOTP } from 'otpauth/dist/otpauth.umd';
+import { TOTP } from 'otpauth';
 
 export default {
   props: ['data'],
