@@ -222,9 +222,9 @@ export default {
       const { name, label, url } = this.content;
       const query = { name, label, url };
       let qs = Object.entries(query)
-      .map(([key, value]) => value && [key, value].map(encodeURIComponent).join('='))
-      .filter(Boolean)
-      .join('&');
+        .map(([key, value]) => value && [key, value].map(encodeURIComponent).join('='))
+        .filter(Boolean)
+        .join('&');
       qs = `${qs}&_=`; // in case url is modified by other apps
       const shareUrl = `${origin}${pathname}${search}#${qs}`;
       this.shareContent = {

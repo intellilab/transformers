@@ -93,7 +93,7 @@ const getClientConfig = data => ({
             connectionReuse: true,
             path: data.path,
             headers: {
-                Host: data.host,
+              Host: data.host,
             },
           },
         } : {},
@@ -295,7 +295,7 @@ export default {
       if (!this.urlDetail.value) return;
       try {
         const data = yaml.load(this.urlDetail.value);
-        const prefix = '// ' + this.urlDetail.url + '\n\n';
+        const prefix = `// ${this.urlDetail.url}\n\n`;
         this.modal = {
           title: 'Client config',
           value: prefix + JSON.stringify(getClientConfig(data), null, 2),
@@ -308,7 +308,7 @@ export default {
       if (!this.urlDetail.value) return;
       try {
         const data = yaml.load(this.urlDetail.value);
-        const prefix = '// ' + this.urlDetail.url + '\n\n';
+        const prefix = `// ${this.urlDetail.url}\n\n`;
         this.modal = {
           title: 'Server config',
           value: prefix + JSON.stringify(getServerConfig(data), null, 2),

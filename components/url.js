@@ -1,7 +1,7 @@
 function dropEmpty(query) {
   if (!query || typeof query !== 'object') return query;
   return Object.entries(query)
-    .filter(([, v]) => v!= null && v !== '')
+    .filter(([, v]) => v != null && v !== '')
     .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
 }
 
@@ -65,7 +65,7 @@ export function parseData(str) {
     hasProtocol = false;
     if (str.includes('?')) {
       try {
-        url = new URL('rel:' + str);
+        url = new URL(`rel:${str}`);
       } catch {
         // noop
       }
@@ -143,7 +143,7 @@ const vmessDefaults = {
 };
 
 function getRandomHex() {
-  return '0123456789abcdef'[~~(Math.random() * 16)];
+  return '0123456789abcdef'[(Math.random() * 16) | 0];
 }
 
 export function loadVMess(url) {
@@ -167,6 +167,6 @@ export function loadVMess(url) {
 }
 
 export function dumpVMess(data) {
-  const pathname = '//' + btoa(JSON.stringify(dropEmpty(data))).replace(/=+$/, '');
-  return new URL('vmess:' + pathname);
+  const encoded = btoa(JSON.stringify(dropEmpty(data))).replace(/=+$/, '');
+  return new URL(`vmess://${encoded}`);
 }

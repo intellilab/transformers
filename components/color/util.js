@@ -8,18 +8,18 @@ function normalizeRgb(v) {
     if (v.endsWith('%')) v = +v.slice(0, -1) * 2.55;
     else v = +v;
   }
-  assert(!isNaN(v));
+  assert(!Number.isNaN(v));
   return Math.max(0, Math.min(255, v));
 }
 
 function normalizeAlpha(a) {
   a = +a;
-  assert(!isNaN(a));
+  assert(!Number.isNaN(a));
   return Math.max(0, Math.min(1, a));
 }
 
 function normalize(color) {
-  let { r, g, b, a } = color;
+  const { r, g, b, a } = color;
   return {
     r: normalizeRgb(r),
     g: normalizeRgb(g),
@@ -67,9 +67,12 @@ export function parseColor(input) {
       assert([3, 4, 6, 8].includes(value.length));
       const isShort = value.length < 6;
       const unit = isShort ? 1 : 2;
-      const [r, g, b, ha] = Array.from({ length: 4 }, (_, i) => value.slice(i * unit, i * unit + unit))
+      const [r, g, b, ha] = Array.from(
+        { length: 4 },
+        (_, i) => value.slice(i * unit, i * unit + unit),
+      )
         .map(v => parseInt(v, 16) * (isShort ? 0x11 : 1));
-      const a = isNaN(ha) ? 1 : ha / 255;
+      const a = Number.isNaN(ha) ? 1 : ha / 255;
       return normalize({ r, g, b, a });
     }
   }
@@ -80,7 +83,7 @@ export function reprHex(color) {
   const { r, g, b, a } = color;
   const items = [r, g, b].map(v => Math.floor(v));
   if (a !== 1) items.push(Math.floor(a * 255));
-  const value = items.reduce((r, v) => r * 256 + v);
+  const value = items.reduce((p, v) => p * 256 + v);
   let hex = value.toString(16).padStart(items.length * 2, '0');
   if (value % 0x11 === 0) {
     hex = Array.from(items, (_, i) => hex[i * 2]).join('');
@@ -90,9 +93,11 @@ export function reprHex(color) {
 
 export function reprRgba(color) {
   let { r, g, b, a } = color;
-  r = ~~r;
-  g = ~~g;
-  b = ~~b;
+  /* eslint-disable no-bitwise */
+  r |= 0;
+  g |= 0;
+  b |= 0;
+  /* eslint-enable no-bitwise */
   a = `${+a.toFixed(3)}`.replace(/^0/, '');
   if (a === '1') return `rgb(${r},${g},${b})`;
   return `rgba(${r},${g},${b},${a})`;
@@ -101,9 +106,11 @@ export function reprRgba(color) {
 export function reprHsla(color) {
   const { r, g, b } = color;
   let [h, s, l] = rgb2hsl(...[r, g, b].map(v => v / 255));
-  h = ~~h;
-  s = ~~(s * 100);
-  l = ~~(l * 100);
+  /* eslint-disable no-bitwise */
+  h |= 0;
+  s = (s * 100) | 0;
+  l = (l * 100) | 0;
+  /* eslint-enable no-bitwise */
   const a = `${+color.a.toFixed(3)}`.replace(/^0/, '');
   if (a === '1') return `hsl(${h},${s}%,${l}%)`;
   return `hsla(${h},${s}%,${l}%,${a})`;

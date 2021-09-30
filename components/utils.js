@@ -50,9 +50,9 @@ export function getStorage(key) {
 function importStorage(input) {
   const store = JSON.parse(decodeURI(input));
   Object.entries(store)
-  .forEach(([key, value]) => {
-    localStorage.setItem(key, value);
-  });
+    .forEach(([key, value]) => {
+      localStorage.setItem(key, value);
+    });
 }
 
 function exportStorage() {

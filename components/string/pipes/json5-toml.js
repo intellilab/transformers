@@ -1,4 +1,4 @@
-import JSON5 from'json5';
+import JSON5 from 'json5';
 import TOML from '@iarna/toml';
 
 export function handle(input) {

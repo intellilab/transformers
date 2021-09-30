@@ -11,12 +11,12 @@ function track(item) {
     c1: c1 || '',
     c2: c2 || '',
     c3: c3 || '',
-    url: location.href,
+    url: window.location.href,
     time: Date.now(),
   };
   const qs = Object.entries(query)
-  .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-  .join('&');
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .join('&');
   const img = new Image();
   img.src = `${URL_LOG}?${qs}`;
 }

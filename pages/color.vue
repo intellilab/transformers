@@ -26,7 +26,6 @@
 import tracker from '~/components/tracker';
 import PipeSection from '~/components/pipe-section';
 import { parseColor, reprHex, reprRgba, reprHsla } from '~/components/color/util';
-import { debounce } from '~/components/utils';
 
 const requirePipe = require.context('~/components/color/pipes', false, /\.js$/);
 const pipes = requirePipe.keys().map(key => requirePipe(key));
@@ -59,9 +58,9 @@ export default {
       try {
         this.inputColor = value && parseColor(value);
         this.error = null;
-      } catch (e) {
+      } catch (err) {
         this.inputColor = null;
-        this.error = e;
+        this.error = err;
       }
     },
     onChange(output) {
