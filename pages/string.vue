@@ -73,9 +73,9 @@ export default {
         p: JSON.stringify(pipeData),
       };
       let qs = Object.entries(query)
-      .map(([key, value]) => value && [key, value].map(encodeURIComponent).join('='))
-      .filter(Boolean)
-      .join('&');
+        .map(([key, value]) => value && [key, value].map(encodeURIComponent).join('='))
+        .filter(Boolean)
+        .join('&');
       qs = `${qs}&_=`; // in case url is modified by other apps
       const url = `${origin}${pathname}${search}#${qs}`;
       this.shareContent = {
@@ -89,10 +89,10 @@ export default {
       const query = new URLSearchParams(window.location.hash.slice(1));
       try {
         const input = query.get('i');
-        const pipes = JSON.parse(query.get('p'));
-        if (input && pipes) {
+        const queryPipes = JSON.parse(query.get('p'));
+        if (input && queryPipes) {
           this.input = input;
-          this.$refs.pipe.loadPipes(pipes);
+          this.$refs.pipe.loadPipes(queryPipes);
         }
       } finally {
         window.location.hash = '';

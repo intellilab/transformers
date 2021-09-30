@@ -12,7 +12,7 @@ export default {
       track() {
         tracker.revoke();
         tracker.timer = setTimeout(() => {
-          _hmt.push(['_trackEvent', 'action', 'stay']);
+          window._hmt.push(['_trackEvent', 'action', 'stay']);
           tracker.timer = null;
         }, 10 * 1000);
       },

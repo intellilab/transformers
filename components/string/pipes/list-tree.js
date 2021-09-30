@@ -4,7 +4,7 @@ export function handle(input) {
     .filter(Boolean)
     .map(line => {
       let indent = 0;
-      while (line[indent] == ' ') indent += 1;
+      while (line[indent] === ' ') indent += 1;
       let content = line.slice(indent);
       if (/^[-+*] /.test(content)) content = content.slice(2);
       return { content, indent };
@@ -40,8 +40,9 @@ export function handle(input) {
         item[1] += 1;
         const isLast = !parent.children[item[1]];
         const prefixes = stack.slice(0, -1)
-          .map(anc => anc[0].children[anc[1]] ? '│' : ' ');
-        prefixes.push((isLast ? '└' : '├') + '── ');
+          .map(anc => (anc[0].children[anc[1]] ? '│' : ' '));
+        const join = isLast ? '└' : '├';
+        prefixes.push(`${join}── `);
         result.push(prefixes.join('   ') + node.content);
         if (node?.children?.length) {
           stack.push([node, 0]);

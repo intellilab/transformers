@@ -134,8 +134,8 @@ export default {
     },
     reprOptions(options) {
       const repr = Object.keys(options)
-      .map(key => `${key}=${options[key]}`)
-      .join(';');
+        .map(key => `${key}=${options[key]}`)
+        .join(';');
       return repr ? `[${repr}]` : '';
     },
     onRemovePipe(index) {
@@ -155,7 +155,7 @@ export default {
     },
     loadPipes(items) {
       this.appliedPipes = items.map(({ key, options }) => {
-        const pipe = this.pipes.find(pipe => pipe.meta.key === key);
+        const pipe = this.pipes.find(p => p.meta.key === key);
         return pipe && { pipe, options };
       }).filter(Boolean);
     },

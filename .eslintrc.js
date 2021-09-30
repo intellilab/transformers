@@ -3,27 +3,31 @@
 module.exports = {
   root: true,
   parserOptions: {
-    parser: 'babel-eslint',
-    sourceType: 'module'
+    requireConfigFile: false,
   },
   env: {
     browser: true,
   },
   extends: [
+    require.resolve('@gera2ld/plaid/eslint'),
+    require.resolve('@gera2ld/plaid-common-vue/eslint'),
     'plugin:vue/essential',
   ],
   settings: {
     'import/resolver': {
-      webpack: {
-        config: {
-          resolve: {
-            extensions: ['.js', '.vue'],
-            alias: {
-              '~': __dirname,
-            },
-          },
+      'babel-module': {
+        alias: {
+          '~': __dirname,
         },
+        extensions: ['.js', '.vue'],
       },
     },
+  },
+  rules: {
+    'import/no-extraneous-dependencies': 'off',
+    'import/extensions': ['error', {
+      js: 'never',
+      vue: 'never',
+    }],
   },
 }
