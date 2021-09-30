@@ -182,7 +182,7 @@ const getServerConfig = data => ({
           {
             id: data.id,
             level: 0,
-            alterId: data.aid || 4,
+            alterId: data.aid,
           },
         ],
       },
@@ -295,9 +295,10 @@ export default {
       if (!this.urlDetail.value) return;
       try {
         const data = yaml.load(this.urlDetail.value);
+        const prefix = '// ' + this.urlDetail.url + '\n\n';
         this.modal = {
           title: 'Client config',
-          value: JSON.stringify(getClientConfig(data), null, 2),
+          value: prefix + JSON.stringify(getClientConfig(data), null, 2),
         };
       } catch {
         // noop
@@ -307,9 +308,10 @@ export default {
       if (!this.urlDetail.value) return;
       try {
         const data = yaml.load(this.urlDetail.value);
+        const prefix = '// ' + this.urlDetail.url + '\n\n';
         this.modal = {
           title: 'Server config',
-          value: JSON.stringify(getServerConfig(data), null, 2),
+          value: prefix + JSON.stringify(getServerConfig(data), null, 2),
         };
       } catch {
         // noop
