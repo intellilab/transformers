@@ -1,6 +1,7 @@
 node_modules
 *.log
-*.lock
+yarn.lock
+pnpm-lock.yaml
 /.idea
 /.nuxt
 /dist

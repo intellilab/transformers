@@ -130,7 +130,7 @@ export function parseData(str) {
 
 const vmessDefaults = {
   add: '',
-  aid: 4,
+  aid: 0,
   host: '',
   id: 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx',
   net: 'tcp',
