@@ -1,42 +1,40 @@
-import test from 'tape';
-import { handle, meta } from 'components/string/pipes/json5-js';
+import { handle, meta } from '~/components/string/pipes/json5-js';
 
-test('json5-js', t => {
+describe('json5-js', () => {
   const options = meta.options.reduce((res, item) => {
     res[item.name] = item.default;
     return res;
   }, {});
 
-  t.test('primary types', q => {
-    q.equal(handle(`[1,2,3]`, options), `\
+  test('primary types', () => {
+    expect(handle(`[1,2,3]`, options)).toBe(`\
 [
   1,
   2,
   3,
 ]`);
-    q.equal(handle(`["a",1,true]`, options), `\
+    expect(handle(`["a",1,true]`, options)).toBe(`\
 [
   'a',
   1,
   true,
 ]`);
-    q.equal(handle(`{"a":1,"b":true,"c":"d"}`, options), `\
+    expect(handle(`{"a":1,"b":true,"c":"d"}`, options)).toBe(`\
 {
   a: 1,
   b: true,
   c: 'd',
 }`);
-    q.end();
   });
 
-  t.test('object types', q => {
-    q.equal(handle(`[{},{},{}]`, options), `\
+  test('object types', () => {
+    expect(handle(`[{},{},{}]`, options)).toBe(`\
 [
   {},
   {},
   {},
 ]`);
-    q.equal(handle(`[{},{"a":1},[]]`, options), `\
+    expect(handle(`[{},{"a":1},[]]`, options)).toBe(`\
 [
   {},
   {
@@ -44,7 +42,7 @@ test('json5-js', t => {
   },
   [],
 ]`);
-    q.equal(handle(`[{"a":1},["s",[{"b":1}]]]`, options), `\
+    expect(handle(`[{"a":1},["s",[{"b":1}]]]`, options)).toBe(`\
 [
   {
     a: 1,
@@ -58,6 +56,5 @@ test('json5-js', t => {
     ],
   ],
 ]`);
-    q.end();
   });
 });
