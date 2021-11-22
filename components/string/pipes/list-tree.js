@@ -1,3 +1,5 @@
+import { TREE_TRUNK, TREE_BRANCH, TREE_BRANCH_LAST, TREE_LEADING, TREE_EMPTY, TREE_INDENT_STR } from '~/components/tree';
+
 export function handle(input) {
   const items = input.split('\n')
     .map(line => line.trimEnd())
@@ -9,6 +11,14 @@ export function handle(input) {
       if (/^[-+*] /.test(content)) content = content.slice(2);
       return { content, indent };
     });
+  /**
+    * @typedef {Object} TreeNode
+    * @property {string} content
+    * @property {number} indent
+    * @property {number} level
+    * @property {TreeNode[]} children
+    */
+  /** @type TreeNode */
   const root = {
     content: '.',
     indent: -1,
@@ -30,6 +40,7 @@ export function handle(input) {
     }
   }
   {
+    /** @type Array<[TreeNode, number]> */
     const stack = [[root, 0]];
     const result = [root.content];
     while (stack.length) {
@@ -40,10 +51,10 @@ export function handle(input) {
         item[1] += 1;
         const isLast = !parent.children[item[1]];
         const prefixes = stack.slice(0, -1)
-          .map(anc => (anc[0].children[anc[1]] ? '│' : ' '));
-        const join = isLast ? '└' : '├';
-        prefixes.push(`${join}── `);
-        result.push(prefixes.join('   ') + node.content);
+          .map(anc => (anc[0].children[anc[1]] ? TREE_TRUNK : TREE_EMPTY));
+        const join = isLast ? TREE_BRANCH_LAST : TREE_BRANCH;
+        prefixes.push(join + TREE_LEADING);
+        result.push(prefixes.join(TREE_INDENT_STR) + node.content);
         if (node?.children?.length) {
           stack.push([node, 0]);
         }
