@@ -83,12 +83,9 @@ export function reprHex(color) {
   const { r, g, b, a } = color;
   const items = [r, g, b].map(v => Math.floor(v));
   if (a !== 1) items.push(Math.floor(a * 255));
-  const value = items.reduce((p, v) => p * 256 + v);
-  let hex = value.toString(16).padStart(items.length * 2, '0');
-  if (value % 0x11 === 0) {
-    hex = Array.from(items, (_, i) => hex[i * 2]).join('');
-  }
-  return `#${hex}`;
+  let hex = items.map(v => v.toString(16).padStart(2, '0'));
+  if (hex.every(v => v[0] === v[1])) hex = hex.map(v => v[0]);
+  return `#${hex.join('')}`;
 }
 
 export function reprRgba(color) {
