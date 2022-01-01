@@ -79,6 +79,10 @@ export function parseColor(input) {
   assert(false);
 }
 
+function formatDecimal(num) {
+  return `${+num.toFixed(3)}`.replace(/^0./, '.');
+}
+
 export function reprHex(color) {
   const { r, g, b, a } = color;
   const items = [r, g, b].map(v => Math.floor(v));
@@ -95,7 +99,7 @@ export function reprRgba(color) {
   g |= 0;
   b |= 0;
   /* eslint-enable no-bitwise */
-  a = `${+a.toFixed(3)}`.replace(/^0/, '');
+  a = formatDecimal(a);
   if (a === '1') return `rgb(${r},${g},${b})`;
   return `rgba(${r},${g},${b},${a})`;
 }
@@ -108,7 +112,7 @@ export function reprHsla(color) {
   s = (s * 100) | 0;
   l = (l * 100) | 0;
   /* eslint-enable no-bitwise */
-  const a = `${+color.a.toFixed(3)}`.replace(/^0/, '');
+  const a = formatDecimal(color.a);
   if (a === '1') return `hsl(${h},${s}%,${l}%)`;
   return `hsla(${h},${s}%,${l}%,${a})`;
 }
