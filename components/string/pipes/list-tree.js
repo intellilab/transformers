@@ -29,6 +29,7 @@ export function handle(input) {
     const stack = [root];
     for (const item of items) {
       let last;
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         last = stack[stack.length - 1];
         if (item.indent > last.indent) break;

@@ -11,7 +11,6 @@ module.exports = {
   extends: [
     require.resolve('@gera2ld/plaid/eslint'),
     require.resolve('@gera2ld/plaid-common-vue/eslint'),
-    'plugin:vue/essential',
   ],
   settings: {
     'import/resolver': {
@@ -25,9 +24,6 @@ module.exports = {
   },
   rules: {
     'import/no-extraneous-dependencies': 'off',
-    'import/extensions': ['error', {
-      js: 'never',
-      vue: 'never',
-    }],
+    'vue/multi-word-component-names': 'off',
   },
 }
