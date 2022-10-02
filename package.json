@@ -15,26 +15,26 @@
     "test": "jest tests"
   },
   "devDependencies": {
-    "@gera2ld/plaid": "~2.4.0",
-    "@gera2ld/plaid-common-vue": "~2.4.0",
-    "@gera2ld/plaid-test": "^2.4.0",
-    "@nuxtjs/tailwindcss": "^4.2.1",
-    "husky": "^7.0.2",
+    "@gera2ld/plaid": "~2.5.6",
+    "@gera2ld/plaid-common-vue": "~2.5.7",
+    "@gera2ld/plaid-test": "^2.5.8",
+    "@nuxtjs/tailwindcss": "^5.3.3",
+    "husky": "^8.0.1",
     "nuxt": "^2.15.8",
-    "postcss": "^8.3.8",
+    "postcss": "^8.4.17",
     "postcss-nested": "^5.0.6"
   },
   "dependencies": {
-    "@gera2ld/format-json": "^0.2.3",
+    "@gera2ld/format-json": "^0.2.5",
     "@iarna/toml": "^2.2.5",
     "@nuxtjs/pwa": "^3.3.5",
-    "@violentmonkey/shortcut": "^1.2.4",
+    "@violentmonkey/shortcut": "^1.2.6",
     "codemirror": "^5.63.1",
     "js-yaml": "^4.1.0",
-    "json5": "^2.2.0",
+    "json5": "^2.2.1",
     "lodash": "^4.17.21",
-    "otpauth": "^7.0.6",
-    "plist": "^3.0.4",
+    "otpauth": "^8.0.3",
+    "plist": "^3.0.6",
     "qrcanvas-vue": "^2.1.0",
     "vueleton": "^1.0.6"
   }
