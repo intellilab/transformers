@@ -1,8 +1,10 @@
-export default ({ app }) => {
+export default () => {
   if (process.env.NODE_ENV === 'production') {
-    window._hmt = window._hmt || [];
-    const hm = document.createElement('script');
-    hm.src = 'https://hm.baidu.com/hm.js?9802249e266d29eadb5bd2c0f51ce59c';
-    document.head.append(hm);
+    const script = document.createElement('script');
+    script.src = 'https://u.gerald.win/u.js';
+    script.async = true;
+    script.defer = true;
+    script.dataset.websiteId = '74d7c261-0e76-42b1-8092-1ec201c687e3';
+    document.head.append(script);
   }
 };

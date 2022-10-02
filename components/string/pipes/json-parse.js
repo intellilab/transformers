@@ -1,6 +1,6 @@
 import JSON5 from 'json5';
 
-export function handle(input, options) {
+export function handle(input) {
   const obj = JSON5.parse(input);
   if (typeof obj !== 'string') throw new Error('Cannot parse JSON');
   return obj;
