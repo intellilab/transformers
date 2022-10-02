@@ -1,3 +1,3 @@
-import VlModal from 'vueleton/lib/modal/bundle';
+import VlModal from 'vueleton/lib/modal';
 
 export default VlModal;

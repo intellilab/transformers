@@ -28,33 +28,38 @@
         </div>
       </div>
     </div>
-    <data-modal
-      v-if="modal"
-      visible
-      :title="modal.title"
-      :content="modal.content"
-      :readOnly="modal.readOnly"
-      @change="onChange"
-      @close="onClose">
-      <span
-        v-if="modal.message"
-        class="mr-2"
-        :class="modal.error ? 'text-error' : 'text-success'"
-        v-text="modal.message"
-      />
-      <button v-if="!modal.readOnly" class="btn btn-primary" @click="importData">Import and merge</button>
-      <button class="btn" @click="onClose">Close</button>
-    </data-modal>
+    <vl-modal v-if="modal" show @close="onClose">
+      <div class="modal-content">
+        <div class="mb-2" v-text="modal.title"></div>
+        <div class="mb-2">
+          <textarea
+            class="form-input"
+            rows="10"
+            v-model="modal.content"
+            :readOnly="modal.readOnly"
+            @click="modal.readOnly && $event.target.select()"
+          />
+        </div>
+        <span
+          v-if="modal.message"
+          class="mr-2"
+          :class="modal.error ? 'text-error' : 'text-success'"
+          v-text="modal.message"
+        />
+        <button v-if="!modal.readOnly" class="btn btn-primary" @click="importData">Import and merge</button>
+        <button class="btn" @click="onClose">Close</button>
+      </div>
+    </vl-modal>
   </div>
 </template>
 
 <script>
 import { getStorage } from '~/components/utils';
-import DataModal from '~/components/data-modal';
+import VlModal from '~/components/vl-modal';
 
 export default {
   components: {
-    DataModal,
+    VlModal,
   },
   props: [
     'title',

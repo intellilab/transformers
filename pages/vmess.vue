@@ -20,7 +20,7 @@
         <button class="mr-2 mb-1" @click="onServerConfig">Get server config</button>
       </div>
     </section>
-    <vl-modal v-if="modal" visible @close="modal = null">
+    <vl-modal v-if="modal" show @close="modal = null">
       <div class="modal-content mx-auto flex flex-col" style="height: 80vh">
         <div class="mb-2" v-text="modal.title"></div>
         <textarea class="flex-1 border border-gray-400" readonly :value="modal.value" @click="$event.target.select()"></textarea>
