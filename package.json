@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "Pipe based transformers for front-end",
-  "author": "Gerald <i@gerald.top>",
+  "author": "Gerald <i@gera2ld.space>",
   "license": "ISC",
   "scripts": {
     "prepare": "husky install",
@@ -36,6 +36,6 @@
     "otpauth": "^8.0.3",
     "plist": "^3.0.6",
     "qrcanvas-vue": "^2.1.0",
-    "vueleton": "^1.0.6"
+    "vueleton": "^2.0.0-5"
   }
 }
