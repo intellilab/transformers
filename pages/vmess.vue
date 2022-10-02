@@ -36,6 +36,8 @@ import tracker from '~/components/tracker';
 import { debounce } from '~/components/utils';
 import { loadVMess, dumpVMess } from '~/components/url';
 import VlModal from '~/components/vl-modal';
+import { createConfig as createClientConfig } from '~/components/v2ray/client';
+import { createConfig as createServerConfig } from '~/components/v2ray/server';
 
 const optionsContent = {
   mode: null,
@@ -44,182 +46,6 @@ const optionsContent = {
 const optionsDetail = {
   mode: 'yaml',
 };
-const getClientConfig = data => ({
-  log: {
-    loglevel: 'error',
-  },
-  inbounds: [
-    {
-      tag: 'socks-in',
-      port: 1080,
-      listen: '::',
-      protocol: 'socks',
-      settings: {
-        auth: 'noauth',
-        udp: true,
-        ip: '127.0.0.1',
-      },
-    },
-    {
-      tag: 'http-in',
-      port: 1086,
-      listen: '::',
-      protocol: 'http',
-    },
-  ],
-  outbounds: [
-    {
-      protocol: 'vmess',
-      settings: {
-        vnext: [
-          {
-            address: data.add,
-            port: data.port,
-            users: [
-              {
-                email: 'user@v2ray.com',
-                id: data.id,
-                alterId: data.aid,
-                security: 'auto',
-              },
-            ],
-          },
-        ],
-      },
-      streamSettings: {
-        network: data.net,
-        ...data.net === 'ws' ? {
-          wsSettings: {
-            connectionReuse: true,
-            path: data.path,
-            headers: {
-              Host: data.host,
-            },
-          },
-        } : {},
-        ...data.tls === 'tls' ? {
-          security: 'tls',
-          tlsSettings: {
-            allowInsecure: true,
-            serverName: data.host,
-          },
-        } : {},
-      },
-      mux: {
-        enabled: true,
-      },
-      tag: 'proxy',
-    },
-    {
-      protocol: 'freedom',
-      tag: 'direct',
-      settings: {
-        domainStrategy: 'UseIP',
-      },
-    },
-    {
-      protocol: 'blackhole',
-      tag: 'blocked',
-      settings: {},
-    },
-  ],
-  routing: {
-    domainStrategy: 'IPOnDemand',
-    rules: [
-      {
-        type: 'field',
-        outboundTag: 'direct',
-        domain: [
-          'geosite:cn',
-        ],
-      },
-      {
-        type: 'field',
-        ip: [
-          'geoip:cn',
-          'geoip:private',
-        ],
-        outboundTag: 'direct',
-      },
-      {
-        type: 'field',
-        domain: [
-          'geosite:category-ads',
-        ],
-        outboundTag: 'blocked',
-      },
-    ],
-  },
-  dns: {
-    hosts: {
-      'domain:v2ray.com': 'www.vicemc.net',
-      'domain:github.io': 'pages.github.com',
-      'domain:wikipedia.org': 'www.wikimedia.org',
-      'domain:shadowsocks.org': 'electronicsrealm.com',
-    },
-    servers: [
-      {
-        address: '114.114.114.114',
-        port: 53,
-        domains: [
-          'geosite:cn',
-        ],
-        tcp: true,
-      },
-      'localhost',
-    ],
-  },
-});
-const getServerConfig = data => ({
-  inbounds: [
-    {
-      tag: 'socks-in',
-      port: data.port || 10010,
-      listen: '::',
-      protocol: 'vmess',
-      settings: {
-        clients: [
-          {
-            id: data.id,
-            level: 0,
-            alterId: data.aid,
-          },
-        ],
-      },
-      streamSettings: {
-        network: data.net || '',
-        ...data.net === 'ws' ? {
-          wsSettings: {
-            path: data.path,
-            headers: {
-              Host: data.host,
-            },
-          },
-        } : {},
-      },
-    },
-  ],
-  outbounds: [
-    {
-      protocol: 'freedom',
-    },
-    {
-      protocol: 'blackhole',
-      tag: 'blocked',
-    },
-  ],
-  routing: {
-    rules: [
-      {
-        type: 'field',
-        ip: [
-          'geoip:private',
-        ],
-        outboundTag: 'blocked',
-      },
-    ],
-  },
-});
 
 export default {
   mixins: [tracker],
@@ -298,7 +124,7 @@ export default {
         const prefix = `// ${this.urlDetail.url}\n\n`;
         this.modal = {
           title: 'Client config',
-          value: prefix + JSON.stringify(getClientConfig(data), null, 2),
+          value: prefix + JSON.stringify(createClientConfig(data), null, 2),
         };
       } catch {
         // noop
@@ -311,7 +137,7 @@ export default {
         const prefix = `// ${this.urlDetail.url}\n\n`;
         this.modal = {
           title: 'Server config',
-          value: prefix + JSON.stringify(getServerConfig(data), null, 2),
+          value: prefix + JSON.stringify(createServerConfig(data), null, 2),
         };
       } catch {
         // noop
