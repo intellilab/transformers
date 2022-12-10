@@ -58,7 +58,6 @@ export default {
     return {
       optionsContent,
       optionsDetail,
-      optionsQR: null,
       urlContent: {
         value: '',
       },
@@ -67,6 +66,11 @@ export default {
       },
       modal: null,
     };
+  },
+  computed: {
+    optionsQR() {
+      return { data: this.urlDetail.url };
+    },
   },
   methods: {
     setCurrent() {
@@ -85,9 +89,6 @@ export default {
         line,
         url,
         value,
-      };
-      this.optionsQR = {
-        data: url,
       };
     },
     updateCurrent(value) {
