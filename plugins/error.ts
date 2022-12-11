@@ -1,8 +1,11 @@
-import Vue from 'vue';
-
 const URL_LOG = 'https://monika.gerald.top/log';
 
-function track(item) {
+function track(item: {
+  message?: string;
+  c1?: string;
+  c2?: string;
+  c3?: string;
+}) {
   const { message, c1, c2, c3 } = item;
   const query = {
     pid: 'transformers',
@@ -21,25 +24,25 @@ function track(item) {
   img.src = `${URL_LOG}?${qs}`;
 }
 
-function reprError(err) {
+function reprError(err: unknown) {
   return (err instanceof Error ? `${err}` : JSON.stringify(err)) || 'no error';
 }
 
-function trackError(err, extra) {
+function trackError(err: unknown, extra?: Record<string, unknown>) {
   if (process.env.NODE_ENV === 'production') {
     setTimeout(track, 0, {
       ...extra,
       c1: reprError(err),
-      c2: `${(err && err.stack) || ''}`.slice(0, 512),
+      c2: `${((err as Error)?.stack) || ''}`.slice(0, 512),
     });
   } else {
     console.error('Error:', err, extra);
   }
 }
 
-Vue.prototype.trackError = trackError;
-
-Vue.config.errorHandler = (err) => {
-  trackError(err);
-  console.error(err);
-};
+export default defineNuxtPlugin(nuxtApp => {
+  nuxtApp.vueApp.config.errorHandler = (err: unknown) => {
+    trackError(err);
+    console.error(err);
+  };
+});

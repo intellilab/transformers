@@ -8,11 +8,11 @@
     </div>
     <div>
       <div class="tool-string-pipe mr-2 disabled">Input</div>
-      <template v-for="(item, index) in appliedPipes">
-        <span :key="`arrow-${index}`" class="mr-2">&rarr;</span>
-        <div :key="index" class="tool-string-pipe mr-2 mb-2" :class="{'bg-red-300': item.pipe === errorPipe}" @click="editing = item">
+      <template v-for="(item, index) in appliedPipes" :key="index">
+        <span class="mr-2">&rarr;</span>
+        <div class="tool-string-pipe mr-2 mb-2" :class="{'bg-red-300': item.name === errorPipe}" @click="onEditStart(item)">
           <div class="flex">
-            <strong v-text="item.pipe.meta.name" class="flex-1 mr-2"></strong>
+            <strong v-text="item.name" class="flex-1 mr-2"></strong>
             <a href="#" @click.prevent.stop="onRemovePipe(index)">
               <svg viewBox="0 0 20 20" fill="currentColor" class="x w-6 h-6"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
             </a>
@@ -25,7 +25,7 @@
     </div>
     <h3 class="mt-2 mb-1">Pipes</h3>
     <div class="mb-2">
-      <input type="search" class="form-input" placeholder="Filter pipes..." v-model="search">
+      <input type="search" class="form-input" placeholder="Filter pipes..." v-model="state.search">
     </div>
     <button
       v-for="(pipe, index) in filteredPipes"
@@ -35,15 +35,14 @@
       @click="addPipe(pipe)"
     />
     <p class="text-gray" v-if="!filteredPipes.length">No pipe is found.</p>
-    <div class="modal" v-if="editing">
-      <div class="modal-overlay" @click="onStopEditing"></div>
+    <VlModal v-if="state.editing" show @close="onEditEnd">
       <div class="modal-content">
-        <div class="font-bold mb-2" v-text="editing.pipe.meta.name"></div>
-        <template v-if="editing.pipe.meta.options.length">
-          <div v-for="(option, index) in editing.pipe.meta.options" :key="index" class="mb-2">
+        <div class="font-bold mb-2" v-text="state.editing.pipe.meta.name"></div>
+        <div class="text-left" v-if="state.editing.pipe.meta.options.length">
+          <div v-for="(option, index) in state.editing.pipe.meta.options" :key="index" class="mb-2">
             <div v-if="option.type === 'checkbox'">
               <label class="block">
-                <input type="checkbox" v-model="editing.options[option.name]">
+                <input type="checkbox" v-model="state.editing.options[option.name]">
                 <span v-text="option.description"></span>
               </label>
             </div>
@@ -51,114 +50,140 @@
               <label class="block" v-text="option.description"></label>
               <div v-if="option.type === 'radio'">
                 <label v-for="(choice, index) in option.choices" class="block" :key="index">
-                  <input type="radio" :value="choice.value" v-model="editing.options[option.name]">
+                  <input type="radio" :value="choice.value" v-model="state.editing.options[option.name]">
                   <span v-text="choice.label"></span>
                 </label>
               </div>
-              <input v-else-if="option.type === 'number'" class="form-input" type="number" v-model.number="editing.options[option.name]">
-              <input v-else class="form-input" v-model="editing.options[option.name]">
+              <input v-else-if="option.type === 'number'" class="form-input" type="number" v-model.number="state.editing.options[option.name]">
+              <input v-else class="form-input" v-model="state.editing.options[option.name]">
             </div>
           </div>
-        </template>
+        </div>
         <div class="empty" v-else>
           <div class="empty-title">No options available</div>
         </div>
       </div>
-    </div>
+    </VlModal>
   </section>
 </template>
 
-<script>
-import { debounce } from '~/components/utils';
+<script setup lang="ts">
+import { computed, reactive, ref, watch } from 'vue';
+import VlModal from '~/components/vl-modal';
 
-export default {
-  props: ['input', 'pipes'],
-  data() {
-    return {
-      appliedPipes: [],
-      search: '',
-      editing: null,
-      errorPipe: null,
-    };
-  },
-  computed: {
-    filteredPipes() {
-      if (!this.search) return this.pipes;
-      const search = this.search.toLowerCase();
-      return this.pipes.filter(pipe => pipe.meta._search.includes(search));
-    },
-  },
-  watch: {
-    input: {
-      handler: 'update',
-      immediate: true,
-    },
-    appliedPipes: {
-      handler: 'update',
-      deep: true,
-    },
-  },
-  methods: {
-    update: debounce(function update() {
-      let output;
-      let lastPipe;
-      try {
-        let data = this.input;
-        if (this.input) {
-          for (const { pipe, options } of this.appliedPipes) {
-            lastPipe = pipe;
-            data = pipe.handle(data, options);
-          }
-        }
-        lastPipe = null;
-        output = {
-          data,
-        };
-      } catch (e) {
-        output = {
-          error: e,
-        };
-      }
-      this.errorPipe = lastPipe;
-      this.$emit('change', output);
-    }, 300),
-    addPipe(pipe) {
-      const options = pipe.meta.options.reduce((res, item) => {
-        if (item.default != null) res[item.name] = item.default;
-        return res;
-      }, {});
-      this.appliedPipes.push({
-        pipe,
-        options,
-      });
-    },
-    reprOptions(options) {
-      const repr = Object.keys(options)
-        .map(key => `${key}=${options[key]}`)
-        .join(';');
-      return repr ? `[${repr}]` : '';
-    },
-    onRemovePipe(index) {
-      this.appliedPipes.splice(index, 1);
-    },
-    onClearPipes() {
-      this.appliedPipes.splice(0);
-    },
-    onStopEditing() {
-      this.editing = null;
-    },
-    dumpPipes() {
-      return this.appliedPipes.map(({ pipe, options }) => ({
-        key: pipe.meta.key,
-        options,
-      }));
-    },
-    loadPipes(items) {
-      this.appliedPipes = items.map(({ key, options }) => {
-        const pipe = this.pipes.find(p => p.meta.key === key);
-        return pipe && { pipe, options };
-      }).filter(Boolean);
-    },
-  },
-};
+interface PipeValue {
+  name: string;
+  options: Record<string, unknown>;
+  normalizedOptions: Record<string, unknown>;
+}
+
+interface PipeInfo {
+  meta: {
+    name: string;
+    options: Array<{
+      type: 'input' | 'checkbox' | 'radio' | 'number';
+      name: string;
+      description: string;
+      default?: unknown;
+      choices?: Array<{ label: string; value: string }>;
+      normalize?: (input: unknown) => unknown;
+    }>;
+  };
+}
+
+const props = defineProps<{
+  pipeList: PipeInfo[];
+  errorPipe?: string;
+  modelValue: PipeValue[];
+}>();
+const emits = defineEmits<{
+  (event: 'update:modelValue', value: PipeValue[]): void;
+}>();
+
+const state = reactive<{
+  search: string;
+  editing?: {
+    pipe: PipeInfo;
+    value: PipeValue;
+    options: Record<string, unknown>;
+  };
+}>({
+  search: '',
+});
+
+const appliedPipes = ref<PipeValue[]>([]);
+watch(() => props.modelValue, (value: PipeValue[]) => {
+  appliedPipes.value = value;
+});
+
+const filteredPipes = computed(() => {
+  let pipes = props.pipeList;
+  const search = state.search.toLowerCase();
+  if (search) {
+    pipes = pipes.filter(pipe => pipe.meta.name.toLowerCase().includes(search));
+  }
+  return pipes;
+});
+
+function addPipe(pipe: PipeInfo) {
+  const { options, normalizedOptions } = pipe.meta.options.reduce((res, item) => {
+    if (item.default != null) {
+      let value = item.default;
+      res.options[item.name] = value;
+      if (item.normalize) value = item.normalize(value);
+      res.normalizedOptions[item.name] = value;
+    }
+    return res;
+  }, {
+    options: {} as Record<string, unknown>,
+    normalizedOptions: {} as Record<string, unknown>,
+  });
+  emits('update:modelValue', [
+    ...props.modelValue,
+    {
+      name: pipe.meta.name,
+      options,
+      normalizedOptions,
+    }
+  ]);
+}
+
+function reprOptions(options: Record<string, unknown>) {
+  const repr = Object.keys(options)
+  .map(key => `${key}=${options[key]}`)
+  .join(';');
+  return repr ? `[${repr}]` : '';
+}
+
+function onRemovePipe(index: number) {
+  emits('update:modelValue', [
+    ...props.modelValue.slice(0, index),
+    ...props.modelValue.slice(index + 1),
+  ]);
+}
+
+function onClearPipes() {
+  emits('update:modelValue', []);
+}
+
+function onEditStart(value: PipeValue) {
+  const pipe = props.pipeList.find(pipe => pipe.meta.name === value.name);
+  state.editing = {
+    pipe,
+    value,
+    options: { ...value.options },
+  };
+}
+
+function onEditEnd() {
+  state.editing.value.options = state.editing.options;
+  state.editing.value.normalizedOptions = state.editing.pipe.meta.options.reduce((res, item) => {
+    let value = state.editing.options[item.name];
+    if (value != null && item.normalize) value = item.normalize(value);
+    res[item.name] = value;
+    return res;
+  }, {} as Record<string, unknown>);
+  state.editing = null;
+  emits('update:modelValue', [...props.modelValue]);
+}
 </script>
