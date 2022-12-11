@@ -1,7 +1,6 @@
-body {
-  @apply text-gray-800;
-  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-}
+@tailwind base;
+@tailwind comopnents;
+@tailwind utilities;
 
 h1 {
   @apply text-3xl;
@@ -31,7 +30,7 @@ button {
     @apply bg-gray-100;
   }
   &.active,
-  &.nuxt-link-active {
+  &.router-link-active {
     @apply bg-gray-300 text-gray-800;
   }
 }
@@ -55,16 +54,14 @@ button {
     top: 20px;
     transform: translateX(-10vw);
 
-    &.anim-toast-enter {
-      transform: translateX(150%);
-    }
-
-    &.anim-toast-enter-active {
-      transition: transform .3s;
-    }
-
+    &.anim-toast-enter-active,
     &.anim-toast-leave-active {
       transition: all .3s;
+    }
+    &.anim-toast-enter-from {
+      transform: translateX(150%);
+    }
+    &.anim-toast-leave-to {
       transform: translate(-7vw,20px);
       opacity: 0;
     }

@@ -1,4 +1,5 @@
-export default () => {
+export default defineNuxtPlugin(() => {
+  if (!process.client) return;
   if (process.env.NODE_ENV === 'production') {
     const script = document.createElement('script');
     script.src = 'https://u.gerald.win/u.js';
@@ -7,4 +8,4 @@ export default () => {
     script.dataset.websiteId = '74d7c261-0e76-42b1-8092-1ec201c687e3';
     document.head.append(script);
   }
-};
+});
