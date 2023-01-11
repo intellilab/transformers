@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex h-screen">
-      <aside class="flex flex-col p-3 bg-gray-100">
+      <aside class="flex flex-col p-3">
         <NuxtLink to="/"><h2>Transformers</h2></NuxtLink>
         <div class="flex-1 my-2">
           <NuxtLink class="menu-item" to="/string/">String pipes</NuxtLink>
@@ -9,7 +9,7 @@
           <NuxtLink class="menu-item" to="/color/">Color pipes</NuxtLink>
           <NuxtLink class="menu-item" to="/vmess/">VMess URL editor</NuxtLink>
         </div>
-        <footer class="text-gray-600">
+        <footer>
           <p>Designed with &hearts; by <a href="https://gera2ld.space" target="_blank" rel="noopener noreferrer">Gerald</a></p>
         </footer>
       </aside>
