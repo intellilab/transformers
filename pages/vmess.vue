@@ -12,6 +12,7 @@
           <VlCode class="t-code" v-model="urlDetail.value" :options="optionsDetail" />
         </div>
         <div>
+          <div class="mb-1">QRCode for Client</div>
           <QRCanvas class="qrcode" :width="300" :height="300" :options="optionsQR" />
         </div>
       </div>
@@ -23,7 +24,7 @@
     <VlModal v-if="modal" show @close="modal = null">
       <div class="modal-content mx-auto flex flex-col" style="height: 80vh">
         <div class="mb-2" v-text="modal.title"></div>
-        <textarea class="flex-1 border border-gray-400" readonly :value="modal.value" @click="$event.target.select()"></textarea>
+        <textarea class="flex-1 form-input" readonly :value="modal.value" @click="$event.target.select()"></textarea>
       </div>
     </VlModal>
   </div>
@@ -36,18 +37,20 @@ import { QRCanvas } from 'qrcanvas-vue';
 import { debounce } from 'lodash-es';
 import { loadVMess, dumpVMess } from '~/components/url';
 import VlModal from '~/components/vl-modal';
+import { VlCode, defaultOptions } from '~/components/vl-code';
+import { defaultQROptions } from '~~/components/common';
 import { createConfig as createClientConfig } from '~/components/v2ray/client';
 import { createConfig as createServerConfig } from '~/components/v2ray/server';
 
-const optionsContent = {
+const optionsContent = computed(() => ({
+  ...defaultOptions,
   mode: null,
   styleActiveLine: true,
-};
-const optionsDetail = {
+}));
+const optionsDetail = computed(() => ({
+  ...defaultOptions,
   mode: 'yaml',
-};
-
-const VlCode = defineAsyncComponent(() => import('~/components/vl-code'));
+}));
 
 const urlDetail = reactive<{
   line?: number;
@@ -61,9 +64,10 @@ const modal = ref<{
   value: string;
 }>();
 
-const optionsQR = computed(() => {
-  return { data: urlDetail.url };
-});
+const optionsQR = computed(() => ({
+  ...defaultQROptions,
+  data: urlDetail.url,
+}));
 
 let updateCurrent: (value: string) => void = () => {};
 

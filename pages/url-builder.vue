@@ -26,7 +26,7 @@
               <div class="mt-4">
                 <QRCanvas class="qrcode" :width="300" :height="content.label ? 340 : 300" :options="optionsQR" @updated="onQRUpdated" />
               </div>
-              <div class="mt-2 bg-red-500 text-white" v-if="state.error" v-text="state.error" />
+              <div class="mt-2 text-white error" v-if="state.error" v-text="state.error" />
             </div>
           </div>
           <div class="mt-4 mr-4">
@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { QRCanvas } from 'qrcanvas-vue';
 import yaml from 'js-yaml';
 import { KeyboardService } from '@violentmonkey/shortcut';
@@ -67,6 +67,8 @@ import SnapshotPanel from '~/components/snapshot-panel.vue';
 import { parseData, buildData } from '~/components/url';
 import TotpBanner from '~/components/totp-banner.vue';
 import { showToast } from '~/components/toast';
+import { VlCode, defaultOptions } from '~/components/vl-code';
+import { defaultQROptions } from '~/components/common';
 import { Snapshots, Storage } from '~/util';
 
 /**
@@ -80,14 +82,13 @@ import { Snapshots, Storage } from '~/util';
  */
 
 const keyboardService = new KeyboardService();
-const optionsCodeMirror = {
+const optionsCodeMirror = computed(() => ({
+  ...defaultOptions,
   mode: 'yaml',
-};
+}));
 const store = new Storage('url-builder/settings');
 const settings = store.load({});
 const snapshots = new Snapshots('url-builder/snapshots');
-
-const VlCode = defineAsyncComponent(() => import('~/components/vl-code'));
 
 const content = reactive<{
   config: string;
@@ -108,6 +109,7 @@ const state = reactive<{
   activeIndex: -1,
 });
 const optionsQR = computed(() => ({
+  ...defaultQROptions,
   data: content.url,
 }));
 const shareContent = ref<{ url: string }>();
@@ -147,7 +149,6 @@ function onSave(asNew?: boolean) {
     data: { name, label, config },
   };
   state.activeIndex = snapshots.updateItem(asNew ? -1 : state.activeIndex, item);
-  console.log(item, state.activeIndex);
   showToast('Saved');
 }
 
@@ -236,7 +237,6 @@ function onShare() {
 }
 
 function onPick({ data }) {
-  console.log('pick', data);
   Object.assign(content, {
     name: data.name,
     label: data.label,
@@ -258,20 +258,3 @@ function onSelectAll(e: MouseEvent) {
   (e.target as HTMLInputElement).select();
 }
 </script>
-
-<style>
-.t-code {
-  border: 1px solid #caced7;
-  > .CodeMirror {
-    height: 400px;
-  }
-}
-
-.t-url {
-  word-break: break-all;
-}
-
-.qrcode {
-  max-width: 100%;
-}
-</style>

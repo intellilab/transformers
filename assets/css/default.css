@@ -2,6 +2,18 @@
 @tailwind comopnents;
 @tailwind utilities;
 
+.t-border {
+  @apply border border-gray-400 dark:border-gray-600;
+}
+
+body {
+  @apply dark:bg-zinc-800 dark:text-gray-400;
+}
+
+aside {
+  @apply bg-gray-100 dark:bg-zinc-900;
+}
+
 h1 {
   @apply text-3xl;
 }
@@ -18,31 +30,42 @@ a {
 }
 
 button {
-  @apply rounded border border-gray-600 px-2 py-1;
+  @apply t-border rounded px-2 py-1;
   &:hover {
-    @apply bg-gray-200;
+    @apply bg-gray-200 dark:bg-gray-700;
   }
 }
 
 .menu-item {
-  @apply flex px-2 py-1 cursor-pointer text-gray-600;
+  @apply flex px-2 py-1 cursor-pointer text-gray-600 dark:text-gray-500;
   &:hover {
-    @apply bg-gray-100;
+    @apply bg-gray-100 dark:bg-gray-800;
   }
   &.active,
   &.router-link-active {
-    @apply bg-gray-300 text-gray-800;
+    @apply bg-gray-300 text-gray-800 dark:bg-gray-600 dark:text-gray-300;
   }
 }
 
 .form-input {
-  @apply block border border-gray-400 p-1 w-full;
+  @apply t-border block p-1 w-full bg-transparent;
 }
 
 .t-code {
+  @apply t-border;
   > .CodeMirror {
+    height: 400px;
     font-family: Monaco, Consolas, monospace;
   }
+}
+
+.t-url {
+  word-break: break-all;
+}
+
+.qrcode {
+  @apply dark:brightness-50;
+  max-width: 100%;
 }
 
 .t-toast {
@@ -83,9 +106,9 @@ button {
     resize: none;
   }
   &-pipe {
-    @apply inline-block px-2 py-1 border border-gray-600 rounded align-top;
+    @apply t-border inline-block px-2 py-1 rounded align-top;
     &.disabled {
-      @apply text-gray-400 border-gray-400;
+      @apply text-gray-400 border-gray-300 dark:border-gray-700 dark:text-gray-500;
     }
   }
 }
@@ -95,5 +118,13 @@ button {
 }
 
 code {
-  @apply bg-gray-100 border border-gray-300 rounded px-1;
+  @apply bg-yellow-200 rounded px-1 dark:bg-yellow-900 dark:text-white;
+}
+
+textarea {
+  @apply t-border;
+}
+
+.error {
+  @apply bg-red-500 dark:bg-red-900;
 }
