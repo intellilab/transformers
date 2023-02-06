@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, reactive, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import yaml from 'js-yaml';
 import { QRCanvas } from 'qrcanvas-vue';
 import { debounce } from 'lodash-es';
