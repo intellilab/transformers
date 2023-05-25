@@ -36,7 +36,7 @@
             rows="10"
             v-model="state.modal.content"
             :readOnly="state.modal.readOnly"
-            @click="state.modal.readOnly && $event.target.select()"
+            @click="onClick"
           />
         </div>
         <span
@@ -54,8 +54,8 @@
 
 <script setup lang="ts">
 import { computed, reactive } from 'vue';
-import VlModal from '~/components/vl-modal';
-import { Snapshots } from '~/util';
+import VlModal from '@/components/vl-modal';
+import { ISnapshot, Snapshots } from '@/util';
 
 const props = defineProps<{
   title: string;
@@ -106,7 +106,11 @@ function onExport() {
     readOnly: true,
   };
 }
+function onClick(e: MouseEvent) {
+  if (state.modal?.readOnly) (e.target as HTMLTextAreaElement).select();
+}
 function importData() {
+  if (!state.modal) return;
   try {
     const data = JSON.parse(state.modal.content);
     if (!Array.isArray(data)) throw new Error('Invalid data.');
@@ -120,7 +124,7 @@ function importData() {
   }
 }
 
-function onPick({ index, data }) {
+function onPick({ index, data }: { index: number; data: ISnapshot }) {
   emits('update:modelValue', index === props.modelValue ? -1 : index);
   emits('pick', data, index);
 }
@@ -134,6 +138,6 @@ function onRemove(index: number) {
 }
 
 function onClose() {
-  state.modal = null;
+  state.modal = undefined;
 }
 </script>
