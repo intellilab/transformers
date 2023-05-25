@@ -1,0 +1,1 @@
+import{J as m}from"./index.d4e515d0.js";import{y as a}from"./js-yaml.19e9359e.js";function e(o){const t=m.parse(o);return a.dump(t)}const p={name:"JSON5 to Yaml",options:[]};export{e as handle,p as meta};

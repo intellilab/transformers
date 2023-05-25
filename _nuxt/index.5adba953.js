@@ -1,0 +1,1 @@
+import{m as o,e as s,o as t,f as e}from"./entry.1b7503ea.js";const n={},r=e("h1",null,"Transformers",-1),c=e("p",null,"A bunch of pipe based transformers to facilitate your daily life.",-1),a=[r,c];function _(i,l){return t(),s("div",null,a)}const d=o(n,[["render",_]]);export{d as default};

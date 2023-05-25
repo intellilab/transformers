@@ -1,0 +1,1 @@
+import{b as a}from"./entry.1b7503ea.js";const s=a([]);let n=0;function m(c,t=2e3){n+=1;const e={id:n,text:c};s.push(e);const i=()=>{const o=s.indexOf(e);o>=0&&s.splice(o,1)};return t&&setTimeout(i,t),i}export{m as s,s as t};

@@ -1,0 +1,1 @@
+function c(o){const t=s(o);return btoa(t)}const r={name:"Text to Base64",options:[]};function s(o){const t=[];for(let n=0;n<o.length;n+=1){const e=o.charCodeAt(n);e<128?t.push(e):e<2048?t.push(e>>6|192,e&63|128):t.push(e>>12|224,e>>6&63|128,e&63|128)}return String.fromCharCode(...t)}export{c as handle,r as meta};

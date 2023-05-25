@@ -1,0 +1,1 @@
+import{J as o}from"./index.d4e515d0.js";function r(n,t){const e=o.parse(n);return JSON.stringify(e,null,t.indent)}const a={name:"JSON5 to JSON",options:[{name:"indent",description:"Indent",type:"number",default:2}]};export{r as handle,a as meta};

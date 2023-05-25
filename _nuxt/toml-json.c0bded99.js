@@ -1,0 +1,1 @@
+import{t as n}from"./toml.2fcaee2b.js";import"./_commonjsHelpers.042e6b4d.js";function i(t){const o=n.parse(t);return JSON.stringify(o)}const m={name:"TOML to JSON",options:[]};export{i as handle,m as meta};
