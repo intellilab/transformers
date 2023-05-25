@@ -38,7 +38,7 @@
             <input class="form-input" v-model="content.name">
           </div>
           <div class="mt-4">
-            <button class="mr-2 mb-1" @click="onReset">Reset</button>
+            <button class="mr-2 mb-1" @click="onReset()">Reset</button>
             <button class="mr-2 mb-1" :disabled="!content.config" @click="onSave()">Save</button>
             <button class="mr-2 mb-1" :disabled="!content.config" @click="onSave(true)">Save as New</button>
             <button class="mr-2 mb-1" :disabled="!content.config" @click="onShare">Share</button>
@@ -63,13 +63,13 @@ import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { QRCanvas } from 'qrcanvas-vue';
 import yaml from 'js-yaml';
 import { KeyboardService } from '@violentmonkey/shortcut';
-import SnapshotPanel from '~/components/snapshot-panel.vue';
-import { parseData, buildData } from '~/components/url';
-import TotpBanner from '~/components/totp-banner.vue';
-import { showToast } from '~/components/toast';
-import { VlCode, defaultOptions } from '~/components/vl-code';
-import { defaultQROptions } from '~/components/common';
-import { Snapshots, Storage } from '~/util';
+import SnapshotPanel from '@/components/snapshot-panel.vue';
+import { parseData, buildData } from '@/components/url';
+import TotpBanner from '@/components/totp-banner.vue';
+import { showToast } from '@/components/toast';
+import { VlCode, defaultOptions } from '@/components/vl-code';
+import { defaultQROptions } from '@/components/common';
+import { Snapshots, Storage } from '@/util';
 
 /**
  * Left panel: config -> parsedConfig
@@ -104,7 +104,7 @@ const content = reactive<{
 const state = reactive<{
   activeIndex: number;
   error?: string;
-  totp?: Record<string, unknown>;
+  totp?: Record<string, any>;
 }>({
   activeIndex: -1,
 });
@@ -117,13 +117,14 @@ let updatingConfig = false;
 let updatingUrl = false;
 
 watch(optionsQR, () => {
-  shareContent.value = null;
+  shareContent.value = undefined;
 });
 
 const disposeList: Array<() => void> = [];
 onMounted(() => {
   keyboardService.enable();
   disposeList.push(keyboardService.register('ctrlcmd-s', () => onSave()));
+  restoreData();
 });
 
 onUnmounted(() => {
@@ -133,7 +134,7 @@ onUnmounted(() => {
 function onQRUpdated(canvas: HTMLCanvasElement) {
   const { label } = content;
   if (label) {
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext('2d')!;
     context.clearRect(0, 300, 300, 40);
     context.font = '24px -apple-system, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, "Segoe UI", Roboto, "Helvetica Neue", sans-serif';
     context.fillStyle = 'dodgerblue';
@@ -155,13 +156,14 @@ function onSave(asNew?: boolean) {
 function checkHash() {
   const query = new URLSearchParams(window.location.hash.slice(1));
   const data = {
-    name: query.get('name'),
-    label: query.get('label'),
+    name: query.get('name') || '',
+    label: query.get('label') || '',
     url: query.get('url'),
   };
   if (data.url) {
     state.activeIndex = -1;
     Object.assign(content, data);
+    setUrl(data.url);
     window.location.hash = '';
   }
 }
@@ -175,15 +177,21 @@ function saveData() {
   store.dump(settings);
 }
 
-function setConfig(data: string) {
-  if (updatingConfig || data === content.config) return;
+function restoreData() {
+  const autoSaved = settings.autoSaved || {};
+  onReset(autoSaved);
+  state.activeIndex = autoSaved.activeIndex ?? -1;
+}
+
+function setConfig(data: string, force = false) {
+  if (updatingConfig || data === content.config && !force) return;
   updatingConfig = true;
   content.config = data;
 
-  let parsedConfig: Record<string, any>;
+  let parsedConfig: Record<string, any> | undefined;
   try {
-    state.error = null;
-    parsedConfig = data && yaml.load(data);
+    state.error = undefined;
+    parsedConfig = data ? yaml.load(data) as Record<string, any> : undefined;
   } catch (err) {
     state.error = `${err}`;
     console.error(err);
@@ -196,7 +204,7 @@ function setConfig(data: string) {
       ...parsedConfig.query,
     };
   } else {
-    state.totp = null;
+    state.totp = undefined;
   }
 
   saveData();
@@ -223,7 +231,7 @@ function onUrlChange(e: Event) {
 
 function onShare() {
   const { origin, pathname, search } = window.location;
-  const { name, label, url } = this.content;
+  const { name, label, url } = content;
   const query = { name, label, url };
   let qs = Object.entries(query)
   .map(([key, value]) => value && [key, value].map(encodeURIComponent).join('='))
@@ -244,14 +252,13 @@ function onPick({ data }) {
   setConfig(data.config);
 }
 
-function onReset() {
+function onReset(data: Record<string, string> = {}) {
   state.activeIndex = -1;
   Object.assign(content, {
-    name: '',
-    label: '',
-    config: '',
-    url: '',
+    name: data.name || '',
+    label: data.label || '',
   });
+  setConfig(data.config || '', true);
 }
 
 function onSelectAll(e: MouseEvent) {

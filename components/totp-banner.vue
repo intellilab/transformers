@@ -27,22 +27,24 @@ const options = computed(() => ({
   ...props.data,
   label: props.data.label || '',
   algorithm: props.data.algorithm || 'sha1',
-  digits: +props.data.digits || 6,
-  period: +props.data.period || 30,
+  digits: +(props.data.digits || 6),
+  period: +(props.data.period || 30),
 }));
 
-let totp: TOTP;
+let totp: TOTP | null;
 watch(options, (options) => {
   try {
     totp = new TOTP(options);
-    update();
-  } catch {
+  } catch (err) {
+    console.error(err);
     totp = null;
   }
-});
+  update();
+}, { immediate: true });
 
 function update() {
   try {
+    if (!totp) throw new Error('Invalid TOTP');
     state.value = totp.generate();
   } catch {
     state.value = '??????';
@@ -58,7 +60,7 @@ function updateCount() {
 
 let timer: number;
 onMounted(() => {
-  timer = setInterval(updateCount, 1000);
+  timer = window.setInterval(updateCount, 1000);
   updateCount();
   update();
 })
