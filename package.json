@@ -6,40 +6,34 @@
   "author": "Gerald <i@gera2ld.space>",
   "license": "ISC",
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "husky",
     "dev": "nuxt dev",
     "build": "nuxt build",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
-    "lint": "eslint --ext .js,.vue .",
-    "test": "jest tests"
+    "postinstall": "nuxt prepare"
   },
   "devDependencies": {
-    "@gera2ld/plaid": "~2.5.9",
-    "@gera2ld/plaid-common-ts": "~2.5.9",
-    "@gera2ld/plaid-common-vue": "~2.5.9",
-    "@gera2ld/plaid-test": "~2.5.9",
-    "@nuxtjs/tailwindcss": "^6.7.0",
-    "@types/js-yaml": "^4.0.5",
-    "husky": "^8.0.3",
-    "nuxt": "^3.5.1",
-    "postcss": "^8.4.23",
-    "postcss-nested": "^6.0.1"
-  },
-  "dependencies": {
     "@gera2ld/format-json": "^0.3.0",
     "@iarna/toml": "^2.2.5",
     "@nuxtjs/pwa": "^3.3.5",
-    "@violentmonkey/shortcut": "^1.2.7",
-    "codemirror": "^5.63.1",
+    "@nuxtjs/tailwindcss": "^6.12.2",
+    "@types/js-yaml": "^4.0.9",
+    "@violentmonkey/shortcut": "^1.4.4",
+    "codemirror": "^5.65.18",
+    "common-lib": "gitlab:gera2ld/common-lib",
+    "husky": "^9.1.6",
     "js-yaml": "^4.1.0",
     "json5": "^2.2.3",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
-    "otpauth": "^9.1.2",
-    "plist": "^3.0.6",
+    "nuxt": "^3.13.2",
+    "otpauth": "^9.3.4",
+    "plist": "^3.1.0",
+    "postcss": "^8.4.47",
+    "postcss-nested": "^6.2.0",
     "qrcanvas-vue": "^3.0.0",
-    "vueleton": "^2.0.2"
+    "vueleton": "^2.0.2",
+    "yaml": "^2.6.0"
   }
 }
