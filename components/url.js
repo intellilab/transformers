@@ -21,17 +21,15 @@ export function buildData(raw) {
     };
   }
   if (config._type === 'url') {
-    const parts = [
-      config.protocol,
-      config.host && '//',
-      config.host,
-    ];
+    const parts = [config.protocol, config.host && '//', config.host];
     let pathname = config.pathname || config.path;
     let { query } = config;
     if (config.protocol === 'otpauth:') {
       const payload = config.payload || {};
       if (payload.type && payload.label) {
-        pathname = `//${encodeURIComponent(payload.type)}/${encodeURIComponent(payload.label)}`;
+        pathname = `//${encodeURIComponent(payload.type)}/${encodeURIComponent(
+          payload.label
+        )}`;
       }
       query = dropEmpty(query);
     } else if (config.protocol === 'vmess:') {
@@ -46,12 +44,18 @@ export function buildData(raw) {
   }
   if (config._type === 'object' && config.data) {
     const { data } = config;
-    if (Array.isArray(data)) return data.map(buildData).map(encodeURIComponent).join(',');
-    return Object.keys(config.data).map(key => {
-      const value = config.data[key];
-      if (value == null) return;
-      return `${encodeURIComponent(key)}=${encodeURIComponent(buildData(value))}`;
-    }).filter(Boolean).join('&');
+    if (Array.isArray(data))
+      return data.map(buildData).map(encodeURIComponent).join(',');
+    return Object.keys(config.data)
+      .map((key) => {
+        const value = config.data[key];
+        if (value == null) return;
+        return `${encodeURIComponent(key)}=${encodeURIComponent(
+          buildData(value)
+        )}`;
+      })
+      .filter(Boolean)
+      .join('&');
   }
   return config.data == null ? '' : config.data;
 }
@@ -82,7 +86,9 @@ export function parseData(str) {
       config.host = url.host;
     }
     if (url.protocol === 'otpauth:') {
-      const [, type, label] = url.pathname.match(/^\/\/([^/]*)\/(.*)|$/).map(s => s && decodeURIComponent(s));
+      const [, type, label] = url.pathname
+        .match(/^\/\/([^/]*)\/(.*)|$/)
+        .map((s) => s && decodeURIComponent(s));
       config.payload = {
         type: type || 'totp',
         label: label || '',
@@ -147,23 +153,25 @@ function getRandomHex() {
 }
 
 export function loadVMess(url) {
+  let data = { ...vmessDefaults };
+  let valid = true;
   if (url.protocol === 'vmess:') {
-    let data = { ...vmessDefaults };
-    if (url.pathname.startsWith('//')) {
+    if (url.host) {
       try {
+        const raw = atob(url.host);
         data = {
           ...data,
-          ...JSON.parse(atob(url.pathname.slice(2))),
+          ...JSON.parse(raw),
         };
       } catch {
-        // noop
+        valid = false;
       }
     }
     if (/x/.test(data.id)) {
       data.id = data.id.replace(/x/g, getRandomHex);
     }
-    return data;
   }
+  return { data, valid };
 }
 
 export function dumpVMess(data) {

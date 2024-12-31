@@ -11,22 +11,44 @@
                   Parsed data
                   <span class="ml-1 text-sm">(in Yaml)</span>
                 </div>
-                <VlCode class="t-code" :modelValue="content.config" @update:modelValue="setConfig" @ready="checkHash" :options="optionsCodeMirror" />
+                <CodeEditor
+                  class="t-code"
+                  lang="yaml"
+                  v-model="content.config"
+                />
               </div>
             </div>
             <div class="flex-1 mr-4">
               <div>
                 <div class="mb-1">
                   URL
-                  <span class="ml-1 text-sm">(Special protocols like <code>otpauth:</code>, <code>vmess:</code> are supported)</span>
+                  <span class="ml-1 text-sm"
+                    >(Special protocols like <code>otpauth:</code>,
+                    <code>vmess:</code> are supported)</span
+                  >
                 </div>
-                <textarea class="form-input" :value="content.url" @input="onUrlChange" rows="4" />
+                <textarea
+                  class="form-input"
+                  :value="content.url"
+                  @input="onUrlChange"
+                  rows="4"
+                />
                 <TotpBanner v-if="state.totp" :data="state.totp" />
               </div>
               <div class="mt-4">
-                <QRCanvas class="qrcode" :width="300" :height="content.label ? 340 : 300" :options="optionsQR" @updated="onQRUpdated" />
+                <QRCanvas
+                  class="qrcode"
+                  :width="300"
+                  :height="content.label ? 340 : 300"
+                  :options="optionsQR"
+                  @updated="onQRUpdated"
+                />
               </div>
-              <div class="mt-2 text-white error" v-if="state.error" v-text="state.error" />
+              <div
+                class="mt-2 text-white error"
+                v-if="state.error"
+                v-text="state.error"
+              />
             </div>
           </div>
           <div class="mt-4 mr-4">
@@ -35,16 +57,39 @@
           </div>
           <div class="mt-4 mr-4">
             <label class="mb-1">Name</label>
-            <input class="form-input" v-model="content.name">
+            <input class="form-input" v-model="content.name" />
           </div>
           <div class="mt-4">
             <button class="mr-2 mb-1" @click="onReset()">Reset</button>
-            <button class="mr-2 mb-1" :disabled="!content.config" @click="onSave()">Save</button>
-            <button class="mr-2 mb-1" :disabled="!content.config" @click="onSave(true)">Save as New</button>
-            <button class="mr-2 mb-1" :disabled="!content.config" @click="onShare">Share</button>
+            <button
+              class="mr-2 mb-1"
+              :disabled="!content.config"
+              @click="onSave()"
+            >
+              Save
+            </button>
+            <button
+              class="mr-2 mb-1"
+              :disabled="!content.config"
+              @click="onSave(true)"
+            >
+              Save as New
+            </button>
+            <button
+              class="mr-2 mb-1"
+              :disabled="!content.config"
+              @click="onShare"
+            >
+              Share
+            </button>
           </div>
           <div v-if="shareContent">
-            <input class="form-input" readonly :value="shareContent.url" @click="onSelectAll" />
+            <input
+              class="form-input"
+              readonly
+              :value="shareContent.url"
+              @click="onSelectAll"
+            />
           </div>
         </div>
         <SnapshotPanel
@@ -67,7 +112,7 @@ import SnapshotPanel from '@/components/snapshot-panel.vue';
 import { parseData, buildData } from '@/components/url';
 import TotpBanner from '@/components/totp-banner.vue';
 import { showToast } from '@/components/toast';
-import { VlCode, defaultOptions } from '@/components/vl-code';
+import CodeEditor from '~/components/code-editor.vue';
 import { defaultQROptions } from '@/components/common';
 import { Snapshots, Storage } from '@/util';
 
@@ -81,12 +126,18 @@ import { Snapshots, Storage } from '@/util';
  *             -> config -> parsedConfig
  */
 
+interface IConfigItem {
+  name: string;
+  label: string;
+  config: string;
+}
+
 const keyboardService = new KeyboardService();
-const optionsCodeMirror = computed(() => ({
-  ...defaultOptions,
-  mode: 'yaml',
-}));
-const store = new Storage('url-builder/settings');
+const store = new Storage<{
+  autoSaved?: IConfigItem & {
+    activeIndex: number;
+  };
+}>('url-builder/settings');
 const settings = store.load({});
 const snapshots = new Snapshots('url-builder/snapshots');
 
@@ -128,7 +179,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  disposeList.forEach(dispose => dispose());
+  disposeList.forEach((dispose) => dispose());
 });
 
 function onQRUpdated(canvas: HTMLCanvasElement) {
@@ -136,7 +187,8 @@ function onQRUpdated(canvas: HTMLCanvasElement) {
   if (label) {
     const context = canvas.getContext('2d')!;
     context.clearRect(0, 300, 300, 40);
-    context.font = '24px -apple-system, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, "Segoe UI", Roboto, "Helvetica Neue", sans-serif';
+    context.font =
+      '24px -apple-system, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, "Segoe UI", Roboto, "Helvetica Neue", sans-serif';
     context.fillStyle = 'dodgerblue';
     context.textAlign = 'center';
     context.fillText(label, 150, 330);
@@ -149,7 +201,10 @@ function onSave(asNew?: boolean) {
     name: name || 'No name',
     data: { name, label, config },
   };
-  state.activeIndex = snapshots.updateItem(asNew ? -1 : state.activeIndex, item);
+  state.activeIndex = snapshots.updateItem(
+    asNew ? -1 : state.activeIndex,
+    item
+  );
   showToast('Saved');
 }
 
@@ -171,27 +226,29 @@ function checkHash() {
 function saveData() {
   const { name, label, config } = content;
   settings.autoSaved = {
-    name, label, config,
+    name,
+    label,
+    config,
     activeIndex: state.activeIndex,
   };
   store.dump(settings);
 }
 
 function restoreData() {
-  const autoSaved = settings.autoSaved || {};
+  const autoSaved = settings.autoSaved;
   onReset(autoSaved);
-  state.activeIndex = autoSaved.activeIndex ?? -1;
+  state.activeIndex = autoSaved?.activeIndex ?? -1;
 }
 
 function setConfig(data: string, force = false) {
-  if (updatingConfig || data === content.config && !force) return;
+  if (updatingConfig || (data === content.config && !force)) return;
   updatingConfig = true;
   content.config = data;
 
   let parsedConfig: Record<string, any> | undefined;
   try {
     state.error = undefined;
-    parsedConfig = data ? yaml.load(data) as Record<string, any> : undefined;
+    parsedConfig = data ? (yaml.load(data) as Record<string, any>) : undefined;
   } catch (err) {
     state.error = `${err}`;
     console.error(err);
@@ -209,7 +266,7 @@ function setConfig(data: string, force = false) {
 
   saveData();
   if (!updatingUrl) {
-    setUrl(parsedConfig && buildData(parsedConfig) || '');
+    setUrl((parsedConfig && buildData(parsedConfig)) || '');
   }
   updatingConfig = false;
 }
@@ -234,9 +291,11 @@ function onShare() {
   const { name, label, url } = content;
   const query = { name, label, url };
   let qs = Object.entries(query)
-  .map(([key, value]) => value && [key, value].map(encodeURIComponent).join('='))
-  .filter(Boolean)
-  .join('&');
+    .map(
+      ([key, value]) => value && [key, value].map(encodeURIComponent).join('=')
+    )
+    .filter(Boolean)
+    .join('&');
   qs = `${qs}&_=`; // in case url is modified by other apps
   const shareUrl = `${origin}${pathname}${search}#${qs}`;
   shareContent.value = {
@@ -252,16 +311,20 @@ function onPick({ data }) {
   setConfig(data.config);
 }
 
-function onReset(data: Record<string, string> = {}) {
+function onReset(data?: IConfigItem) {
   state.activeIndex = -1;
   Object.assign(content, {
-    name: data.name || '',
-    label: data.label || '',
+    name: data?.name || '',
+    label: data?.label || '',
   });
-  setConfig(data.config || '', true);
+  setConfig(data?.config || '', true);
 }
 
 function onSelectAll(e: MouseEvent) {
   (e.target as HTMLInputElement).select();
 }
+
+onMounted(() => {
+  checkHash();
+});
 </script>

@@ -1,4 +1,4 @@
-import { Ref, ref } from 'vue';
+import { type Ref, ref } from 'vue';
 import { Storage } from './storage';
 
 export interface ISnapshot<T = unknown> {

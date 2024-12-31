@@ -5,18 +5,25 @@
       <div class="flex items-start">
         <div class="flex-1 min-w-0 mr-4">
           <div class="mb-1">VMess URLs</div>
-          <VlCode
+          <CodeEditor
+            ref="editorList"
             class="t-code"
-            @ready="onContentReady"
-            :options="optionsContent"
+            v-model="state.urlList"
+            @focus="state.editor = 'list'"
+            @cursor-move="handleCursorChange"
           />
+          <div v-if="!state.active.valid" class="text-red-500">
+            Invalid URL (Line {{ state.active.line }})
+          </div>
         </div>
         <div class="flex-1 min-w-0 mr-4">
           <div class="mb-1">Detail</div>
-          <VlCode
+          <CodeEditor
+            ref="editorDetail"
             class="t-code"
-            v-model="urlDetail.value"
-            :options="optionsDetail"
+            v-model="state.active.detail"
+            lang="yaml"
+            @focus="state.editor = 'detail'"
           />
         </div>
         <div>
@@ -30,25 +37,34 @@
         </div>
       </div>
       <div class="mt-4">
-        <button class="mr-2 mb-1" @click="onClientConfig">
+        <button
+          class="mr-2 mb-1"
+          @click="onClientConfig"
+          :disabled="!state.active.detail || !state.active.valid"
+        >
           Get client config
         </button>
-        <button class="mr-2 mb-1" @click="onServerConfig">
+        <button
+          class="mr-2 mb-1"
+          @click="onServerConfig"
+          :disabled="!state.active.detail || !state.active.valid"
+        >
           Get server config
         </button>
       </div>
     </section>
-    <VlModal v-if="modal" show @close="modal = null">
-      <div class="modal-content mx-auto flex flex-col" style="height: 80vh">
+    <div v-if="modal" class="modal" @click="modal = undefined">
+      <div class="modal-content flex flex-col" style="height: 80vh" @click.stop>
         <div class="mb-2" v-text="modal.title"></div>
-        <textarea
-          class="flex-1 form-input"
+        <CodeEditor
+          class="flex-1 form-input min-h-0"
           readonly
-          :value="modal.value"
+          lang="json"
+          :model-value="modal.content"
           @click="$event.target.select()"
-        ></textarea>
+        />
       </div>
-    </VlModal>
+    </div>
   </div>
 </template>
 
@@ -56,70 +72,71 @@
 import { computed, reactive, ref, watch } from "vue";
 import yaml from "yaml";
 import { QRCanvas } from "qrcanvas-vue";
-import { debounce } from "lodash-es";
 import { loadVMess, dumpVMess } from "~/components/url";
-import VlModal from "~/components/vl-modal";
-import { VlCode, defaultOptions } from "~/components/vl-code";
 import { defaultQROptions } from "~~/components/common";
+import CodeEditor from "~/components/code-editor.vue";
 import {
   createClientConfig,
   createServerConfig,
 } from "common-lib/src/v2fly-config";
 
-const optionsContent = computed(() => ({
-  ...defaultOptions,
-  mode: null,
-  styleActiveLine: true,
-}));
-const optionsDetail = computed(() => ({
-  ...defaultOptions,
-  mode: "yaml",
-}));
-
-const urlDetail = reactive<{
-  line?: number;
-  url?: string;
-  value: string;
+const editorList = ref<typeof CodeEditor>();
+const editorDetail = ref<typeof CodeEditor>();
+const state = reactive<{
+  editor: "list" | "detail";
+  urlList: string;
+  active: {
+    /** Active 1-based line number, always >= 1 */
+    line: number;
+    url: string;
+    detail: string;
+    valid: boolean;
+  };
 }>({
-  value: "",
+  editor: "list",
+  urlList: "",
+  active: {
+    line: 1,
+    url: "",
+    detail: "",
+    valid: true,
+  },
 });
 const modal = ref<{
   title: string;
-  value: string;
+  content: string;
 }>();
 
 const optionsQR = computed(() => ({
   ...defaultQROptions,
-  data: urlDetail.url,
+  data: state.active.url,
 }));
 
-let updateCurrent: (value: string) => void = () => {};
-
 watch(
-  () => urlDetail.value,
-  (value) => updateCurrent(value)
+  () => [state.active.line, state.urlList, state.editor],
+  () => {
+    if (state.editor !== "list") return;
+    const url = state.urlList.split("\n")[state.active.line - 1];
+    let value = "";
+    let valid = true;
+    if (url.startsWith("vmess:")) {
+      let data: unknown;
+      ({ data, valid } = loadVMess(new URL(url)));
+      value = yaml.stringify(data);
+    }
+    Object.assign(state.active, {
+      url,
+      detail: value,
+      valid,
+    });
+  }
 );
 
-function onContentReady(cm) {
-  const setCurrent = debounce(() => {
-    const { line } = cm.getCursor();
-    const url = cm.getLine(line).trim();
-    if (line === urlDetail.line && url === urlDetail.url) return;
-    let value = "";
-    try {
-      const data = loadVMess(new URL(url));
-      value = yaml.stringify(data);
-    } catch {
-      // noop
-    }
-    Object.assign(urlDetail, {
-      line,
-      url,
-      value,
-    });
-  }, 200);
-  updateCurrent = debounce((value: string) => {
-    let url: string;
+watch(
+  () => state.active.detail,
+  (value) => {
+    if (state.editor !== "detail" || !editorList.value) return;
+    let url = "";
     if (value) {
       try {
         url = dumpVMess(yaml.parse(value)).toString();
@@ -127,26 +144,21 @@ function onContentReady(cm) {
         // noop
       }
     }
-    const { line } = cm.getCursor();
-    if (url && line === urlDetail.line && url !== urlDetail.url) {
-      urlDetail.url = url;
-      urlDetail.value = value;
-      cm.replaceRange(`${url}\n`, { line, ch: 0 }, { line: line + 1, ch: 0 });
-      cm.setCursor({ line, ch: 0 });
-    }
-  }, 200) as (value: string) => void;
-  cm.on("cursorActivity", setCurrent);
-  cm.on("changes", setCurrent);
+    if (url) editorList.value.replaceLine(state.active.line, url);
+  }
+);
+
+function handleCursorChange(line: number) {
+  state.active.line = line;
 }
 
 function onClientConfig() {
-  if (!urlDetail.value) return;
+  if (!state.active.detail || !state.active.valid) return;
   try {
-    const data = yaml.parse(urlDetail.value);
-    const prefix = `// ${urlDetail.url}\n\n`;
+    const data = yaml.parse(state.active.detail);
     modal.value = {
       title: "Client config",
-      value: prefix + JSON.stringify(createClientConfig(data), null, 2),
+      content: JSON.stringify(createClientConfig(data), null, 2),
     };
   } catch {
     // noop
@@ -154,13 +166,12 @@ function onClientConfig() {
 }
 
 function onServerConfig() {
-  if (!urlDetail.value) return;
+  if (!state.active.detail || !state.active.valid) return;
   try {
-    const data = yaml.parse(urlDetail.value);
-    const prefix = `// ${urlDetail.url}\n\n`;
+    const data = yaml.parse(state.active.detail);
     modal.value = {
       title: "Server config",
-      value: prefix + JSON.stringify(createServerConfig(data), null, 2),
+      content: JSON.stringify(createServerConfig(data), null, 2),
     };
   } catch {
     // noop
