@@ -1,9 +1,12 @@
 import JSON5 from 'json5';
-import _ from 'lodash';
 
 export function handle(input, options) {
   let obj = JSON5.parse(input);
-  if (options.path) obj = _.get(obj, options.path);
+  if (options.path)
+    obj = options.path
+      .split('.')
+      .filter(Boolean)
+      .reduce((prev, key) => prev?.[key], obj);
   return JSON.stringify(obj);
 }
 
