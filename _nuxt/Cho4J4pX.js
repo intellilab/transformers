@@ -1,0 +1,1 @@
+import{l as o}from"./8HslT92O.js";function f(i,e){let t=o.parse(i);return e.path&&(t=e.path.split(".").filter(Boolean).reduce((a,n)=>a==null?void 0:a[n],t)),JSON.stringify(t)}const p={name:"JSON get",options:[{name:"path",description:"Path",type:"input",default:""}]};export{f as handle,p as meta};

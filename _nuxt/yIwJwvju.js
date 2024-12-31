@@ -1,0 +1,1 @@
+import{l as n}from"./8HslT92O.js";function e(r){const o=n.parse(r);if(typeof o!="string")throw new Error("Cannot parse JSON");return o}const a={name:"JSON parse",options:[]};export{e as handle,a as meta};
