@@ -31,7 +31,7 @@
         </svg>
       </a>
     </div>
-    <div class="flex flex-col p-2 rounded t-border" style="height: 70vh">
+    <div class="flex flex-col p-2 rounded transformers-border" style="height: 70vh">
       <div class="form-group has-icon-right mb-2">
         <input type="search" class="form-input" v-model="state.search" />
       </div>
