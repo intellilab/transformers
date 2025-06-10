@@ -14,12 +14,9 @@ export default defineNuxtConfig({
     '~/assets/css/default.css',
   ],
 
-  postcss: {
-    plugins: {
-      'tailwindcss/nesting': {},
-      tailwindcss: {},
-    },
-  },
+  modules: [
+    '@nuxtjs/tailwindcss',
+  ],
 
   vite: {
     define: {

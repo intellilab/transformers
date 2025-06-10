@@ -69,21 +69,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue";
-import yaml from "yaml";
-import { QRCanvas } from "qrcanvas-vue";
-import { loadVMess, dumpVMess } from "~/components/url";
-import { defaultQROptions } from "~~/components/common";
-import CodeEditor from "~/components/code-editor.vue";
-import {
-  createClientConfig,
-  createServerConfig,
-} from "common-lib/src/v2fly-config";
+import { computed, reactive, ref, watch } from 'vue';
+import yaml from 'yaml';
+import { QRCanvas } from 'qrcanvas-vue';
+import { loadVMess, dumpVMess } from '~/components/url';
+import { defaultQROptions } from '~~/components/common';
+import CodeEditor from '~/components/code-editor.vue';
+import { createClientConfig, createServerConfig } from '~/util/v2fly-config';
 
 const editorList = ref<typeof CodeEditor>();
 const editorDetail = ref<typeof CodeEditor>();
 const state = reactive<{
-  editor: "list" | "detail";
+  editor: 'list' | 'detail';
   urlList: string;
   active: {
     /** Active 1-based line number, always >= 1 */
@@ -93,12 +90,12 @@ const state = reactive<{
     valid: boolean;
   };
 }>({
-  editor: "list",
-  urlList: "",
+  editor: 'list',
+  urlList: '',
   active: {
     line: 1,
-    url: "",
-    detail: "",
+    url: '',
+    detail: '',
     valid: true,
   },
 });
@@ -115,11 +112,11 @@ const optionsQR = computed(() => ({
 watch(
   () => [state.active.line, state.urlList, state.editor],
   () => {
-    if (state.editor !== "list") return;
-    const url = state.urlList.split("\n")[state.active.line - 1];
-    let value = "";
+    if (state.editor !== 'list') return;
+    const url = state.urlList.split('\n')[state.active.line - 1];
+    let value = '';
     let valid = true;
-    if (url.startsWith("vmess:")) {
+    if (url.startsWith('vmess:')) {
       let data: unknown;
       ({ data, valid } = loadVMess(new URL(url)));
       value = yaml.stringify(data);
@@ -135,8 +132,8 @@ watch(
 watch(
   () => state.active.detail,
   (value) => {
-    if (state.editor !== "detail" || !editorList.value) return;
-    let url = "";
+    if (state.editor !== 'detail' || !editorList.value) return;
+    let url = '';
     if (value) {
       try {
         url = dumpVMess(yaml.parse(value)).toString();
@@ -157,7 +154,7 @@ function onClientConfig() {
   try {
     const data = yaml.parse(state.active.detail);
     modal.value = {
-      title: "Client config",
+      title: 'Client config',
       content: JSON.stringify(createClientConfig(data), null, 2),
     };
   } catch {
@@ -170,7 +167,7 @@ function onServerConfig() {
   try {
     const data = yaml.parse(state.active.detail);
     modal.value = {
-      title: "Server config",
+      title: 'Server config',
       content: JSON.stringify(createServerConfig(data), null, 2),
     };
   } catch {

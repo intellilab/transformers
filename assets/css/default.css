@@ -1,8 +1,6 @@
-@tailwind base;
-@tailwind comopnents;
-@tailwind utilities;
+@reference 'tailwindcss';
 
-.t-border {
+@utility transformers-border {
   @apply border border-gray-400 dark:border-gray-600;
 }
 
@@ -30,7 +28,7 @@ a {
 }
 
 button {
-  @apply t-border rounded px-2 py-1;
+  @apply transformers-border rounded px-2 py-1;
   &:hover {
     @apply bg-gray-200 dark:bg-gray-700;
   }
@@ -51,11 +49,11 @@ button {
 }
 
 .form-input {
-  @apply t-border block p-1 w-full bg-transparent;
+  @apply transformers-border block p-1 w-full bg-transparent;
 }
 
 .t-code {
-  @apply t-border h-[400px];
+  @apply transformers-border h-[400px];
 }
 .cm-editor {
   @apply h-full;
@@ -108,7 +106,7 @@ button {
     resize: none;
   }
   &-pipe {
-    @apply t-border inline-block px-2 py-1 rounded align-top;
+    @apply transformers-border inline-block px-2 py-1 rounded align-top;
     &.disabled {
       @apply text-gray-400 border-gray-300 dark:border-gray-700 dark:text-gray-500;
     }
@@ -127,7 +125,7 @@ code {
 }
 
 textarea {
-  @apply t-border;
+  @apply transformers-border;
 }
 
 .error {
