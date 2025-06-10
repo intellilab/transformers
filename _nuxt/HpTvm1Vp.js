@@ -1,0 +1,1 @@
+import{l as r}from"./8HslT92O.js";import{T as n}from"./59E1fXcB.js";import"./D6-XlEtG.js";function a(o){const t=r.parse(o);return n.stringify(t)}const e={name:"JSON5 to TOML",options:[]};export{a as handle,e as meta};
