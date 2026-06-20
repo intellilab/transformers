@@ -1,100 +1,94 @@
 <template>
   <div>
     <h1 class="text-3xl">URL Builder</h1>
-    <section>
-      <div
-        class="grid grid-cols-[1.5fr_1.5fr_1fr] grid-rows-[auto_auto] gap-4 min-w-[800px] items-start"
-      >
-        <div>
-          <div class="mb-1">
-            Parsed data
-            <span class="ml-1 text-sm">(in Yaml)</span>
-          </div>
-          <CodeEditor
-            class="h-[400px] border border-default"
-            lang="yaml"
-            v-model="content.config"
-          />
+    <div
+      class="grid grid-cols-[1.5fr_1.5fr_1fr] grid-rows-[auto_auto] gap-4 min-w-[800px] items-start"
+    >
+      <div>
+        <div class="mb-1">
+          Parsed data
+          <span class="ml-1 text-sm">(in Yaml)</span>
         </div>
-        <div>
-          <div class="mb-1">
-            URL
-            <span class="ml-1 text-sm"
-              >(Special protocols like
-              <code
-                class="bg-yellow-200 rounded px-1 dark:bg-yellow-900 dark:text-white"
-                >otpauth:</code
-              >
-              are supported)</span
-            >
-          </div>
-          <UTextarea
-            class="block"
-            :value="content.url"
-            @input="onUrlChange"
-            :rows="4"
-          />
-          <TotpBanner v-if="state.totp" :data="state.totp" />
-          <div class="mt-4">
-            <QRCanvas
-              class="dark:brightness-50 max-w-full"
-              :width="300"
-              :height="content.label ? 340 : 300"
-              :options="optionsQR"
-              @updated="onQRUpdated"
-            />
-          </div>
-          <div
-            class="mt-2 rounded p-2 bg-error text-inverted"
-            v-if="state.error"
-            v-text="state.error"
-          />
-        </div>
-        <SnapshotPanel
-          class="row-span-3"
-          title="Snapshots"
-          v-model="state.activeIndex"
-          :snapshots="snapshots"
-          @pick="onPick"
+        <CodeEditor
+          class="h-[400px] border border-default"
+          lang="yaml"
+          v-model="content.config"
         />
-        <div class="flex items-start gap-2">
-          <div class="py-1">Name</div>
-          <div class="flex-1">
-            <UInput class="block" v-model="content.name" />
-            <div class="text-xs">(show in the list)</div>
-          </div>
+      </div>
+      <div>
+        <div class="mb-1">
+          URL
+          <span class="ml-1 text-sm"
+            >(Special protocols like
+            <code
+              class="bg-yellow-200 rounded px-1 dark:bg-yellow-900 dark:text-white"
+              >otpauth:</code
+            >
+            are supported)</span
+          >
         </div>
-        <div class="flex items-start gap-2">
-          <div class="py-1">Label</div>
-          <div class="flex-1">
-            <UInput class="block" v-model="content.label" />
-            <div class="text-xs">(show on the QRCode)</div>
-          </div>
+        <UTextarea
+          class="block"
+          :value="content.url"
+          @input="onUrlChange"
+          :rows="4"
+        />
+        <TotpBanner v-if="state.totp" :data="state.totp" />
+        <div class="mt-4">
+          <QRCanvas
+            class="dark:brightness-50 max-w-full"
+            :width="300"
+            :height="content.label ? 340 : 300"
+            :options="optionsQR"
+            @updated="onQRUpdated"
+          />
         </div>
-        <div class="col-span-2 space-y-2">
-          <div class="flex gap-2">
-            <UButton @click="onReset()">Reset</UButton>
-            <UButton :disabled="!content.config" @click="onSave()"
-              >Save</UButton
-            >
-            <UButton :disabled="!content.config" @click="onSave(true)"
-              >Save as New</UButton
-            >
-            <UButton :disabled="!content.config" @click="onShare"
-              >Share</UButton
-            >
-          </div>
-          <div v-if="shareContent">
-            <UInput
-              class="block"
-              readonly
-              :value="shareContent.url"
-              @click="onSelectAll"
-            />
-          </div>
+        <div
+          class="mt-2 rounded p-2 bg-error text-inverted"
+          v-if="state.error"
+          v-text="state.error"
+        />
+      </div>
+      <SnapshotPanel
+        class="row-span-3"
+        title="Snapshots"
+        v-model="state.activeIndex"
+        :snapshots="snapshots"
+        @pick="onPick"
+      />
+      <div class="flex items-start gap-2">
+        <div class="py-1">Name</div>
+        <div class="flex-1">
+          <UInput class="block" v-model="content.name" />
+          <div class="text-xs">(show in the list)</div>
         </div>
       </div>
-    </section>
+      <div class="flex items-start gap-2">
+        <div class="py-1">Label</div>
+        <div class="flex-1">
+          <UInput class="block" v-model="content.label" />
+          <div class="text-xs">(show on the QRCode)</div>
+        </div>
+      </div>
+      <div class="col-span-2 space-y-2">
+        <div class="flex gap-2">
+          <UButton @click="onReset()">Reset</UButton>
+          <UButton :disabled="!content.config" @click="onSave()">Save</UButton>
+          <UButton :disabled="!content.config" @click="onSave(true)"
+            >Save as New</UButton
+          >
+          <UButton :disabled="!content.config" @click="onShare">Share</UButton>
+        </div>
+        <div v-if="shareContent">
+          <UInput
+            class="block"
+            readonly
+            :value="shareContent.url"
+            @click="onSelectAll"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -287,7 +281,11 @@ function onShare() {
   };
 }
 
-function onPick({ data }) {
+function onPick({
+  data,
+}: {
+  data: { name: string; label: string; config?: any };
+}) {
   Object.assign(content, {
     name: data.name,
     label: data.label,
