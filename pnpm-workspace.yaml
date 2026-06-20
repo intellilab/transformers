@@ -1,0 +1,7 @@
+allowBuilds:
+  '@parcel/watcher': false
+  '@tailwindcss/oxide': set this to true or false
+  esbuild: false
+  vue-demi: true
+minimumReleaseAgeExclude:
+  - qrcanvas-vue@3.1.0

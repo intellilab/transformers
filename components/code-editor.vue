@@ -2,6 +2,12 @@
   <div ref="refCode" :class="{ 'child-error': hasError }"></div>
 </template>
 
+<style scoped>
+div :deep(.cm-editor) {
+  height: 100%;
+}
+</style>
+
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch } from "vue";
 import { EditorView, basicSetup } from "codemirror";

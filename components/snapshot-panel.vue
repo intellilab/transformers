@@ -1,95 +1,113 @@
 <template>
-  <div class="snapshots">
-    <div class="flex mb-1">
-      <slot name="title"><span v-text="title"></span></slot>
-      <a
-        href="#"
-        class="ml-1 tooltip inline-block"
-        data-tooltip="Import"
-        @click.prevent="onImport"
-      >
-        <svg viewBox="0 0 20 20" fill="currentColor" class="upload w-6 h-6">
-          <path
-            fill-rule="evenodd"
-            d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"
-            clip-rule="evenodd"
-          ></path>
-        </svg>
-      </a>
-      <a
-        href="#"
-        class="ml-1 tooltip inline-block"
-        data-tooltip="Export"
-        @click.prevent="onExport"
-      >
-        <svg viewBox="0 0 20 20" fill="currentColor" class="download w-6 h-6">
-          <path
-            fill-rule="evenodd"
-            d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-            clip-rule="evenodd"
-          ></path>
-        </svg>
-      </a>
+  <div class="flex flex-col min-w-36">
+    <div class="flex items-center justify-between">
+      <h3 class="font-semibold">{{ title }}</h3>
+      <div class="flex">
+        <UButton
+          icon="i-mdi-upload"
+          variant="ghost"
+          color="neutral"
+          size="sm"
+          @click="onImport"
+        />
+        <UButton
+          icon="i-mdi-download"
+          variant="ghost"
+          color="neutral"
+          size="sm"
+          @click="onExport"
+        />
+      </div>
     </div>
-    <div class="flex flex-col p-2 rounded transformers-border" style="height: 70vh">
-      <div class="form-group has-icon-right mb-2">
-        <input type="search" class="form-input" v-model="state.search" />
+    <div class="flex flex-col flex-1 min-h-0 border border-default rounded-lg">
+      <div class="p-2">
+        <UInput
+          class="block"
+          icon="i-mdi-magnify"
+          placeholder="Search..."
+          v-model="state.search"
+        />
       </div>
-      <div class="flex-1 empty" v-if="!filtered.length">
-        <div class="empty-title">None</div>
+      <div
+        v-if="!filtered.length"
+        class="flex-1 flex items-center justify-center text-muted"
+      >
+        No snapshots found
       </div>
-      <div class="flex-1 overflow-y-auto" v-else>
+      <div v-else class="flex-1 overflow-y-auto">
         <div
-          class="menu-item"
-          :class="{ active: modelValue === item.index }"
           v-for="item in filtered"
           :key="item.index"
+          class="group relative rounded-lg transition-colors"
+          :class="
+            modelValue === item.index
+              ? 'bg-primary/10 text-primary'
+              : 'hover:bg-elevated'
+          "
         >
+          <button
+            class="flex items-center gap-2 w-full text-left px-3 py-2"
+            @click="onPick(item)"
+          >
+            <UIcon
+              name="i-mdi-file-document-outline"
+              class="size-4 shrink-0 text-muted"
+            />
+            <span class="flex-1 truncate">{{
+              item.data.name || 'Unnamed'
+            }}</span>
+          </button>
           <div
-            class="flex-1"
-            v-text="item.data.name"
-            @click.prevent="onPick(item)"
-          ></div>
-          <a href="#" @click.prevent="onRemove(item.index)">
-            <svg viewBox="0 0 20 20" fill="currentColor" class="x w-6 h-6">
-              <path
-                fill-rule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clip-rule="evenodd"
-              ></path>
-            </svg>
-          </a>
+            class="absolute right-0 top-0 bottom-0 flex items-center px-1 rounded-r-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            :class="
+              modelValue === item.index
+                ? 'bg-[color-mix(in_srgb,var(--ui-primary)_10%,var(--ui-bg))]'
+                : 'bg-elevated'
+            "
+          >
+            <UButton
+              icon="i-mdi-close"
+              variant="ghost"
+              color="secondary"
+              size="sm"
+              @click="onRemove(item.index)"
+            />
+          </div>
         </div>
       </div>
     </div>
-    <div v-if="state.modal" class="modal" @click="onClose">
-      <div class="modal-content" @click.stop>
-        <div class="mb-2" v-text="state.modal.title"></div>
-        <div class="mb-2">
-          <textarea
-            class="form-input"
-            rows="10"
-            v-model="state.modal.content"
-            :readOnly="state.modal.readOnly"
-            @click="onClick"
-          />
-        </div>
-        <span
-          v-if="state.modal.message"
-          class="mr-2"
-          :class="state.modal.error ? 'text-error' : 'text-success'"
-          v-text="state.modal.message"
+
+    <UModal v-model:open="state.modalOpen" :title="state.modal?.title">
+      <template #body>
+        <UTextarea
+          :rows="10"
+          v-model="state.modal!.content"
+          :read-only="state.modal?.readOnly"
+          @click="onClick"
+          class="w-full"
         />
-        <button
-          v-if="!state.modal.readOnly"
-          class="btn btn-primary"
-          @click="importData"
+        <p
+          v-if="state.modal?.message"
+          class="mt-2 text-sm"
+          :class="state.modal.error ? 'text-error' : 'text-success'"
         >
-          Import and merge
-        </button>
-        <button class="btn" @click="onClose">Close</button>
-      </div>
-    </div>
+          {{ state.modal.message }}
+        </p>
+      </template>
+      <template #footer="{ close }">
+        <UButton
+          v-if="!state.modal?.readOnly"
+          label="Import and merge"
+          @click="importData"
+        />
+        <UButton
+          label="Close"
+          color="neutral"
+          variant="outline"
+          @click="close"
+        />
+      </template>
+    </UModal>
   </div>
 </template>
 
@@ -109,7 +127,7 @@ const emit = defineEmits<{
 
 const state = reactive<{
   search: string;
-  snapshots: Array<unknown>;
+  modalOpen: boolean;
   modal?: {
     title: string;
     content: string;
@@ -119,36 +137,46 @@ const state = reactive<{
   };
 }>({
   search: '',
-  snapshots: [],
+  modalOpen: false,
 });
 
 const filtered = computed(() => {
   let items = props.snapshots.all.map((data, index) => ({ data, index }));
   if (state.search) {
-    items = items.filter(({ data }) => data.name.includes(state.search));
+    const lowerSearch = state.search.toLowerCase();
+    items = items.filter(({ data }) =>
+      data.name.toLowerCase().includes(lowerSearch),
+    );
   }
   return items;
 });
 
+function openModal(config: typeof state.modal) {
+  state.modal = config;
+  state.modalOpen = true;
+}
+
 function onImport() {
-  state.modal = {
+  openModal({
     title: 'Import data',
     content: '',
     message: '',
     error: false,
-  };
+  });
 }
+
 function onExport() {
-  const content = JSON.stringify(props.snapshots.all);
-  state.modal = {
+  openModal({
     title: 'Export data',
-    content,
+    content: JSON.stringify(props.snapshots.all),
     readOnly: true,
-  };
+  });
 }
+
 function onClick(e: MouseEvent) {
   if (state.modal?.readOnly) (e.target as HTMLTextAreaElement).select();
 }
+
 function importData() {
   if (!state.modal) return;
   try {
@@ -175,9 +203,5 @@ function onRemove(index: number) {
   else if (index < props.modelValue) index = props.modelValue - 1;
   else return;
   emit('update:modelValue', index);
-}
-
-function onClose() {
-  state.modal = undefined;
 }
 </script>

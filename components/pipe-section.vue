@@ -8,112 +8,86 @@
         v-if="appliedPipes.length"
         @click.prevent="onClearPipes"
       >
-        <svg viewBox="0 0 20 20" fill="currentColor" class="trash w-6 h-6">
-          <path
-            fill-rule="evenodd"
-            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-            clip-rule="evenodd"
-          ></path>
-        </svg>
+        <UIcon name="i-mdi-delete" class="size-6" />
       </a>
     </div>
-    <div>
-      <div class="tool-string-pipe mr-2 disabled">Input</div>
+    <div class="flex flex-wrap items-start gap-2">
+      <div class="inline-block px-2 py-1 rounded border border-muted text-dimmed align-top">Input</div>
       <template v-for="(item, index) in appliedPipes" :key="index">
-        <span class="mr-2">&rarr;</span>
+        <span class="py-1">&rarr;</span>
         <div
-          class="tool-string-pipe mr-2 mb-2"
-          :class="{ 'bg-red-300': item.name === errorPipe }"
+          class="inline-block px-2 py-1 rounded border border-default align-top cursor-pointer"
+          :class="{ 'bg-error/30': item.name === errorPipe }"
           @click="onEditStart(item)"
         >
           <div class="flex">
             <strong v-text="item.name" class="flex-1 mr-2"></strong>
             <a href="#" @click.prevent.stop="onRemovePipe(index)">
-              <svg viewBox="0 0 20 20" fill="currentColor" class="x w-6 h-6">
-                <path
-                  fill-rule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
+              <UIcon name="i-mdi-close" class="size-6" />
             </a>
           </div>
           <span class="text-xs" v-text="reprOptions(item.options)"></span>
         </div>
       </template>
-      <span class="mr-2">&rarr;</span>
-      <div class="tool-string-pipe disabled">Output</div>
+      <span class="py-1">&rarr;</span>
+      <div class="inline-block px-2 py-1 rounded border border-muted text-dimmed align-top">Output</div>
     </div>
     <h3 class="mt-2 mb-1">Pipes</h3>
     <div class="mb-2">
-      <input
-        type="search"
-        class="form-input"
+      <UInput
+        icon="i-lucide-search"
         placeholder="Filter pipes..."
         v-model="state.search"
       />
     </div>
-    <button
+    <UButton
       v-for="(pipe, index) in filteredPipes"
       :key="index"
+      variant="outline"
       class="mr-2 mb-2"
       v-text="pipe.meta.name"
       @click="addPipe(pipe)"
     />
-    <p class="text-gray" v-if="!filteredPipes.length">No pipe is found.</p>
-    <div v-if="state.editing" class="modal" @click="onEditEnd">
-      <div class="modal-content" @click.stop>
-        <div class="font-bold mb-2" v-text="state.editing.pipe.meta.name"></div>
-        <div class="text-left" v-if="state.editing.pipe.meta.options.length">
+    <p class="text-muted" v-if="!filteredPipes.length">No pipe is found.</p>
+
+    <UModal v-model:open="modalOpen" :title="state.editing?.pipe.meta.name">
+      <template #body>
+        <div class="text-left space-y-4" v-if="state.editing?.pipe.meta.options.length">
           <div
             v-for="(option, index) in state.editing.pipe.meta.options"
             :key="index"
-            class="mb-2"
           >
             <div v-if="option.type === 'checkbox'">
-              <label class="block">
-                <input
-                  type="checkbox"
-                  v-model="state.editing.options[option.name]"
-                />
-                <span v-text="option.description"></span>
-              </label>
+              <UCheckbox
+                :label="option.description"
+                v-model="state.editing.options[option.name]"
+              />
             </div>
             <div v-else>
-              <label class="block" v-text="option.description"></label>
-              <div v-if="option.type === 'radio'">
-                <label
-                  v-for="(choice, index) in option.choices"
-                  class="block"
-                  :key="index"
-                >
-                  <input
-                    type="radio"
-                    :value="choice.value"
-                    v-model="state.editing.options[option.name]"
-                  />
-                  <span v-text="choice.label"></span>
-                </label>
-              </div>
-              <input
+              <label class="block mb-1 text-sm text-muted" v-text="option.description"></label>
+              <URadioGroup
+                v-if="option.type === 'radio'"
+                v-model="state.editing.options[option.name]"
+                :items="option.choices?.map(c => ({ label: c.label, value: c.value }))"
+              />
+              <UInput
                 v-else-if="option.type === 'number'"
-                class="form-input"
                 type="number"
                 v-model.number="state.editing.options[option.name]"
               />
-              <input
+              <UInput
                 v-else
-                class="form-input"
                 v-model="state.editing.options[option.name]"
               />
             </div>
           </div>
         </div>
-        <div class="empty" v-else>
-          <div class="empty-title">No options available</div>
-        </div>
-      </div>
-    </div>
+        <p v-else class="text-muted">No options available</p>
+      </template>
+      <template #footer="{ close }">
+        <UButton label="Done" @click="onEditEnd" />
+      </template>
+    </UModal>
   </section>
 </template>
 
@@ -159,6 +133,8 @@ const state = reactive<{
 }>({
   search: '',
 });
+
+const modalOpen = ref(false);
 
 const appliedPipes = ref<PipeValue[]>([]);
 watch(
@@ -230,6 +206,7 @@ function onEditStart(value: PipeValue) {
     value,
     options: { ...value.options },
   };
+  modalOpen.value = true;
 }
 
 function onEditEnd() {
@@ -242,6 +219,7 @@ function onEditEnd() {
       return res;
     }, {} as Record<string, unknown>);
   state.editing = null;
+  modalOpen.value = false;
   emits('update:modelValue', [...props.modelValue]);
 }
 </script>

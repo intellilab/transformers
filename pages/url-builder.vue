@@ -1,103 +1,98 @@
 <template>
   <div>
-    <h1>URL Builder</h1>
+    <h1 class="text-3xl">URL Builder</h1>
     <section>
-      <div class="flex items-start">
-        <div class="flex-1 min-w-0">
-          <div class="flex">
-            <div class="flex-1 min-w-0 mr-4">
-              <div>
-                <div class="mb-1">
-                  Parsed data
-                  <span class="ml-1 text-sm">(in Yaml)</span>
-                </div>
-                <CodeEditor
-                  class="t-code"
-                  lang="yaml"
-                  v-model="content.config"
-                />
-              </div>
-            </div>
-            <div class="flex-1 mr-4">
-              <div>
-                <div class="mb-1">
-                  URL
-                  <span class="ml-1 text-sm"
-                    >(Special protocols like <code>otpauth:</code>,
-                    <code>vmess:</code> are supported)</span
-                  >
-                </div>
-                <textarea
-                  class="form-input"
-                  :value="content.url"
-                  @input="onUrlChange"
-                  rows="4"
-                />
-                <TotpBanner v-if="state.totp" :data="state.totp" />
-              </div>
-              <div class="mt-4">
-                <QRCanvas
-                  class="qrcode"
-                  :width="300"
-                  :height="content.label ? 340 : 300"
-                  :options="optionsQR"
-                  @updated="onQRUpdated"
-                />
-              </div>
-              <div
-                class="mt-2 text-white error"
-                v-if="state.error"
-                v-text="state.error"
-              />
-            </div>
+      <div
+        class="grid grid-cols-[1.5fr_1.5fr_1fr] grid-rows-[auto_auto] gap-4 min-w-[800px] items-start"
+      >
+        <div>
+          <div class="mb-1">
+            Parsed data
+            <span class="ml-1 text-sm">(in Yaml)</span>
           </div>
-          <div class="mt-4 mr-4">
-            <label class="mb-1">Label</label>
-            <input class="form-input" v-model="content.label" />
+          <CodeEditor
+            class="h-[400px] border border-default"
+            lang="yaml"
+            v-model="content.config"
+          />
+        </div>
+        <div>
+          <div class="mb-1">
+            URL
+            <span class="ml-1 text-sm"
+              >(Special protocols like
+              <code
+                class="bg-yellow-200 rounded px-1 dark:bg-yellow-900 dark:text-white"
+                >otpauth:</code
+              >
+              are supported)</span
+            >
           </div>
-          <div class="mt-4 mr-4">
-            <label class="mb-1">Name</label>
-            <input class="form-input" v-model="content.name" />
-          </div>
+          <UTextarea
+            class="block"
+            :value="content.url"
+            @input="onUrlChange"
+            :rows="4"
+          />
+          <TotpBanner v-if="state.totp" :data="state.totp" />
           <div class="mt-4">
-            <button class="mr-2 mb-1" @click="onReset()">Reset</button>
-            <button
-              class="mr-2 mb-1"
-              :disabled="!content.config"
-              @click="onSave()"
+            <QRCanvas
+              class="dark:brightness-50 max-w-full"
+              :width="300"
+              :height="content.label ? 340 : 300"
+              :options="optionsQR"
+              @updated="onQRUpdated"
+            />
+          </div>
+          <div
+            class="mt-2 rounded p-2 bg-error text-inverted"
+            v-if="state.error"
+            v-text="state.error"
+          />
+        </div>
+        <SnapshotPanel
+          class="row-span-3"
+          title="Snapshots"
+          v-model="state.activeIndex"
+          :snapshots="snapshots"
+          @pick="onPick"
+        />
+        <div class="flex items-start gap-2">
+          <div class="py-1">Name</div>
+          <div class="flex-1">
+            <UInput class="block" v-model="content.name" />
+            <div class="text-xs">(show in the list)</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <div class="py-1">Label</div>
+          <div class="flex-1">
+            <UInput class="block" v-model="content.label" />
+            <div class="text-xs">(show on the QRCode)</div>
+          </div>
+        </div>
+        <div class="col-span-2 space-y-2">
+          <div class="flex gap-2">
+            <UButton @click="onReset()">Reset</UButton>
+            <UButton :disabled="!content.config" @click="onSave()"
+              >Save</UButton
             >
-              Save
-            </button>
-            <button
-              class="mr-2 mb-1"
-              :disabled="!content.config"
-              @click="onSave(true)"
+            <UButton :disabled="!content.config" @click="onSave(true)"
+              >Save as New</UButton
             >
-              Save as New
-            </button>
-            <button
-              class="mr-2 mb-1"
-              :disabled="!content.config"
-              @click="onShare"
+            <UButton :disabled="!content.config" @click="onShare"
+              >Share</UButton
             >
-              Share
-            </button>
           </div>
           <div v-if="shareContent">
-            <input
-              class="form-input"
+            <UInput
+              class="block"
               readonly
               :value="shareContent.url"
               @click="onSelectAll"
             />
           </div>
         </div>
-        <SnapshotPanel
-          title="Snapshots"
-          v-model="state.activeIndex"
-          :snapshots="snapshots"
-          @pick="onPick"
-        />
       </div>
     </section>
   </div>
@@ -111,20 +106,9 @@ import { KeyboardService } from '@violentmonkey/shortcut';
 import SnapshotPanel from '@/components/snapshot-panel.vue';
 import { parseData, buildData } from '@/components/url';
 import TotpBanner from '@/components/totp-banner.vue';
-import { showToast } from '@/components/toast';
 import CodeEditor from '~/components/code-editor.vue';
 import { defaultQROptions } from '@/components/common';
 import { Snapshots, Storage } from '@/util';
-
-/**
- * Left panel: config -> parsedConfig
- * Right panel: url -> QRCode
- *
- * change: config -> parsedConfig
- *                -> url -> QRCode
- * change: url -> QRCode
- *             -> config -> parsedConfig
- */
 
 interface IConfigItem {
   name: string;
@@ -132,6 +116,7 @@ interface IConfigItem {
   config: string;
 }
 
+const toast = useToast();
 const keyboardService = new KeyboardService();
 const store = new Storage<{
   autoSaved?: IConfigItem & {
@@ -203,9 +188,9 @@ function onSave(asNew?: boolean) {
   };
   state.activeIndex = snapshots.updateItem(
     asNew ? -1 : state.activeIndex,
-    item
+    item,
   );
-  showToast('Saved');
+  toast.add({ title: 'Saved', duration: 2000 });
 }
 
 function checkHash() {
@@ -254,7 +239,6 @@ function setConfig(data: string, force = false) {
     console.error(err);
   }
 
-  // TOTP
   if (parsedConfig?.payload?.type === 'totp' && parsedConfig.query?.secret) {
     state.totp = {
       ...parsedConfig.payload,
@@ -292,7 +276,7 @@ function onShare() {
   const query = { name, label, url };
   let qs = Object.entries(query)
     .map(
-      ([key, value]) => value && [key, value].map(encodeURIComponent).join('=')
+      ([key, value]) => value && [key, value].map(encodeURIComponent).join('='),
     )
     .filter(Boolean)
     .join('&');

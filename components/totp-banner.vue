@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center">
-    <div class="p-2 text-green-600" v-text="state.value"></div>
-    <div class="w-6 h-6 leading-6 text-center text-xs border border-gray-400 rounded-full" v-text="state.count"></div>
+    <div class="p-2 text-success" v-text="state.value"></div>
+    <div class="w-6 h-6 leading-6 text-center text-xs border border-default rounded-full" v-text="state.count"></div>
   </div>
 </template>
 
