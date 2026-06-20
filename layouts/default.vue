@@ -1,26 +1,46 @@
 <template>
-  <div>
-    <div class="flex h-screen">
-      <aside class="flex flex-col p-3">
-        <NuxtLink to="/"><h2>Transformers</h2></NuxtLink>
+  <UApp>
+    <GithubCorners
+      :size="40"
+      href="https://github.com/intellilab/transformers"
+      fixed
+    />
+    <div class="flex h-dvh">
+      <aside class="flex flex-col p-3 bg-muted">
+        <NuxtLink to="/"
+          ><h2 class="text-2xl text-primary">Transformers</h2></NuxtLink
+        >
         <div class="flex-1 my-2">
-          <NuxtLink class="menu-item" to="/string/">String pipes</NuxtLink>
-          <NuxtLink class="menu-item" to="/url-builder/">URL Builder</NuxtLink>
-          <NuxtLink class="menu-item" to="/color/">Color pipes</NuxtLink>
-          <NuxtLink class="menu-item" to="/vmess/">VMess URL editor</NuxtLink>
+          <NuxtLink
+            class="flex px-2 py-1 cursor-pointer text-dimmed hover:bg-muted rounded transition-colors [&.router-link-active]:bg-accented [&.router-link-active]:text-default"
+            to="/string/"
+            >String pipes</NuxtLink
+          >
+          <NuxtLink
+            class="flex px-2 py-1 cursor-pointer text-dimmed hover:bg-muted rounded transition-colors [&.router-link-active]:bg-accented [&.router-link-active]:text-default"
+            to="/url-builder/"
+            >URL Builder</NuxtLink
+          >
         </div>
         <footer>
-          <p>Designed with &hearts; by <a href="https://gera2ld.space" target="_blank" rel="noopener noreferrer">Gerald</a></p>
+          <p>
+            Designed with &hearts; by
+            <a
+              href="https://gera2ld.space"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Gerald</a
+            >
+          </p>
         </footer>
       </aside>
-      <div class="flex-1 p-4 min-w-0 overflow-auto"><slot /></div>
-      <TransitionGroup tag="ul" class="t-toast" name="anim-toast" appear>
-        <li class="toast" v-for="toast in toasts" :key="toast.id" v-text="toast.text"></li>
-      </TransitionGroup>
+      <div class="flex-1 p-4 min-w-0 max-w-screen-xl mx-auto overflow-auto">
+        <slot />
+      </div>
     </div>
-  </div>
+  </UApp>
 </template>
 
 <script setup lang="ts">
-import { toasts } from '../components/toast';
+import GithubCorners from '@uivjs/vue-github-corners';
 </script>
