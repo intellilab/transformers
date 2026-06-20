@@ -1,48 +1,102 @@
 <template>
   <div>
-    <h1 class="text-3xl">String Pipes</h1>
-    <section class="mb-2">
-      <div class="flex">
-        <div class="flex-1 mr-4">
-          <div class="flex">
-            <label>Input</label>
-            <a
-              class="ml-4"
-              href="#"
-              v-if="state.input"
-              @click.prevent="onClear"
-            >
-              <UIcon name="i-mdi-delete" class="w-5 h-5" />
-            </a>
-          </div>
-          <textarea
-            class="block p-1 w-full bg-transparent border border-default font-mono resize-none"
-            rows="18"
-            v-model="state.input"
-          ></textarea>
+    <h1 class="text-3xl mb-4">String Pipes</h1>
+    <div class="grid grid-cols-[2fr_1fr_2fr] gap-4 min-h-[60vh] min-w-[800px]">
+      <!-- Input Column -->
+      <div class="flex flex-col">
+        <div class="flex items-center mb-2">
+          <label class="font-bold">Input</label>
+          <UButton
+            v-if="state.input"
+            icon="i-mdi-delete"
+            size="xs"
+            color="neutral"
+            variant="ghost"
+            class="ml-2"
+            @click="state.input = ''"
+          />
         </div>
-        <div class="flex-1">
-          <label>Output</label>
+        <textarea
+          class="flex-1 p-2 w-full bg-transparent border border-default font-mono text-sm resize-none rounded"
+          v-model="state.input"
+          placeholder="Enter input data..."
+          @input="onInputChange"
+        ></textarea>
+      </div>
+
+      <!-- Pipes Column -->
+      <div class="flex flex-col">
+        <div class="flex items-center mb-2">
+          <label class="font-bold">Pipes</label>
+        </div>
+        <div class="flex-1 flex flex-col">
           <textarea
-            class="block p-1 w-full bg-transparent border border-default font-mono resize-none"
-            rows="18"
-            readonly
-            :value="state.output"
+            ref="pipelineEditor"
+            class="flex-1 p-2 w-full bg-transparent border font-mono text-sm resize-none rounded"
+            :class="state.pipelineError ? 'border-error' : 'border-default'"
+            v-model="state.pipelineText"
+            placeholder="# Example pipeline
+|> toJson({ fromFormat: 'yaml' })
+|> formatJson({ indent: 2 })"
+            @input="execute"
           ></textarea>
+          <div v-if="state.pipelineError" class="text-error text-xs mt-1">
+            {{ state.pipelineError }}
+          </div>
         </div>
       </div>
-    </section>
-    <PipeSection
-      :pipeList="pipeList"
-      :errorPipe="state.errorPipe"
-      v-model="state.pipes"
-    />
-    <div class="mt-4">
-      <UButton class="mr-2 mb-1" @click="onShare">Share</UButton>
+
+      <!-- Output Column -->
+      <div class="flex flex-col">
+        <div class="flex items-center mb-2">
+          <label class="font-bold">Output</label>
+          <UButton
+            icon="i-mdi-content-copy"
+            size="xs"
+            variant="ghost"
+            class="ml-auto"
+            @click="onCopyOutput"
+          />
+        </div>
+        <textarea
+          class="flex-1 p-1 w-full bg-transparent border border-default font-mono text-sm resize-none rounded"
+          readonly
+          :value="state.output"
+          placeholder="Output will appear here..."
+        ></textarea>
+      </div>
     </div>
-    <div v-if="shareContent">
+
+    <!-- AI Prompt -->
+    <form class="mt-4" @submit.prevent="onGenerate">
+      <label class="font-bold">AI Prompt</label>
+      <div class="flex gap-2 mt-1">
+        <UInput
+          class="flex-1"
+          v-model="state.prompt"
+          placeholder="Ask AI to generate pipeline... (e.g. convert YAML to JSON)"
+          size="lg"
+        />
+        <UButton
+          type="submit"
+          icon="i-mdi-auto-fix"
+          :loading="generating"
+          :disabled="state.prompt.length < 5"
+          size="lg"
+          class="self-end shrink-0"
+        >
+          Generate
+        </UButton>
+      </div>
+    </form>
+
+    <!-- Share -->
+    <div class="mt-4 flex items-center gap-2">
+      <UButton @click="onShare">Share</UButton>
       <UInput
+        v-if="shareContent"
         readonly
+        class="flex-1"
         :value="shareContent.url"
         @click="onSelectAll"
       />
@@ -50,60 +104,58 @@
   </div>
 </template>
 
-<script lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue';
-
-const pipeList = ref<IPipe[]>([]);
-loadPipes();
-
-async function loadPipes() {
-  const pipes = await Promise.all(
-    Object.values(import.meta.glob('~/components/string/pipes/*.js')).map(
-      async (req) => {
-        const pipe: IPipe = await req();
-        return pipe;
-      }
-    )
-  );
-  pipeList.value = pipes;
-}
-</script>
-
 <script setup lang="ts">
-import PipeSection from '~/components/pipe-section.vue';
+import { reactive, ref, onMounted } from 'vue';
+import { parsePipeline } from '~/components/pipes/parser';
+import { executePipeline } from '~/components/pipes/executor';
+import { pipeList } from '~/components/pipes/pipe-list';
+
+const pipelineEditor = ref<HTMLTextAreaElement>();
 
 const state = reactive<{
   input: string;
-  output?: string;
-  errorPipe?: string;
-  pipes: IPipeValue[];
+  output: string;
+  pipelineText: string;
+  pipelineError: string;
+  prompt: string;
 }>({
   input: '',
-  pipes: [],
+  output: '',
+  pipelineText: '',
+  pipelineError: '',
+  prompt: '',
 });
 
 const shareContent = ref<{ url: string }>();
 
-watch([pipeList.value, () => [state.pipes, state.input]], () => {
-  let errorPipe = '';
-  try {
-    let data = state.input;
-    for (const { name, options } of state.pipes) {
-      const pipe = pipeList.value.find((pipe) => pipe.meta.name === name);
-      if (pipe) {
-        errorPipe = name;
-        data = pipe.handle(data, options);
-      }
-    }
-    state.output = data;
-    state.errorPipe = '';
-  } catch (error) {
-    state.errorPipe = errorPipe;
-  }
-});
+function execute() {
+  const parsed = parsePipeline(state.pipelineText, pipeList);
+  state.pipelineError = parsed.errors[0]?.message || '';
+  if (parsed.errors.length > 0) return;
+  const result = executePipeline(
+    state.input,
+    parsed.pipes.map((pipe) => ({
+      name: pipe.name,
+      options: pipe.options,
+    })),
+    pipeList,
+  );
 
-function onClear() {
-  state.input = '';
+  if (result.error) {
+    state.output = `Error: ${result.error.message}`;
+  } else {
+    state.output = result.output;
+  }
+}
+
+function onInputChange() {
+  execute();
+}
+
+function onCopyOutput() {
+  if (state.output) {
+    navigator.clipboard.writeText(state.output);
+  }
 }
 
 function onSelectAll(e: MouseEvent) {
@@ -112,32 +164,51 @@ function onSelectAll(e: MouseEvent) {
 
 function onShare() {
   const { origin, pathname, search } = window.location;
-  const { input, pipes } = state;
   const query = {
-    i: input,
-    p: JSON.stringify(pipes),
+    i: state.input,
+    p: state.pipelineText,
   };
   let qs = Object.entries(query)
     .map(
-      ([key, value]) => value && [key, value].map(encodeURIComponent).join('=')
+      ([key, value]) => value && [key, value].map(encodeURIComponent).join('='),
     )
     .filter(Boolean)
     .join('&');
-  qs = `${qs}&_=`; // in case url is modified by other apps
+  qs = `${qs}&_=`;
   const url = `${origin}${pathname}${search}#${qs}`;
-  shareContent.value = {
-    url,
-  };
+  shareContent.value = { url };
+}
+
+const generating = ref(false);
+
+function generatePipeline(prompt: string, currentPipeline: string): Promise<string> {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(currentPipeline), 1000);
+  });
+}
+
+async function onGenerate() {
+  if (!state.prompt.trim() || generating.value) return;
+  generating.value = true;
+  try {
+    const result = await generatePipeline(state.prompt, state.pipelineText);
+    state.pipelineText = result;
+    execute();
+    state.prompt = '';
+  } finally {
+    generating.value = false;
+  }
 }
 
 onMounted(() => {
   const query = new URLSearchParams(window.location.hash.slice(1));
   try {
     const input = query.get('i');
-    const pipes = JSON.parse(query.get('p') || '');
-    if (input && pipes) {
+    const pipelineText = query.get('p') || '';
+    if (input != null) {
       state.input = input;
-      state.pipes = pipes;
+      state.pipelineText = pipelineText;
+      execute();
     }
   } finally {
     window.location.hash = '';

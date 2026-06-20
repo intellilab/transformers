@@ -1,15 +1,20 @@
-export function handle(input) {
-  const bin = atob(input);
-  return utf8Decode(bin);
+import { PipeHandler } from '~/components/pipes/types';
+import type { PipeHandlerMeta } from '~/components/pipes/types';
+
+class Base64DecodePipe extends PipeHandler {
+  meta = {
+    name: 'base64Decode',
+    description: 'Decode a Base64-encoded string back to UTF-8 text',
+  } satisfies PipeHandlerMeta;
+
+  handle(input: string) {
+    const bin = atob(input);
+    return utf8Decode(bin);
+  }
 }
 
-export const meta = {
-  name: 'Base64 to Text',
-  options: [],
-};
-
-function utf8Decode(binary) {
-  const chars = [];
+function utf8Decode(binary: string): string {
+  const chars: number[] = [];
   let i = 0;
   let c1 = 0;
   let c2 = 0;
@@ -21,16 +26,16 @@ function utf8Decode(binary) {
       i += 1;
     } else if (c1 > 191 && c1 < 224) {
       c2 = binary.charCodeAt(i + 1);
-      // eslint-disable-next-line no-bitwise
       chars.push(((c1 & 31) << 6) | (c2 & 63));
       i += 2;
     } else {
       c2 = binary.charCodeAt(i + 1);
       c3 = binary.charCodeAt(i + 2);
-      // eslint-disable-next-line no-bitwise
       chars.push(((c1 & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
       i += 3;
     }
   }
   return String.fromCharCode(...chars);
 }
+
+export default new Base64DecodePipe();
