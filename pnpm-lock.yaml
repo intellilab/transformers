@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@heyputer/puter.js':
+        specifier: ^2.5.4
+        version: 2.5.4
       '@iconify-json/mdi':
         specifier: ^1.2.3
         version: 1.2.3
@@ -679,6 +682,12 @@ packages:
 
   '@gera2ld/format-json@0.3.0':
     resolution: {integrity: sha512-gVCb8PpGGnmfH3nCHkj4G1UHV0L4bs8kG5eB2D7eYQFTffGaEU9RaJnYvUGjZ+l0qoszxYuf6AXg0uky7F8oEQ==}
+
+  '@heyputer/kv.js@0.2.1':
+    resolution: {integrity: sha512-YhVtzz7ZA/HmuaDvzZZhhUyQWBvp3/TXeY4jULssTdLJwT+tEM4BTYHXttORX+V5auvrYinjj8dNFQnby5T82w==}
+
+  '@heyputer/puter.js@2.5.4':
+    resolution: {integrity: sha512-gZNbTB2k+CLL3zG/RHwpQlcj35+rwQyEn1YebwC09aiMlCT9L3Wr9uU0I18fk/tnA3EFWXWC6Zf2yyse2aJ6oQ==}
 
   '@iarna/toml@2.2.5':
     resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}
@@ -3772,6 +3781,10 @@ packages:
     resolution: {integrity: sha512-1FlR+gjXK7X+AsAHso35MnyN5KqGwJRi/31ft6x0M194ht7S+rWAvd7PHss9xSKMzE0asv1pyIHaJYq+BbacAQ==}
     engines: {node: '>=12'}
 
+  open@10.2.0:
+    resolution: {integrity: sha512-YgBpdJHPyQ2UE5x+hlSXcnejzAvD0b22U2OuAP+8OnlJT+PjWPxtgmGqKKc+RgTM63U9gN0YzrYc71R2WT/hTA==}
+    engines: {node: '>=18'}
+
   open@11.0.0:
     resolution: {integrity: sha512-smsWv2LzFjP03xmvFoJ331ss6h+jixfA4UUV/Bsiyuu4YJPfN+FIQGOIiv4w9/+MoHkfkJ22UIaQWRVFRfH6Vw==}
     engines: {node: '>=20'}
@@ -5027,6 +5040,10 @@ packages:
       utf-8-validate:
         optional: true
 
+  wsl-utils@0.1.0:
+    resolution: {integrity: sha512-h3Fbisa2nKGPxCpm89Hk33lBLsnaGBvctQopaBSOW/uIs6FTe1ATyAnKFJrzVs9vpGdsTe73WF3V4lIsk4Gacw==}
+    engines: {node: '>=18'}
+
   wsl-utils@0.3.1:
     resolution: {integrity: sha512-g/eziiSUNBSsdDJtCLB8bdYEUMj4jR7AGeUo96p/3dTafgjHhpF4RiCFPiRILwjQoDXx5MqkBr4fwWtR3Ky4Wg==}
     engines: {node: '>=20'}
@@ -5621,6 +5638,13 @@ snapshots:
   '@gera2ld/format-json@0.3.0':
     dependencies:
       '@babel/runtime': 7.29.7
+
+  '@heyputer/kv.js@0.2.1': {}
+
+  '@heyputer/puter.js@2.5.4':
+    dependencies:
+      '@heyputer/kv.js': 0.2.1
+      open: 10.2.0
 
   '@iarna/toml@2.2.5': {}
 
@@ -9046,6 +9070,13 @@ snapshots:
     dependencies:
       mimic-fn: 4.0.0
 
+  open@10.2.0:
+    dependencies:
+      default-browser: 5.5.0
+      define-lazy-prop: 3.0.0
+      is-inside-container: 1.0.0
+      wsl-utils: 0.1.0
+
   open@11.0.0:
     dependencies:
       default-browser: 5.5.0
@@ -10384,6 +10415,10 @@ snapshots:
     optional: true
 
   ws@8.21.0: {}
+
+  wsl-utils@0.1.0:
+    dependencies:
+      is-wsl: 3.1.1
 
   wsl-utils@0.3.1:
     dependencies:

@@ -47,6 +47,7 @@
     "yaml": "^2.9.0"
   },
   "dependencies": {
+    "@heyputer/puter.js": "^2.5.4",
     "@iconify-json/mdi": "^1.2.3",
     "@nuxt/ui": "^4.9.0",
     "@uivjs/vue-github-corners": "^1.0.1",
