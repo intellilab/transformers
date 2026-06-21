@@ -123,7 +123,8 @@
 
     <!-- Share -->
     <div class="mt-4 flex items-center gap-2">
-      <UButton @click="onShare">Share</UButton>
+      <UButton icon="i-mdi-share-variant" @click="onShare">Share</UButton>
+      <UButton icon="i-mdi-shuffle" color="neutral" variant="outline" @click="onRandomExample">Random</UButton>
       <UInput
         v-if="shareContent"
         readonly
@@ -235,6 +236,26 @@ function onShare() {
 }
 
 const showHelp = ref(false);
+
+const examples = [
+  { input: 'key: value\nnested:\n  inner: 42\nlist:\n  - a\n  - b', pipeline: '|> toJson({ fromFormat: \'yaml\' })\n|> formatJson({ indent: 2 })' },
+  { input: 'name = "John"\nage = 30\nactive = true', pipeline: '|> toJson({ fromFormat: \'toml\' })\n|> jsonGet({ path: \'name\' })' },
+  { input: '{"items":[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}],"total":2}', pipeline: '|> formatJson({ indent: 2, sortKeys: true })' },
+  { input: '{"message":"Hello World","timestamp":1234567890}', pipeline: '|> jsonGet({ path: \'message\' })' },
+  { input: '{"name":"parent","children":[{"name":"child1"},{"name":"child2"}]}', pipeline: '|> jsonGet({ path: \'name\' })' },
+  { input: 'ssl: true\nhost: "example.com"\nport: 443\n', pipeline: '|> toJson()\n|> formatJson({ indent: 2 })' },
+  { input: 'SGVsbG8gV29ybGQ=', pipeline: '|> base64Decode' },
+  { input: 'Hello World', pipeline: '|> base64Encode' },
+  { input: '{\n  "colors": ["red", "green", "blue"]\n}', pipeline: '|> jsonToJs({ quoteAsNeeded: true })' },
+  { input: '{"a":1,"b":{"c":2,"d":3}}', pipeline: '|> formatJson({ indent: 4 })' },
+];
+
+function onRandomExample() {
+  const example = examples[Math.floor(Math.random() * examples.length)]!;
+  state.input = example.input;
+  state.pipelineText = example.pipeline;
+  execute();
+}
 const helpSearch = ref('');
 
 const filteredPipes = computed(() => {
