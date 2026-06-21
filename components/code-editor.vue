@@ -9,27 +9,29 @@ div :deep(.cm-editor) {
 </style>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from "vue";
-import { EditorView, basicSetup } from "codemirror";
-import { linter, lintGutter } from "@codemirror/lint";
-import { json, jsonParseLinter } from "@codemirror/lang-json";
-import { html } from "@codemirror/lang-html";
-import { yaml } from "@codemirror/lang-yaml";
-import { EditorState, Compartment, type Extension } from "@codemirror/state";
-import { indentWithTab } from "@codemirror/commands";
-import { keymap } from "@codemirror/view";
-import { oneDark } from "@codemirror/theme-one-dark";
+import { computed, onMounted, ref, watch } from 'vue';
+import { EditorView, basicSetup } from 'codemirror';
+import { linter, lintGutter } from '@codemirror/lint';
+import { json, jsonParseLinter } from '@codemirror/lang-json';
+import { html } from '@codemirror/lang-html';
+import { yaml } from '@codemirror/lang-yaml';
+import { EditorState, Compartment, type Extension } from '@codemirror/state';
+import { indentWithTab } from '@codemirror/commands';
+import { keymap, placeholder } from '@codemirror/view';
+import { oneDark } from '@codemirror/theme-one-dark';
 
 const model = defineModel<string>();
 const props = defineProps<{
   lang?: string;
   readonly?: boolean;
   contentType?: string;
+  placeholder?: string;
 }>();
 const emit = defineEmits<{
   cursorMove: [line: number];
   focus: [];
   blur: [];
+  input: [];
 }>();
 defineExpose({ replaceLine });
 
@@ -42,17 +44,21 @@ const langExtMap: Record<string, () => Extension[]> = {
 const refCode = ref<HTMLElement>();
 
 let view: EditorView | undefined;
-let lastModel = "";
+let lastModel = '';
 
 const langExtComp = new Compartment();
-const themeComp = new Compartment();
+const viewComp = new Compartment();
 
 const hasError = ref(false);
-const langExt = computed(() => langExtMap[props.lang || ""]?.() || []);
+const langExt = computed(() => langExtMap[props.lang || '']?.() || []);
+const viewExt = computed(() => [
+  ...(isDark.value ? [oneDark] : []),
+  ...(props.placeholder ? [placeholder(props.placeholder)] : []),
+]);
 
-const result = window.matchMedia("(prefers-color-scheme: dark");
+const result = window.matchMedia('(prefers-color-scheme: dark');
 const isDark = ref(result.matches);
-result.addEventListener("change", (e) => {
+result.addEventListener('change', (e) => {
   isDark.value = e.matches;
 });
 
@@ -62,9 +68,9 @@ watch(langExt, (ext) => {
   });
 });
 
-watch(isDark, (dark) => {
+watch(viewExt, (ext) => {
   view?.dispatch({
-    effects: themeComp.reconfigure(dark ? oneDark : []),
+    effects: viewComp.reconfigure(ext),
   });
 });
 
@@ -94,27 +100,28 @@ function replaceLine(lineNo: number, content: string) {
 
 onMounted(() => {
   view = new EditorView({
-    doc: model.value || "",
+    doc: model.value || '',
     extensions: [
       basicSetup,
       keymap.of([indentWithTab]),
       EditorState.readOnly.of(props.readonly),
       langExtComp.of(langExt.value),
-      themeComp.of(isDark.value ? oneDark : []),
+      viewComp.of(viewExt.value),
       EditorView.updateListener.of((update) => {
         if (update.focusChanged) {
-          if (update.view.hasFocus) emit("focus");
-          else emit("blur");
+          if (update.view.hasFocus) emit('focus');
+          else emit('blur');
         }
         if (update.selectionSet) {
           const lineNo = update.view.state.doc.lineAt(
-            update.view.state.selection.main.head
+            update.view.state.selection.main.head,
           ).number;
-          emit("cursorMove", lineNo);
+          emit('cursorMove', lineNo);
         }
         if (update.docChanged) {
           lastModel = update.view.state.doc.toString();
           model.value = lastModel;
+          emit('input');
         }
       }),
     ],

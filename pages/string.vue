@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="size-full flex flex-col">
     <h1 class="text-3xl mb-4">String Pipes</h1>
     <div
-      class="grid grid-cols-[2fr_1fr_1fr] grid-rows-[auto_auto] gap-4 min-w-[800px]"
+      class="flex-1 grid grid-cols-[2fr_1fr_1fr] grid-rows-[auto_auto] gap-4 *:min-w-0"
     >
       <div>
         <div class="flex items-center mb-1">
@@ -20,11 +20,10 @@
             "
           />
         </div>
-        <UTextarea
-          class="block"
+        <CodeEditor
+          class="h-[300px] border border-default"
           v-model="content.input"
           @input="onInputChange"
-          :rows="8"
           placeholder="Enter input data..."
         />
       </div>
@@ -81,12 +80,11 @@
             class="ml-auto"
           />
         </div>
-        <UTextarea
-          class="block"
+        <CodeEditor
+          class="h-[200px] border border-default"
           readonly
-          :value="state.output"
+          :modelValue="state.output"
           placeholder="Output will appear here..."
-          :rows="8"
         />
       </div>
       <div>
@@ -232,6 +230,7 @@ import { generatePipeline } from '~/components/pipes/ai';
 import SnapshotPanel from '@/components/snapshot-panel.vue';
 import CopyButton from '@/components/copy-button.vue';
 import { Snapshots, Storage } from '@/util';
+import CodeEditor from '~/components/code-editor.vue';
 
 const toast = useToast();
 const keyboardService = new KeyboardService();
