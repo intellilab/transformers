@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="text-3xl">URL Builder</h1>
+    <h1 class="text-3xl mb-4">URL Builder</h1>
     <div
       class="grid grid-cols-[1.5fr_1.5fr_1fr] grid-rows-[auto_auto] gap-4 min-w-[800px] items-start"
     >
@@ -20,10 +20,7 @@
           URL
           <span class="ml-1 text-sm"
             >(Special protocols like
-            <code
-              class="bg-yellow-200 rounded px-1 dark:bg-yellow-900 dark:text-white"
-              >otpauth:</code
-            >
+            <code class="bg-accented rounded px-1">otpauth:</code>
             are supported)</span
           >
         </div>
@@ -72,20 +69,38 @@
       </div>
       <div class="col-span-2 space-y-2">
         <div class="flex gap-2">
-          <UButton @click="onReset()">Reset</UButton>
-          <UButton :disabled="!content.config" @click="onSave()">Save</UButton>
-          <UButton :disabled="!content.config" @click="onSave(true)"
+          <UButton
+            icon="i-mdi-content-save"
+            :disabled="!content.config"
+            @click="onSave()"
+            >Save</UButton
+          >
+          <UButton
+            icon="i-mdi-content-save-outline"
+            color="neutral"
+            variant="outline"
+            :disabled="!content.config"
+            @click="onSave(true)"
             >Save as New</UButton
           >
-          <UButton :disabled="!content.config" @click="onShare">Share</UButton>
+          <UButton
+            icon="i-mdi-undo"
+            color="neutral"
+            variant="outline"
+            @click="onReset()"
+            >Reset</UButton
+          >
+          <UButton
+            icon="i-mdi-share-variant"
+            color="neutral"
+            variant="outline"
+            :disabled="!content.config"
+            @click="onShare"
+            >Share</UButton
+          >
         </div>
         <div v-if="shareContent">
-          <UInput
-            class="block"
-            readonly
-            :value="shareContent.url"
-            @click="onSelectAll"
-          />
+          <ShareUrl :url="shareContent.url" @close="shareContent = undefined" />
         </div>
       </div>
     </div>
@@ -300,10 +315,6 @@ function onReset(data?: IConfigItem) {
     label: data?.label || '',
   });
   setConfig(data?.config || '', true);
-}
-
-function onSelectAll(e: MouseEvent) {
-  (e.target as HTMLInputElement).select();
 }
 
 onMounted(() => {

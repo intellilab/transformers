@@ -123,15 +123,11 @@
 
     <!-- Share -->
     <div class="mt-4 flex items-center gap-2">
-      <UButton icon="i-mdi-share-variant" @click="onShare">Share</UButton>
       <UButton icon="i-mdi-shuffle" color="neutral" variant="outline" @click="onRandomExample">Random</UButton>
-      <UInput
-        v-if="shareContent"
-        readonly
-        class="flex-1"
-        :value="shareContent.url"
-        @click="onSelectAll"
-      />
+      <UButton icon="i-mdi-share-variant" @click="onShare">Share</UButton>
+    </div>
+    <div v-if="shareContent" class="mt-2">
+      <ShareUrl :url="shareContent.url" @close="shareContent = undefined" />
     </div>
   </div>
 </template>
@@ -212,10 +208,6 @@ function onCopyOutput() {
   if (state.output) {
     navigator.clipboard.writeText(state.output);
   }
-}
-
-function onSelectAll(e: MouseEvent) {
-  (e.target as HTMLInputElement).select();
 }
 
 function onShare() {
