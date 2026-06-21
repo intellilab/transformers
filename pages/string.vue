@@ -106,9 +106,11 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue';
+import { puter } from '@heyputer/puter.js';
 import { parsePipeline } from '~/components/pipes/parser';
 import { executePipeline } from '~/components/pipes/executor';
 import { pipeList } from '~/components/pipes/pipe-list';
+import { generatePipeline } from '~/components/pipes/ai';
 
 const pipelineEditor = ref<HTMLTextAreaElement>();
 
@@ -180,21 +182,23 @@ function onShare() {
 }
 
 const generating = ref(false);
-
-function generatePipeline(prompt: string, currentPipeline: string): Promise<string> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(currentPipeline), 1000);
-  });
-}
+const toast = useToast();
 
 async function onGenerate() {
   if (!state.prompt.trim() || generating.value) return;
+  if (!puter.auth.isSignedIn()) {
+    await puter.auth.signIn({ attempt_temp_user_creation: true });
+  }
   generating.value = true;
   try {
     const result = await generatePipeline(state.prompt, state.pipelineText);
-    state.pipelineText = result;
-    execute();
+    if (result) {
+      state.pipelineText = result;
+      execute();
+    }
     state.prompt = '';
+  } catch (err: unknown) {
+    toast.add({ title: 'Generation failed', description: err instanceof Error ? err.message : JSON.stringify(err), color: 'error', duration: 5000 });
   } finally {
     generating.value = false;
   }
