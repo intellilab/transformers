@@ -2,7 +2,7 @@
   <div>
     <h1 class="text-3xl mb-4">URL Builder</h1>
     <div
-      class="grid grid-cols-[1.5fr_1.5fr_1fr] grid-rows-[auto_auto] gap-4 min-w-[800px] items-start"
+      class="grid grid-cols-[1.5fr_1.5fr_1fr] grid-rows-[auto_auto] gap-4 min-w-[800px]"
     >
       <div>
         <div class="mb-1">
@@ -14,6 +14,13 @@
           lang="yaml"
           v-model="content.config"
         />
+        <div class="flex items-start gap-2 mt-4">
+          <div class="py-1">Label</div>
+          <div class="flex-1">
+            <UInput class="block" v-model="content.label" />
+            <div class="text-xs">(show on the QRCode)</div>
+          </div>
+        </div>
       </div>
       <div>
         <div class="mb-1">
@@ -31,7 +38,7 @@
           :rows="4"
         />
         <TotpBanner v-if="state.totp" :data="state.totp" />
-        <div class="mt-4">
+        <div>
           <QRCanvas
             class="dark:brightness-50 max-w-full"
             :width="300"
@@ -53,20 +60,6 @@
         :snapshots="snapshots"
         @pick="onPick"
       />
-      <div class="flex items-start gap-2">
-        <div class="py-1">Name</div>
-        <div class="flex-1">
-          <UInput class="block" v-model="content.name" />
-          <div class="text-xs">(show in the list)</div>
-        </div>
-      </div>
-      <div class="flex items-start gap-2">
-        <div class="py-1">Label</div>
-        <div class="flex-1">
-          <UInput class="block" v-model="content.label" />
-          <div class="text-xs">(show on the QRCode)</div>
-        </div>
-      </div>
       <div class="col-span-2 space-y-2">
         <div class="flex gap-2">
           <UButton
@@ -120,7 +113,6 @@ import { defaultQROptions } from '@/components/common';
 import { Snapshots, Storage } from '@/util';
 
 interface IConfigItem {
-  name: string;
   label: string;
   config: string;
 }
@@ -128,7 +120,9 @@ interface IConfigItem {
 const toast = useToast();
 const keyboardService = new KeyboardService();
 const store = new Storage<{
-  autoSaved?: IConfigItem & {
+  autoSaved?: {
+    label: string;
+    config: string;
     activeIndex: number;
   };
 }>('url-builder/settings');
@@ -139,12 +133,10 @@ const content = reactive<{
   config: string;
   url: string;
   label: string;
-  name: string;
 }>({
   config: '',
   url: '',
   label: '',
-  name: '',
 });
 const state = reactive<{
   activeIndex: number;
@@ -190,10 +182,9 @@ function onQRUpdated(canvas: HTMLCanvasElement) {
 }
 
 function onSave(asNew?: boolean) {
-  const { name, label, config } = content;
+  const { label, config } = content;
   const item = {
-    name: name || 'No name',
-    data: { name, label, config },
+    data: { label, config },
   };
   state.activeIndex = snapshots.updateItem(
     asNew ? -1 : state.activeIndex,
@@ -205,7 +196,6 @@ function onSave(asNew?: boolean) {
 function checkHash() {
   const query = new URLSearchParams(window.location.hash.slice(1));
   const data = {
-    name: query.get('name') || '',
     label: query.get('label') || '',
     url: query.get('url'),
   };
@@ -218,9 +208,8 @@ function checkHash() {
 }
 
 function saveData() {
-  const { name, label, config } = content;
+  const { label, config } = content;
   settings.autoSaved = {
-    name,
     label,
     config,
     activeIndex: state.activeIndex,
@@ -281,8 +270,8 @@ function onUrlChange(e: Event) {
 
 function onShare() {
   const { origin, pathname, search } = window.location;
-  const { name, label, url } = content;
-  const query = { name, label, url };
+  const { label, url } = content;
+  const query = { label, url };
   let qs = Object.entries(query)
     .map(
       ([key, value]) => value && [key, value].map(encodeURIComponent).join('='),
@@ -302,7 +291,6 @@ function onPick({
   data: { name: string; label: string; config?: any };
 }) {
   Object.assign(content, {
-    name: data.name,
     label: data.label,
   });
   setConfig(data.config);
@@ -311,7 +299,6 @@ function onPick({
 function onReset(data?: IConfigItem) {
   state.activeIndex = -1;
   Object.assign(content, {
-    name: data?.name || '',
     label: data?.label || '',
   });
   setConfig(data?.config || '', true);

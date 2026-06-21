@@ -2,22 +2,13 @@
   <div class="flex flex-col min-w-36">
     <div class="flex items-center justify-between">
       <h3 class="font-semibold">{{ title }}</h3>
-      <div class="flex">
-        <UButton
-          icon="i-mdi-upload"
-          variant="ghost"
-          color="neutral"
-          size="sm"
-          @click="onImport"
-        />
-        <UButton
-          icon="i-mdi-download"
-          variant="ghost"
-          color="neutral"
-          size="sm"
-          @click="onExport"
-        />
-      </div>
+      <UButton
+        icon="i-mdi-cog"
+        variant="ghost"
+        color="neutral"
+        size="sm"
+        @click="onConfig"
+      />
     </div>
     <div class="flex flex-col flex-1 min-h-0 border border-default rounded-lg">
       <div class="p-2">
@@ -45,7 +36,33 @@
               : 'hover:bg-elevated'
           "
         >
+          <form
+            v-if="state.renameIndex === item.index"
+            class="flex items-center gap-1 pl-3 pr-1 py-1"
+            ref="renameForm"
+            @submit.prevent="onRenameSave"
+            @keydown.escape="onRenameCancel"
+          >
+            <UIcon
+              name="i-mdi-file-document-outline"
+              class="size-4 shrink-0 text-muted"
+            />
+            <UInput class="flex-1 min-w-0" v-model="state.renameName" />
+            <UButton
+              type="submit"
+              icon="i-mdi-check"
+              size="xs"
+              variant="ghost"
+            />
+            <UButton
+              icon="i-mdi-close"
+              size="xs"
+              variant="ghost"
+              @click="onRenameCancel"
+            />
+          </form>
           <button
+            v-else
             class="flex items-center gap-2 w-full text-left px-3 py-2"
             @click="onPick(item)"
           >
@@ -58,6 +75,7 @@
             }}</span>
           </button>
           <div
+            v-if="state.renameIndex !== item.index"
             class="absolute right-0 top-0 bottom-0 flex items-center px-1 rounded-r-lg opacity-0 group-hover:opacity-100 transition-opacity"
             :class="
               modelValue === item.index
@@ -66,53 +84,79 @@
             "
           >
             <UButton
-              icon="i-mdi-close"
+              icon="i-mdi-pencil"
               variant="ghost"
               color="secondary"
               size="sm"
-              @click="onRemove(item.index)"
+              @click="onRename(item.index, item.data.name)"
+            />
+            <UTooltip
+              v-if="state.deleteConfirmIndex === item.index"
+              text="Click again to delete"
+              :delay="0"
+              default-open
+            >
+              <UButton
+                icon="i-mdi-delete"
+                variant="solid"
+                color="error"
+                size="sm"
+                @click="onDelete(item.index)"
+              />
+            </UTooltip>
+            <UButton
+              v-else
+              icon="i-mdi-delete"
+              variant="ghost"
+              color="secondary"
+              size="sm"
+              @click="onDelete(item.index)"
             />
           </div>
         </div>
       </div>
     </div>
 
-    <UModal v-model:open="state.modalOpen" :title="state.modal?.title">
+    <UModal v-model:open="state.modalOpen" title="Snapshots Config">
       <template #body>
-        <UTextarea
-          :rows="10"
-          v-model="state.modal!.content"
-          :read-only="state.modal?.readOnly"
-          @click="onClick"
-          class="w-full"
-        />
+        <UTextarea :rows="10" v-model="state.modalContent" class="w-full" />
         <p
-          v-if="state.modal?.message"
+          v-if="state.modalMessage"
           class="mt-2 text-sm"
-          :class="state.modal.error ? 'text-error' : 'text-success'"
+          :class="state.modalError ? 'text-error' : 'text-success'"
         >
-          {{ state.modal.message }}
+          {{ state.modalMessage }}
         </p>
       </template>
-      <template #footer="{ close }">
-        <UButton
-          v-if="!state.modal?.readOnly"
-          label="Import and merge"
-          @click="importData"
-        />
-        <UButton
-          label="Close"
-          color="neutral"
-          variant="outline"
-          @click="close"
-        />
+      <template #footer>
+        <CopyButton :text="state.modalContent" />
+        <div class="ml-auto flex gap-2">
+          <UButton
+            label="Overwrite"
+            color="error"
+            variant="solid"
+            @click="overwriteData"
+          />
+          <UButton
+            label="Append"
+            color="neutral"
+            variant="outline"
+            @click="appendData"
+          />
+          <UButton
+            label="Close"
+            color="neutral"
+            variant="outline"
+            @click="state.modalOpen = false"
+          />
+        </div>
       </template>
     </UModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue';
+import { computed, nextTick, reactive, ref } from 'vue';
 import { type ISnapshot, Snapshots } from '@/util';
 
 const props = defineProps<{
@@ -128,17 +172,25 @@ const emit = defineEmits<{
 const state = reactive<{
   search: string;
   modalOpen: boolean;
-  modal?: {
-    title: string;
-    content: string;
-    message?: string;
-    error?: boolean;
-    readOnly?: boolean;
-  };
+  modalContent: string;
+  modalMessage: string;
+  modalError: boolean;
+  renameIndex: number;
+  renameName: string;
+  deleteConfirmIndex: number;
+  deleteTimer?: number;
 }>({
   search: '',
   modalOpen: false,
+  modalContent: '',
+  modalMessage: '',
+  modalError: false,
+  renameIndex: -1,
+  renameName: '',
+  deleteConfirmIndex: -1,
 });
+
+const renameForm = ref<HTMLFormElement[]>();
 
 const filtered = computed(() => {
   let items = props.snapshots.all.map((data, index) => ({ data, index }));
@@ -151,57 +203,90 @@ const filtered = computed(() => {
   return items;
 });
 
-function openModal(config: typeof state.modal) {
-  state.modal = config;
+function onConfig() {
+  state.modalContent = JSON.stringify(props.snapshots.all);
+  state.modalMessage = '';
+  state.modalError = false;
   state.modalOpen = true;
 }
 
-function onImport() {
-  openModal({
-    title: 'Import data',
-    content: '',
-    message: '',
-    error: false,
-  });
-}
-
-function onExport() {
-  openModal({
-    title: 'Export data',
-    content: JSON.stringify(props.snapshots.all),
-    readOnly: true,
-  });
-}
-
-function onClick(e: MouseEvent) {
-  if (state.modal?.readOnly) (e.target as HTMLTextAreaElement).select();
-}
-
-function importData() {
-  if (!state.modal) return;
+function overwriteData() {
   try {
-    const data = JSON.parse(state.modal.content);
+    const data = JSON.parse(state.modalContent);
+    if (!Array.isArray(data)) throw new Error('Invalid data.');
+    props.snapshots.update(() => data);
+    state.modalMessage = 'Snapshots overwritten successfully.';
+    state.modalError = false;
+  } catch (err) {
+    state.modalError = true;
+    state.modalMessage = `${err}`;
+    console.error(err);
+  }
+}
+
+function appendData() {
+  try {
+    const data = JSON.parse(state.modalContent);
     if (!Array.isArray(data)) throw new Error('Invalid data.');
     props.snapshots.update((prev) => [...prev, ...data]);
-    state.modal.message = 'Data imported successfully.';
-    state.modal.error = false;
+    state.modalMessage = 'Data appended successfully.';
+    state.modalError = false;
   } catch (err) {
-    state.modal.error = true;
-    state.modal.message = `${err}`;
+    state.modalError = true;
+    state.modalMessage = `${err}`;
     console.error(err);
   }
 }
 
 function onPick({ index, data }: { index: number; data: ISnapshot }) {
+  clearDeleteTimer();
   emit('update:modelValue', index === props.modelValue ? -1 : index);
   emit('pick', data, index);
 }
 
-function onRemove(index: number) {
-  props.snapshots.remove(index);
-  if (index === props.modelValue) index = -1;
-  else if (index < props.modelValue) index = props.modelValue - 1;
-  else return;
-  emit('update:modelValue', index);
+function clearDeleteTimer() {
+  clearTimeout(state.deleteTimer);
+  state.deleteConfirmIndex = -1;
+}
+
+function onRename(index: number, currentName: string) {
+  clearDeleteTimer();
+  state.renameIndex = index;
+  state.renameName = currentName || '';
+  nextTick(() => {
+    renameForm.value?.[0]?.querySelector('input')?.focus();
+  });
+}
+
+function onRenameSave() {
+  if (state.renameIndex < 0) return;
+  const item = props.snapshots.all[state.renameIndex];
+  if (!item) return;
+  props.snapshots.updateItem(state.renameIndex, {
+    name: state.renameName || 'Unnamed',
+    data: item.data,
+  });
+  state.renameIndex = -1;
+}
+
+function onRenameCancel() {
+  state.renameIndex = -1;
+}
+
+function onDelete(index: number) {
+  if (state.deleteConfirmIndex === index) {
+    clearDeleteTimer();
+    props.snapshots.remove(index);
+    if (index === props.modelValue) index = -1;
+    else if (index < props.modelValue) index = props.modelValue - 1;
+    else return;
+    emit('update:modelValue', index);
+  } else {
+    clearDeleteTimer();
+    state.deleteConfirmIndex = index;
+    state.deleteTimer = window.setTimeout(() => {
+      state.deleteConfirmIndex = -1;
+    }, 2000);
+  }
 }
 </script>

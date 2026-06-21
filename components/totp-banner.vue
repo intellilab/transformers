@@ -1,6 +1,7 @@
 <template>
-  <div class="flex items-center">
-    <div class="p-2 text-success" v-text="state.value"></div>
+  <div class="flex items-center gap-1">
+    <div class="p-2 text-success font-mono text-lg" v-text="state.value"></div>
+    <CopyButton :text="state.value" size="xs" variant="ghost" />
     <div class="w-6 h-6 leading-6 text-center text-xs border border-default rounded-full" v-text="state.count"></div>
   </div>
 </template>
@@ -8,6 +9,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, watch } from 'vue';
 import { TOTP } from 'otpauth';
+import CopyButton from '@/components/copy-button.vue';
 
 const props = defineProps<{
   data: {

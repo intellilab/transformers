@@ -44,13 +44,19 @@ export class Snapshots<T = unknown> {
     this.dump();
   }
 
-  updateItem(index: number, item: ISnapshot<T>) {
+  updateItem(index: number, item: { name?: string; data: T }) {
     const value = [...this.data.value];
     if (index >= 0) {
-      value[index] = item;
+      const existing = value[index];
+      if (existing) {
+        value[index] = { ...existing, ...item, name: item.name ?? existing.name };
+      }
     } else {
       index = value.length;
-      value.push(item);
+      value.push({
+        name: `Snapshot ${index + 1}`,
+        data: item.data,
+      });
     }
     this.data.value = value;
     this.dump();
