@@ -39,6 +39,16 @@
             class="ml-1"
             @click="showHelp = true"
           />
+          <UButton
+            icon="i-mdi-shuffle"
+            color="neutral"
+            variant="outline"
+            size="xs"
+            class="ml-auto"
+            @click="onRandomExample"
+          >
+            Random
+          </UButton>
         </div>
         <UTextarea
           class="block"
@@ -48,7 +58,7 @@
 |> toJson({ fromFormat: 'yaml' })
 |> formatJson({ indent: 2 })"
           @input="execute"
-          :rows="6"
+          :rows="8"
         />
         <div v-if="state.pipelineError" class="text-error text-xs mt-1">
           {{ state.pipelineError }}
@@ -64,12 +74,11 @@
       <div>
         <div class="flex items-center mb-1">
           <span class="font-bold">Output</span>
-          <UButton
-            icon="i-mdi-content-copy"
+          <CopyButton
+            :text="state.output"
             size="xs"
             variant="ghost"
             class="ml-auto"
-            @click="onCopyOutput"
           />
         </div>
         <UTextarea
@@ -128,13 +137,6 @@
             >Reset</UButton
           >
           <UButton
-            icon="i-mdi-shuffle"
-            color="neutral"
-            variant="outline"
-            @click="onRandomExample"
-            >Random</UButton
-          >
-          <UButton
             icon="i-mdi-share-variant"
             color="neutral"
             variant="outline"
@@ -173,22 +175,11 @@
           >
             <div class="font-bold text-base mb-1 flex items-center gap-2">
               <span>|> {{ pipe.meta.name }}</span>
-              <UButton
-                v-if="copiedPipe === pipe.meta.name"
-                icon="i-mdi-check"
+              <CopyButton
+                :text="getPipeCopyText(pipe)"
                 size="xs"
-                color="success"
                 variant="ghost"
                 class="shrink-0"
-              />
-              <UButton
-                v-else
-                icon="i-mdi-content-copy"
-                size="xs"
-                color="neutral"
-                variant="ghost"
-                class="shrink-0"
-                @click="onCopyPipe(pipe)"
               />
             </div>
             <div class="text-gray-600 dark:text-gray-400 mb-2">
@@ -239,6 +230,7 @@ import { executePipeline } from '~/components/pipes/executor';
 import { pipeList, getOptionsDescription } from '~/components/pipes/pipe-list';
 import { generatePipeline } from '~/components/pipes/ai';
 import SnapshotPanel from '@/components/snapshot-panel.vue';
+import CopyButton from '@/components/copy-button.vue';
 import { Snapshots, Storage } from '@/util';
 
 const toast = useToast();
@@ -277,8 +269,11 @@ const shareContent = ref<{ url: string }>();
 const showHelp = ref(false);
 const helpSearch = ref('');
 const generating = ref(false);
-const copiedPipe = ref<string | null>(null);
-let copyTimer: ReturnType<typeof setTimeout>;
+
+function getPipeCopyText(pipe: (typeof pipeList)[number]): string {
+  const opts = getDefaultOptions(pipe);
+  return opts ? `|> ${pipe.meta.name}(${opts})` : `|> ${pipe.meta.name}`;
+}
 
 function execute() {
   const parsed = parsePipeline(content.pipelineText, pipeList);
@@ -310,23 +305,6 @@ function getDefaultOptions(pipe: (typeof pipeList)[number]): string {
   const keys = Object.keys(result.data as Record<string, unknown>);
   if (keys.length === 0) return '';
   return JSON5.stringify(result.data);
-}
-
-function onCopyPipe(pipe: (typeof pipeList)[number]) {
-  const opts = getDefaultOptions(pipe);
-  const text = opts ? `|> ${pipe.meta.name}(${opts})` : `|> ${pipe.meta.name}`;
-  navigator.clipboard.writeText(text);
-  clearTimeout(copyTimer);
-  copiedPipe.value = pipe.meta.name;
-  copyTimer = setTimeout(() => {
-    copiedPipe.value = null;
-  }, 2000);
-}
-
-function onCopyOutput() {
-  if (state.output) {
-    navigator.clipboard.writeText(state.output);
-  }
 }
 
 function onShare() {
@@ -427,9 +405,7 @@ async function onGenerate() {
 }
 
 function onSave(asNew?: boolean) {
-  const name = content.pipelineText.split('\n')[0] || 'No name';
   const item = {
-    name,
     data: { input: content.input, pipelineText: content.pipelineText },
   };
   state.activeIndex = snapshots.updateItem(
