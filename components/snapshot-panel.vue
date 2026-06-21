@@ -30,7 +30,7 @@
       </div>
       <div
         v-if="!filtered.length"
-        class="flex-1 flex items-center justify-center text-muted"
+        class="flex-1 flex items-center justify-center text-muted pb-2"
       >
         No snapshots found
       </div>
