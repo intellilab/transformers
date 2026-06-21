@@ -28,6 +28,7 @@
       <div class="flex flex-col">
         <div class="flex items-center mb-2">
           <label class="font-bold">Pipes</label>
+          <UButton icon="i-mdi-help-circle-outline" size="xs" color="neutral" variant="ghost" class="ml-1" @click="showHelp = true" />
         </div>
         <div class="flex-1 flex flex-col">
           <textarea
@@ -90,6 +91,36 @@
       </div>
     </form>
 
+    <UModal v-model:open="showHelp" title="Available Pipes" class="max-w-2xl">
+      <template #body>
+        <UInput v-model="helpSearch" type="search" placeholder="Search pipes..." icon="i-mdi-magnify" class="block mb-4" size="sm" />
+        <div class="space-y-4 text-sm h-96 overflow-y-auto">
+          <div v-if="filteredPipes.length === 0" class="text-gray-500 text-center py-8">No pipes found</div>
+          <div v-for="pipe in filteredPipes" :key="pipe.meta.name" class="border border-default rounded p-3">
+            <div class="font-bold text-base mb-1 flex items-center gap-2">
+              <span>|> {{ pipe.meta.name }}</span>
+              <UButton v-if="copiedPipe === pipe.meta.name" icon="i-mdi-check" size="xs" color="success" variant="ghost" class="shrink-0" />
+              <UButton v-else icon="i-mdi-content-copy" size="xs" color="neutral" variant="ghost" class="shrink-0" @click="onCopyPipe(pipe)" />
+            </div>
+            <div class="text-gray-600 dark:text-gray-400 mb-2">{{ pipe.meta.description }}</div>
+            <div v-if="pipe.optionsSchema">
+              <div class="font-semibold text-xs uppercase tracking-wide mb-1 text-gray-500">Options</div>
+              <div class="space-y-1">
+                <div v-for="(desc, key) in getOptionsDescription(pipe)" :key="key" class="flex gap-2">
+                  <code class="shrink-0">{{ key }}</code>
+                  <span class="text-gray-600 dark:text-gray-400">{{ desc }}</span>
+                </div>
+              </div>
+            </div>
+            <div v-else class="text-xs text-gray-500">No options</div>
+          </div>
+        </div>
+      </template>
+      <template #footer="{ close }">
+        <UButton label="Close" color="neutral" variant="outline" @click="close" />
+      </template>
+    </UModal>
+
     <!-- Share -->
     <div class="mt-4 flex items-center gap-2">
       <UButton @click="onShare">Share</UButton>
@@ -105,11 +136,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, ref, computed, onMounted } from 'vue';
 import { puter } from '@heyputer/puter.js';
+import JSON5 from 'json5';
 import { parsePipeline } from '~/components/pipes/parser';
 import { executePipeline } from '~/components/pipes/executor';
-import { pipeList } from '~/components/pipes/pipe-list';
+import { pipeList, getOptionsDescription } from '~/components/pipes/pipe-list';
 import { generatePipeline } from '~/components/pipes/ai';
 
 const pipelineEditor = ref<HTMLTextAreaElement>();
@@ -154,6 +186,27 @@ function onInputChange() {
   execute();
 }
 
+function getDefaultOptions(pipe: (typeof pipeList)[number]): string {
+  if (!pipe.optionsSchema) return '';
+  const result = pipe.optionsSchema.safeParse({});
+  if (!result.success) return '';
+  const keys = Object.keys(result.data as Record<string, unknown>);
+  if (keys.length === 0) return '';
+  return JSON5.stringify(result.data);
+}
+
+const copiedPipe = ref<string | null>(null);
+let copyTimer: ReturnType<typeof setTimeout>;
+
+function onCopyPipe(pipe: (typeof pipeList)[number]) {
+  const opts = getDefaultOptions(pipe);
+  const text = opts ? `|> ${pipe.meta.name}(${opts})` : `|> ${pipe.meta.name}`;
+  navigator.clipboard.writeText(text);
+  clearTimeout(copyTimer);
+  copiedPipe.value = pipe.meta.name;
+  copyTimer = setTimeout(() => { copiedPipe.value = null; }, 2000);
+}
+
 function onCopyOutput() {
   if (state.output) {
     navigator.clipboard.writeText(state.output);
@@ -181,6 +234,18 @@ function onShare() {
   shareContent.value = { url };
 }
 
+const showHelp = ref(false);
+const helpSearch = ref('');
+
+const filteredPipes = computed(() => {
+  const q = helpSearch.value.toLowerCase();
+  if (!q) return pipeList;
+  return pipeList.filter(
+    (p) =>
+      p.meta.name.toLowerCase().includes(q) ||
+      p.meta.description.toLowerCase().includes(q),
+  );
+});
 const generating = ref(false);
 const toast = useToast();
 
