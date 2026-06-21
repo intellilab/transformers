@@ -34,7 +34,7 @@
           </p>
         </footer>
       </aside>
-      <div class="flex-1 p-4 min-w-0 max-w-screen-xl mx-auto overflow-auto">
+      <div class="flex-1 p-4 min-w-200 max-w-screen-xl mx-auto">
         <slot />
       </div>
     </div>

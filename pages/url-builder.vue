@@ -2,7 +2,7 @@
   <div>
     <h1 class="text-3xl mb-4">URL Builder</h1>
     <div
-      class="grid grid-cols-[1.5fr_1.5fr_1fr] grid-rows-[auto_auto] gap-4 min-w-[800px]"
+      class="grid grid-cols-[1.5fr_1.5fr_1fr] grid-rows-[auto_auto] gap-4 *:min-w-0"
     >
       <div>
         <div class="mb-1">
