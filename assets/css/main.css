@@ -1,2 +1,9 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+code {
+  @apply bg-accented rounded px-1;
+}
+ul {
+  @apply p-2 pl-6 list-disc;
+}
