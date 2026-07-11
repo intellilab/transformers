@@ -11,7 +11,7 @@ div :deep(.cm-editor) {
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch } from 'vue';
 import { EditorView, basicSetup } from 'codemirror';
-import { linter, lintGutter } from '@codemirror/lint';
+import { linter, lintGutter, type Diagnostic, type LintSource } from '@codemirror/lint';
 import { json, jsonParseLinter } from '@codemirror/lang-json';
 import { html } from '@codemirror/lang-html';
 import { yaml } from '@codemirror/lang-yaml';
@@ -26,6 +26,7 @@ const props = defineProps<{
   readonly?: boolean;
   contentType?: string;
   placeholder?: string;
+  linter?: LintSource;
 }>();
 const emit = defineEmits<{
   cursorMove: [line: number];
@@ -47,10 +48,14 @@ let view: EditorView | undefined;
 let lastModel = '';
 
 const langExtComp = new Compartment();
+const lintComp = new Compartment();
 const viewComp = new Compartment();
 
 const hasError = ref(false);
 const langExt = computed(() => langExtMap[props.lang || '']?.() || []);
+const linterExt = computed(() =>
+  props.linter ? [linter(props.linter), lintGutter()] : [],
+);
 const viewExt = computed(() => [
   ...(isDark.value ? [oneDark] : []),
   ...(props.placeholder ? [placeholder(props.placeholder)] : []),
@@ -65,6 +70,12 @@ result.addEventListener('change', (e) => {
 watch(langExt, (ext) => {
   view?.dispatch({
     effects: langExtComp.reconfigure(ext),
+  });
+});
+
+watch(linterExt, (ext) => {
+  view?.dispatch({
+    effects: lintComp.reconfigure(ext),
   });
 });
 
@@ -106,6 +117,7 @@ onMounted(() => {
       keymap.of([indentWithTab]),
       EditorState.readOnly.of(props.readonly),
       langExtComp.of(langExt.value),
+      lintComp.of(linterExt.value),
       viewComp.of(viewExt.value),
       EditorView.updateListener.of((update) => {
         if (update.focusChanged) {

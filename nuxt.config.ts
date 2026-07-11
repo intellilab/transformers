@@ -32,6 +32,7 @@ export default defineNuxtConfig({
         '@codemirror/view',
         '@violentmonkey/shortcut',
         'codemirror',
+        'expr-eval',
         'js-yaml',
         'otpauth',
         'qrcanvas-vue',
