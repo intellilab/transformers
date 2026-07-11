@@ -11,6 +11,10 @@ export default defineNuxtConfig({
     },
   },
 
+  routeRules: {
+    '/curves': { redirect: 'https://curves.bananatree.dev/' },
+  },
+
   css: ['~/assets/css/main.css'],
 
   modules: ['@nuxtjs/tailwindcss', '@nuxt/ui'],

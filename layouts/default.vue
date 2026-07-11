@@ -1,16 +1,21 @@
 <template>
   <UApp>
     <div class="flex h-dvh">
-      <aside class="flex flex-col p-3 bg-muted">
-        <NuxtLink to="/"><h2 class="text-2xl text-primary">Transformers</h2></NuxtLink>
-        <div class="flex-1 my-2">
+      <aside class="bg-muted flex flex-col p-3">
+        <NuxtLink to="/"><h2 class="text-primary text-2xl">Transformers</h2></NuxtLink>
+        <div class="my-2 flex-1">
           <NuxtLink
-            class="flex px-2 py-1 cursor-pointer text-dimmed hover:bg-muted rounded transition-colors [&.router-link-active]:bg-accented [&.router-link-active]:text-default"
+            class="text-dimmed hover:bg-muted [&.router-link-active]:bg-accented [&.router-link-active]:text-default flex cursor-pointer rounded px-2 py-1 transition-colors"
+            to="/curves/"
+            >Curves</NuxtLink
+          >
+          <NuxtLink
+            class="text-dimmed hover:bg-muted [&.router-link-active]:bg-accented [&.router-link-active]:text-default flex cursor-pointer rounded px-2 py-1 transition-colors"
             to="/string/"
             >String pipes</NuxtLink
           >
           <NuxtLink
-            class="flex px-2 py-1 cursor-pointer text-dimmed hover:bg-muted rounded transition-colors [&.router-link-active]:bg-accented [&.router-link-active]:text-default"
+            class="text-dimmed hover:bg-muted [&.router-link-active]:bg-accented [&.router-link-active]:text-default flex cursor-pointer rounded px-2 py-1 transition-colors"
             to="/url-builder/"
             >URL Builder</NuxtLink
           >
