@@ -53,9 +53,7 @@ const viewComp = new Compartment();
 
 const hasError = ref(false);
 const langExt = computed(() => langExtMap[props.lang || '']?.() || []);
-const linterExt = computed(() =>
-  props.linter ? [linter(props.linter), lintGutter()] : [],
-);
+const linterExt = computed(() => (props.linter ? [linter(props.linter), lintGutter()] : []));
 const viewExt = computed(() => [
   ...(isDark.value ? [oneDark] : []),
   ...(props.placeholder ? [placeholder(props.placeholder)] : []),
@@ -125,9 +123,7 @@ onMounted(() => {
           else emit('blur');
         }
         if (update.selectionSet) {
-          const lineNo = update.view.state.doc.lineAt(
-            update.view.state.selection.main.head,
-          ).number;
+          const lineNo = update.view.state.doc.lineAt(update.view.state.selection.main.head).number;
           emit('cursorMove', lineNo);
         }
         if (update.docChanged) {

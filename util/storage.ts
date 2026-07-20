@@ -6,7 +6,7 @@ export class Storage<T> {
     try {
       const raw = localStorage.getItem(this.key);
       if (raw != null) data = JSON.parse(raw);
-    } catch (e) {
+    } catch {
       // ignore error
     }
     return data;

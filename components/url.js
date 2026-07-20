@@ -27,9 +27,7 @@ export function buildData(raw) {
     if (config.protocol === 'otpauth:') {
       const payload = config.payload || {};
       if (payload.type && payload.label) {
-        pathname = `//${encodeURIComponent(payload.type)}/${encodeURIComponent(
-          payload.label
-        )}`;
+        pathname = `//${encodeURIComponent(payload.type)}/${encodeURIComponent(payload.label)}`;
       }
       query = dropEmpty(query);
     } else if (config.protocol === 'vmess:') {
@@ -44,15 +42,12 @@ export function buildData(raw) {
   }
   if (config._type === 'object' && config.data) {
     const { data } = config;
-    if (Array.isArray(data))
-      return data.map(buildData).map(encodeURIComponent).join(',');
+    if (Array.isArray(data)) return data.map(buildData).map(encodeURIComponent).join(',');
     return Object.keys(config.data)
       .map((key) => {
         const value = config.data[key];
         if (value == null) return;
-        return `${encodeURIComponent(key)}=${encodeURIComponent(
-          buildData(value)
-        )}`;
+        return `${encodeURIComponent(key)}=${encodeURIComponent(buildData(value))}`;
       })
       .filter(Boolean)
       .join('&');

@@ -78,9 +78,7 @@ describe('parsePipeline', () => {
   });
 
   describe('pipe name validation', () => {
-    const knownPipes = [
-      { meta: { name: 'output' }, handle: () => '' },
-    ] as any;
+    const knownPipes = [{ meta: { name: 'output' }, handle: () => '' }] as any;
 
     it('passes validation for known pipe names', () => {
       const result = parsePipeline('|> output', knownPipes);
@@ -111,11 +109,7 @@ describe('parsePipeline', () => {
 
   describe('full examples', () => {
     it('parses a pipeline with comments and pipes', () => {
-      const text = [
-        '# Convert to JSON',
-        '|> yamlToJson({ indent: 2 })',
-        '|> output',
-      ].join('\n');
+      const text = ['# Convert to JSON', '|> yamlToJson({ indent: 2 })', '|> output'].join('\n');
       const result = parsePipeline(text);
       expect(result.pipes).toHaveLength(2);
       expect(result.pipes[0]!.options).toEqual({ indent: 2 });

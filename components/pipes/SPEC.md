@@ -10,11 +10,11 @@ Pipes are always string-in, string-out. Each pipe parses its input, processes it
 
 Each line is one of:
 
-| Type | Pattern | Example |
-|------|---------|---------|
-| Empty | whitespace only | |
-| Comment | `# ...` | `# this is a comment` |
-| Pipe | `\|> pipeName` or `\|> pipeName({ ... })` | `\|> yamlToJson({ indent: 2 })` |
+| Type    | Pattern                                   | Example                         |
+| ------- | ----------------------------------------- | ------------------------------- |
+| Empty   | whitespace only                           |                                 |
+| Comment | `# ...`                                   | `# this is a comment`           |
+| Pipe    | `\|> pipeName` or `\|> pipeName({ ... })` | `\|> yamlToJson({ indent: 2 })` |
 
 Lines are processed in order. Empty lines and comments are skipped.
 
@@ -62,8 +62,8 @@ interface ParseResult {
 
 ## Errors
 
-| Error | Example input |
-|-------|---------------|
-| Unexpected statement (doesn't match any rule) | `hello world` |
-| Unknown pipe name | `\|> nonexistent` (when pipeHandlers provided) |
-| Non-parseable options JSON5 | `\|> pipe({ bad })` |
+| Error                                         | Example input                                  |
+| --------------------------------------------- | ---------------------------------------------- |
+| Unexpected statement (doesn't match any rule) | `hello world`                                  |
+| Unknown pipe name                             | `\|> nonexistent` (when pipeHandlers provided) |
+| Non-parseable options JSON5                   | `\|> pipe({ bad })`                            |

@@ -10,7 +10,8 @@ class FormatJsonPipe extends PipeHandler {
 
   meta = {
     name: 'formatJson',
-    description: 'Pretty-print a JSON string with configurable indentation and optional key sorting',
+    description:
+      'Pretty-print a JSON string with configurable indentation and optional key sorting',
   } satisfies PipeHandlerMeta;
 
   handle(input: string, options?: Record<string, unknown>) {
@@ -38,10 +39,13 @@ function sortObjectKeys(obj: unknown): unknown {
   if (obj !== null && typeof obj === 'object') {
     return Object.keys(obj as Record<string, unknown>)
       .sort()
-      .reduce((sorted: Record<string, unknown>, key: string) => {
-        sorted[key] = sortObjectKeys((obj as Record<string, unknown>)[key]);
-        return sorted;
-      }, {} as Record<string, unknown>);
+      .reduce(
+        (sorted: Record<string, unknown>, key: string) => {
+          sorted[key] = sortObjectKeys((obj as Record<string, unknown>)[key]);
+          return sorted;
+        },
+        {} as Record<string, unknown>,
+      );
   }
   return obj;
 }

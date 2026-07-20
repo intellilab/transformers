@@ -9,7 +9,8 @@ class JsonGetPipe extends PipeHandler {
 
   meta = {
     name: 'jsonGet',
-    description: 'Extract a nested value from a JSON string using a dot-separated path option (e.g. { path: "foo.bar" })',
+    description:
+      'Extract a nested value from a JSON string using a dot-separated path option (e.g. { path: "foo.bar" })',
   } satisfies PipeHandlerMeta;
 
   handle(input: string, options?: Record<string, unknown>) {
@@ -23,7 +24,10 @@ class JsonGetPipe extends PipeHandler {
 
     if (path) {
       const parts = path.split('.').filter(Boolean);
-      data = parts.reduce((prev: unknown, key: string) => (prev as Record<string, unknown>)?.[key], data);
+      data = parts.reduce(
+        (prev: unknown, key: string) => (prev as Record<string, unknown>)?.[key],
+        data,
+      );
     }
 
     return JSON.stringify(data);

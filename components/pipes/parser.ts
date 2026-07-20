@@ -18,10 +18,7 @@ export interface ParseResult {
   errors: ParseError[];
 }
 
-export function parsePipeline(
-  text: string,
-  pipeHandlers?: PipeHandlerInstance[],
-): ParseResult {
+export function parsePipeline(text: string, pipeHandlers?: PipeHandlerInstance[]): ParseResult {
   const result: ParseResult = {
     pipes: [],
     errors: [],
@@ -29,9 +26,7 @@ export function parsePipeline(
 
   if (!text) return result;
 
-  const handlerMap = pipeHandlers
-    ? new Map(pipeHandlers.map((p) => [p.meta.name, p]))
-    : undefined;
+  const handlerMap = pipeHandlers ? new Map(pipeHandlers.map((p) => [p.meta.name, p])) : undefined;
 
   const lines = text.split('\n');
 
@@ -108,9 +103,7 @@ export function serializePipeline(
   const lines: string[] = [];
 
   for (const pipe of pipes) {
-    const optionsStr = Object.keys(pipe.options).length > 0
-      ? JSON5.stringify(pipe.options)
-      : '';
+    const optionsStr = Object.keys(pipe.options).length > 0 ? JSON5.stringify(pipe.options) : '';
     lines.push(`|> ${pipe.name}(${optionsStr})`);
   }
 

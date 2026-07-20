@@ -17,11 +17,9 @@
               @click="resetViewport"
               >Reset</UButton
             >
-            <span
-              v-if="timeDisplay"
-              class="ml-auto text-sm font-mono tabular-nums text-primary"
-              >{{ timeDisplay }}</span
-            >
+            <span v-if="timeDisplay" class="ml-auto text-sm font-mono tabular-nums text-primary">{{
+              timeDisplay
+            }}</span>
           </div>
           <canvas
             ref="refCanvas"
@@ -34,12 +32,7 @@
           <div class="mb-1 flex items-center gap-1">
             <span>Functions</span>
             <UPopover>
-              <UButton
-                icon="i-mdi-information-outline"
-                size="xs"
-                color="neutral"
-                variant="ghost"
-              />
+              <UButton icon="i-mdi-information-outline" size="xs" color="neutral" variant="ghost" />
               <template #content>
                 <div v-html="CURVES_SYNTAX_HTML" />
               </template>
@@ -91,15 +84,7 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  computed,
-  onMounted,
-  onUnmounted,
-  reactive,
-  ref,
-  shallowRef,
-  watch,
-} from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref, shallowRef, watch } from 'vue';
 import { Parser, type Expression } from 'expr-eval';
 import type { Diagnostic } from '@codemirror/lint';
 import CodeEditor from '@/components/code-editor.vue';
@@ -316,17 +301,13 @@ function compileExpressions(text: string) {
       const parts = splitTopLevelComma(body);
       if (parts.length >= 2) {
         if (parts.length > 2)
-          throw new Error(
-            'Too many comma-separated expressions (expected 2 for parametric)',
-          );
+          throw new Error('Too many comma-separated expressions (expected 2 for parametric)');
         const xExpr = parser.parse(parts[0]!.trim());
         const yExpr = parser.parse(parts[1]!.trim());
         const vars = new Set([...xExpr.variables(), ...yExpr.variables()]);
         if (vars.has('x') || vars.has('y')) {
           const bad = ['x', 'y'].filter((v) => vars.has(v));
-          throw new Error(
-            `Parametric expressions cannot use ${bad.join(', ')} (use t instead)`,
-          );
+          throw new Error(`Parametric expressions cannot use ${bad.join(', ')} (use t instead)`);
         }
         const xFn = xExpr.toJSFunction('t, T');
         const yFn = yExpr.toJSFunction('t, T');
@@ -348,9 +329,7 @@ function compileExpressions(text: string) {
       } else {
         const expr = parser.parse(body);
         if (expr.variables().includes('t')) {
-          throw new Error(
-            'Use T for time, or use comma syntax for parametric equations',
-          );
+          throw new Error('Use T for time, or use comma syntax for parametric equations');
         }
         const fn = expr.toJSFunction('x, T');
         try {
@@ -806,9 +785,7 @@ function normalizeViewport(
 function resetViewport() {
   tStart = performance.now();
   T = 0;
-  animateViewport(
-    normalizeViewport({ xMin: -10, xMax: 10, yMin: -10, yMax: 10 }),
-  );
+  animateViewport(normalizeViewport({ xMin: -10, xMax: 10, yMin: -10, yMax: 10 }));
 }
 
 function animateViewport(

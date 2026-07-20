@@ -3,18 +3,28 @@
   "version": "0.0.0",
   "private": true,
   "description": "Pipe based transformers for front-end",
-  "author": "Gerald <i@gera2ld.space>",
   "license": "ISC",
+  "author": "Gerald <i@gera2ld.space>",
   "scripts": {
     "prepare": "husky",
     "dev": "nuxt dev",
     "build": "nuxt build",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
+    "check": "pnpm typecheck && oxlint && oxfmt",
     "typecheck": "vue-tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@heyputer/puter.js": "^2.5.4",
+    "@iconify-json/mdi": "^1.2.3",
+    "@nuxt/ui": "^4.10.0",
+    "@uivjs/vue-github-corners": "^1.0.1",
+    "expr-eval": "^2.0.2",
+    "vue": "^3.5.40",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@codemirror/commands": "^6.10.4",
@@ -37,6 +47,8 @@
     "json5": "^2.2.3",
     "nuxt": "^4.5.0",
     "otpauth": "^9.5.1",
+    "oxfmt": "^0.59.0",
+    "oxlint": "^1.74.0",
     "plist": "^5.0.0",
     "postcss": "^8.5.19",
     "postcss-nested": "^7.0.2",
@@ -44,14 +56,5 @@
     "tailwindcss": "^4.3.3",
     "vitest": "^4.1.10",
     "vue-tsc": "^3.3.7"
-  },
-  "dependencies": {
-    "@heyputer/puter.js": "^2.5.4",
-    "@iconify-json/mdi": "^1.2.3",
-    "@nuxt/ui": "^4.10.0",
-    "@uivjs/vue-github-corners": "^1.0.1",
-    "expr-eval": "^2.0.2",
-    "vue": "^3.5.40",
-    "zod": "^4.4.3"
   }
 }

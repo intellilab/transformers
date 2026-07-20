@@ -20,16 +20,9 @@ function utf8Encode(string: string): string {
     if (code < 128) {
       bytes.push(code);
     } else if (code < 2048) {
-      bytes.push(
-        (code >> 6) | 192,
-        (code & 63) | 128,
-      );
+      bytes.push((code >> 6) | 192, (code & 63) | 128);
     } else {
-      bytes.push(
-        (code >> 12) | 224,
-        ((code >> 6) & 63) | 128,
-        (code & 63) | 128,
-      );
+      bytes.push((code >> 12) | 224, ((code >> 6) & 63) | 128, (code & 63) | 128);
     }
   }
   return String.fromCharCode(...bytes);

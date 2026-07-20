@@ -1,13 +1,7 @@
- <template>
+<template>
   <div class="p-4">
     <div v-if="url" class="flex items-start gap-2">
-      <UTextarea
-        readonly
-        class="flex-1"
-        :value="url"
-        @click="onSelectAll"
-        :rows="5"
-      />
+      <UTextarea readonly class="flex-1" :value="url" @click="onSelectAll" :rows="5" />
       <UButton
         :icon="copied ? 'i-mdi-check' : 'i-mdi-content-copy'"
         :color="copied ? 'success' : 'neutral'"
@@ -34,9 +28,7 @@ function buildUrl(): string | null {
   const entries = Object.entries(params).filter(([, v]) => v != null);
   if (!entries.length) return null;
   const { origin, pathname, search } = window.location;
-  let qs = entries
-    .map(([k, v]) => [k, encodeURIComponent(v!)].join('='))
-    .join('&');
+  let qs = entries.map(([k, v]) => [k, encodeURIComponent(v!)].join('=')).join('&');
   qs = `${qs}&_=`;
   return `${origin}${pathname}${search}#${qs}`;
 }

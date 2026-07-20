@@ -27,12 +27,7 @@
           />
           <div class="flex items-center mb-1">
             <span class="font-bold">Output</span>
-            <CopyButton
-              :text="state.output"
-              size="xs"
-              variant="ghost"
-              class="ml-auto"
-            />
+            <CopyButton :text="state.output" size="xs" variant="ghost" class="ml-auto" />
           </div>
           <CodeEditor
             class="h-[200px] border border-default"
@@ -76,11 +71,7 @@
           <div v-if="state.pipelineError" class="text-error text-xs mt-1">
             {{ state.pipelineError }}
           </div>
-          <UButton
-            icon="i-mdi-undo"
-            color="neutral"
-            variant="outline"
-            @click="onReset()"
+          <UButton icon="i-mdi-undo" color="neutral" variant="outline" @click="onReset()"
             >Reset</UButton
           >
         </div>
@@ -100,19 +91,11 @@
       </template>
       <template #panel-share>
         <ShareUrl
-          :get-params="
-            () =>
-              content.input
-                ? { i: content.input, p: content.pipelineText }
-                : null
-          "
+          :get-params="() => (content.input ? { i: content.input, p: content.pipelineText } : null)"
         />
       </template>
       <template #panel-ai>
-        <AiPanel
-          :on-generate="handleGenerate"
-          placeholder="e.g. convert YAML to JSON"
-        />
+        <AiPanel :on-generate="handleGenerate" placeholder="e.g. convert YAML to JSON" />
       </template>
     </ToolRail>
 
@@ -127,10 +110,7 @@
           size="sm"
         />
         <div class="space-y-4 text-sm h-96 overflow-y-auto">
-          <div
-            v-if="filteredPipes.length === 0"
-            class="text-gray-500 text-center py-8"
-          >
+          <div v-if="filteredPipes.length === 0" class="text-gray-500 text-center py-8">
             No pipes found
           </div>
           <div
@@ -151,9 +131,7 @@
               {{ pipe.meta.description }}
             </div>
             <div v-if="pipe.optionsSchema">
-              <div
-                class="font-semibold text-xs uppercase tracking-wide mb-1 text-gray-500"
-              >
+              <div class="font-semibold text-xs uppercase tracking-wide mb-1 text-gray-500">
                 Options
               </div>
               <div class="space-y-1">
@@ -163,9 +141,7 @@
                   class="flex gap-2"
                 >
                   <code class="shrink-0">{{ key }}</code>
-                  <span class="text-gray-600 dark:text-gray-400">{{
-                    desc
-                  }}</span>
+                  <span class="text-gray-600 dark:text-gray-400">{{ desc }}</span>
                 </div>
               </div>
             </div>
@@ -174,12 +150,7 @@
         </div>
       </template>
       <template #footer="{ close }">
-        <UButton
-          label="Close"
-          color="neutral"
-          variant="outline"
-          @click="close"
-        />
+        <UButton label="Close" color="neutral" variant="outline" @click="close" />
       </template>
     </UModal>
   </div>
@@ -288,8 +259,7 @@ const examples = [
     pipeline: "|> toJson({ fromFormat: 'toml' })\n|> jsonGet({ path: 'name' })",
   },
   {
-    input:
-      '{"items":[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}],"total":2}',
+    input: '{"items":[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}],"total":2}',
     pipeline: '|> formatJson({ indent: 2, sortKeys: true })',
   },
   {
@@ -327,9 +297,7 @@ const filteredPipes = computed(() => {
   const q = helpSearch.value.toLowerCase();
   if (!q) return pipeList;
   return pipeList.filter(
-    (p) =>
-      p.meta.name.toLowerCase().includes(q) ||
-      p.meta.description.toLowerCase().includes(q),
+    (p) => p.meta.name.toLowerCase().includes(q) || p.meta.description.toLowerCase().includes(q),
   );
 });
 
@@ -345,10 +313,7 @@ function onSave(asNew?: boolean) {
   const item = {
     data: { input: content.input, pipelineText: content.pipelineText },
   };
-  state.activeIndex = snapshots.updateItem(
-    asNew ? -1 : state.activeIndex,
-    item,
-  );
+  state.activeIndex = snapshots.updateItem(asNew ? -1 : state.activeIndex, item);
   toast.add({ title: 'Saved', duration: 2000 });
 }
 

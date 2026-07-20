@@ -26,7 +26,8 @@ interface TreeNode {
 class ListToTreePipe extends PipeHandler {
   meta = {
     name: 'listToTree',
-    description: 'Parse an indented list into a hierarchical tree structure using indentation level as parent-child relationship',
+    description:
+      'Parse an indented list into a hierarchical tree structure using indentation level as parent-child relationship',
   } satisfies PipeHandlerMeta;
 
   handle(input: string) {

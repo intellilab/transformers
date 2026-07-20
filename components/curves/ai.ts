@@ -18,5 +18,8 @@ Request: ${userPrompt}`,
     },
   ]);
   if (!result) return null;
-  return result.replace(/^```[\s\S]*?\n/, '').replace(/\n```$/, '').trim();
+  return result
+    .replace(/^```[\s\S]*?\n/, '')
+    .replace(/\n```$/, '')
+    .trim();
 }

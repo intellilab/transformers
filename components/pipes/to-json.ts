@@ -23,8 +23,7 @@ class ToJsonPipe extends PipeHandler {
   handle(input: string, options?: Record<string, unknown>) {
     const { fromFormat, indent } = this.optionsSchema.parse(options ?? {});
 
-    const sourceFormat =
-      fromFormat === 'auto' ? detectFormat(input) : fromFormat;
+    const sourceFormat = fromFormat === 'auto' ? detectFormat(input) : fromFormat;
 
     let data;
     switch (sourceFormat) {

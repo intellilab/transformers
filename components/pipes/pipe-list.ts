@@ -33,10 +33,7 @@ export function describeOptions(schema: z.ZodObject<any>): Record<string, string
   const entries = Object.entries(schema.shape ?? {});
   if (entries.length === 0) return {};
   return Object.fromEntries(
-    entries.map(([key, field]) => [
-      key,
-      (field as z.ZodTypeAny).description ?? key,
-    ]),
+    entries.map(([key, field]) => [key, (field as z.ZodTypeAny).description ?? key]),
   );
 }
 

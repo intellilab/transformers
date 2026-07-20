@@ -10,7 +10,8 @@ class JsonToJsPipe extends PipeHandler {
 
   meta = {
     name: 'jsonToJs',
-    description: 'Convert a JSON string into JavaScript object literal notation with optional quoteAsNeeded',
+    description:
+      'Convert a JSON string into JavaScript object literal notation with optional quoteAsNeeded',
   } satisfies PipeHandlerMeta;
 
   handle(input: string, options?: Record<string, unknown>) {
