@@ -1,9 +1,9 @@
 <template>
   <div class="contents">
-    <div class="flex-1 flex flex-col min-w-0 h-full overflow-auto p-4">
+    <main class="overflow-auto">
       <h1 class="text-3xl mb-4">URL Builder</h1>
-      <div class="grid grid-cols-[1.5fr_1.5fr] gap-4 *:min-w-0">
-        <div>
+      <div class="flex-1 flex gap-4 overflow-auto">
+        <div class="flex-1 min-w-80">
           <div class="mb-1">
             Parsed data
             <span class="ml-1 text-sm">(in Yaml)</span>
@@ -20,8 +20,13 @@
               <div class="text-xs">(show on the QRCode)</div>
             </div>
           </div>
+          <div class="mt-4">
+            <UButton icon="i-mdi-undo" color="neutral" variant="outline" @click="onReset()"
+              >Reset</UButton
+            >
+          </div>
         </div>
-        <div>
+        <div class="flex-1 min-w-60">
           <div class="mb-1">
             URL
             <span class="ml-1 text-sm"
@@ -47,15 +52,8 @@
             v-text="state.error"
           />
         </div>
-        <div class="col-span-2">
-          <div class="flex gap-2">
-            <UButton icon="i-mdi-undo" color="neutral" variant="outline" @click="onReset()"
-              >Reset</UButton
-            >
-          </div>
-        </div>
       </div>
-    </div>
+    </main>
 
     <ToolRail :items="toolRailItems">
       <template #panel-snapshots>
