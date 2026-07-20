@@ -13,7 +13,11 @@
             @click="resetViewport"
             >Reset</UButton
           >
-          <span v-if="timeDisplay" class="ml-auto text-sm font-mono tabular-nums text-primary">{{ timeDisplay }}</span>
+          <span
+            v-if="timeDisplay"
+            class="ml-auto text-sm font-mono tabular-nums text-primary"
+            >{{ timeDisplay }}</span
+          >
         </div>
         <canvas
           ref="refCanvas"
@@ -26,18 +30,51 @@
         <div class="mb-1 flex items-center gap-1">
           <span>Functions</span>
           <UPopover>
-            <UButton icon="i-mdi-information-outline" size="xs" color="neutral" variant="ghost" />
+            <UButton
+              icon="i-mdi-information-outline"
+              size="xs"
+              color="neutral"
+              variant="ghost"
+            />
             <template #content>
-              <div class="text-xs leading-5 p-2">
-                <div>One function per line</div>
-                <div>Use <code class="bg-accented rounded px-1">x</code> as input variable</div>
-                <div>Use <code class="bg-accented rounded px-1">T</code> for time (animated)</div>
-                <div>Use <code class="bg-accented rounded px-1">t</code> for parametric: <code class="bg-accented rounded px-1">sin(t), cos(t)</code></div>
-                <div>Append <code class="bg-accented rounded px-1">{condition}</code> to filter, e.g. <code class="bg-accented rounded px-1">{x>=0}</code></div>
-                <div>Lines starting with <code class="bg-accented rounded px-1">#</code> are ignored</div>
-              </div>
+              <ul class="text-xs leading-5 p-2 pl-6 list-disc">
+                <li>One function per line</li>
+                <li>
+                  Use <code class="bg-accented rounded px-1">x</code> as input
+                  variable
+                </li>
+                <li>
+                  Use <code class="bg-accented rounded px-1">T</code> for time
+                  (animated)
+                </li>
+                <li>
+                  Use <code class="bg-accented rounded px-1">t</code> for
+                  parametric:
+                  <code class="bg-accented rounded px-1">sin(t), cos(t)</code>
+                </li>
+                <li>
+                  Append
+                  <code class="bg-accented rounded px-1">{condition}</code> to
+                  filter, e.g.
+                  <code class="bg-accented rounded px-1">{x>=0}</code>
+                </li>
+                <li>
+                  Lines starting with
+                  <code class="bg-accented rounded px-1">#</code> are ignored
+                </li>
+              </ul>
             </template>
           </UPopover>
+          <UDropdownMenu class="ml-auto" :items="dropdownItems">
+            <UButton
+              icon="i-mdi-chevron-down"
+              size="xs"
+              color="neutral"
+              variant="ghost"
+              label="Examples"
+              trailing
+            />
+          </UDropdownMenu>
         </div>
         <CodeEditor
           class="h-[calc(100dvh-15rem)] border border-default"
@@ -75,6 +112,27 @@ const DEFAULT_CODE = `sin(x)
 cos(x)
 # Try your own functions below
 `;
+
+const EXAMPLES: Record<string, string> = {
+  trig: `sin(x)
+cos(x)`,
+  animation: `sin(x + T)
+cos(x + T * 2)`,
+  ellipse: `5*cos(2*PI*t), 3*sin(2*PI*t)`,
+  'ellipse-anim': `5*cos(2*PI*t), 3*sin(2*PI*t) {t < min(T % 2, 1)}`,
+};
+
+const dropdownItems = [
+  { label: 'Simple trig', onSelect: () => loadExample('trig') },
+  { label: 'Animation', onSelect: () => loadExample('animation') },
+  { label: 'Ellipse', onSelect: () => loadExample('ellipse') },
+  { label: 'Ellipse (animated)', onSelect: () => loadExample('ellipse-anim') },
+];
+
+function loadExample(key: string) {
+  const code = EXAMPLES[key];
+  if (code) editorText.value = code;
+}
 
 const COLORS = [
   '#3b82f6',
@@ -213,27 +271,47 @@ function compileExpressions(text: string) {
 
       const parts = splitTopLevelComma(body);
       if (parts.length >= 2) {
-        if (parts.length > 2) throw new Error('Too many comma-separated expressions (expected 2 for parametric)');
+        if (parts.length > 2)
+          throw new Error(
+            'Too many comma-separated expressions (expected 2 for parametric)',
+          );
         const xExpr = parser.parse(parts[0]!.trim());
         const yExpr = parser.parse(parts[1]!.trim());
         const vars = new Set([...xExpr.variables(), ...yExpr.variables()]);
         if (vars.has('x') || vars.has('y') || vars.has('T')) {
-          const bad = ['x', 'y', 'T'].filter(v => vars.has(v));
-          throw new Error(`Parametric expressions cannot use ${bad.join(', ')} (use t instead)`);
+          const bad = ['x', 'y', 'T'].filter((v) => vars.has(v));
+          throw new Error(
+            `Parametric expressions cannot use ${bad.join(', ')} (use t instead)`,
+          );
         }
         const xFn = xExpr.toJSFunction('t');
         const yFn = yExpr.toJSFunction('t');
-        try { xFn(0); yFn(0); } catch (err: any) {
+        try {
+          xFn(0);
+          yFn(0);
+        } catch (err: any) {
           throw new Error(err.message || 'Error evaluating expression');
         }
-        result.push({ type: 'parametric', lineNo: i + 1, xExpr, yExpr, xFn, yFn, condition });
+        result.push({
+          type: 'parametric',
+          lineNo: i + 1,
+          xExpr,
+          yExpr,
+          xFn,
+          yFn,
+          condition,
+        });
       } else {
         const expr = parser.parse(body);
         if (expr.variables().includes('t')) {
-          throw new Error('Use T for time, or use comma syntax for parametric equations');
+          throw new Error(
+            'Use T for time, or use comma syntax for parametric equations',
+          );
         }
         const fn = expr.toJSFunction('x, T');
-        try { fn(0, 0); } catch (err: any) {
+        try {
+          fn(0, 0);
+        } catch (err: any) {
           throw new Error(err.message || 'Error evaluating expression');
         }
         result.push({ type: 'standard', lineNo: i + 1, expr, fn, condition });
@@ -415,27 +493,47 @@ function drawCurves(ctx: CanvasRenderingContext2D) {
           wx = xFn(t);
           wy = yFn(t);
         } catch {
-          if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
-          lastPx = NaN; lastPy = NaN;
+          if (started) {
+            ctx.stroke();
+            ctx.beginPath();
+            started = false;
+          }
+          lastPx = NaN;
+          lastPy = NaN;
           continue;
         }
 
         if (!isFinite(wx) || !isFinite(wy)) {
-          if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
-          lastPx = NaN; lastPy = NaN;
+          if (started) {
+            ctx.stroke();
+            ctx.beginPath();
+            started = false;
+          }
+          lastPx = NaN;
+          lastPy = NaN;
           continue;
         }
 
         if (condition) {
           try {
             if (!condition.evaluate({ x: wx, y: wy, t, T })) {
-              if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
-              lastPx = NaN; lastPy = NaN;
+              if (started) {
+                ctx.stroke();
+                ctx.beginPath();
+                started = false;
+              }
+              lastPx = NaN;
+              lastPy = NaN;
               continue;
             }
           } catch {
-            if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
-            lastPx = NaN; lastPy = NaN;
+            if (started) {
+              ctx.stroke();
+              ctx.beginPath();
+              started = false;
+            }
+            lastPx = NaN;
+            lastPy = NaN;
             continue;
           }
         }
@@ -443,8 +541,13 @@ function drawCurves(ctx: CanvasRenderingContext2D) {
         const [px, py] = worldToPixel(wx, wy);
 
         if (px < -w || px > 2 * w || py < -h || py > 2 * h) {
-          if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
-          lastPx = NaN; lastPy = NaN;
+          if (started) {
+            ctx.stroke();
+            ctx.beginPath();
+            started = false;
+          }
+          lastPx = NaN;
+          lastPy = NaN;
           continue;
         }
 
@@ -470,13 +573,21 @@ function drawCurves(ctx: CanvasRenderingContext2D) {
         try {
           wy = fn(wx, T);
         } catch {
-          if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+          if (started) {
+            ctx.stroke();
+            ctx.beginPath();
+            started = false;
+          }
           lastPy = NaN;
           continue;
         }
 
         if (!isFinite(wy)) {
-          if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+          if (started) {
+            ctx.stroke();
+            ctx.beginPath();
+            started = false;
+          }
           lastPy = NaN;
           continue;
         }
@@ -484,12 +595,20 @@ function drawCurves(ctx: CanvasRenderingContext2D) {
         if (condition) {
           try {
             if (!condition.evaluate({ x: wx, y: wy, T })) {
-              if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+              if (started) {
+                ctx.stroke();
+                ctx.beginPath();
+                started = false;
+              }
               lastPy = NaN;
               continue;
             }
           } catch {
-            if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+            if (started) {
+              ctx.stroke();
+              ctx.beginPath();
+              started = false;
+            }
             lastPy = NaN;
             continue;
           }
@@ -498,7 +617,11 @@ function drawCurves(ctx: CanvasRenderingContext2D) {
         const [, py] = worldToPixel(wx, wy);
 
         if (py < -h || py > 2 * h) {
-          if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+          if (started) {
+            ctx.stroke();
+            ctx.beginPath();
+            started = false;
+          }
           lastPy = NaN;
           continue;
         }
@@ -622,7 +745,10 @@ function resetViewport() {
   animateViewport({ xMin: -10, xMax: 10, yMin: -10, yMax: 10 });
 }
 
-function animateViewport(target: { xMin: number; xMax: number; yMin: number; yMax: number }, duration = 300) {
+function animateViewport(
+  target: { xMin: number; xMax: number; yMin: number; yMax: number },
+  duration = 300,
+) {
   const start = { ...viewport.value };
   const startTime = performance.now();
   cancelAnimationFrame(viewportAnimFrame);
