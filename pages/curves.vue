@@ -31,7 +31,9 @@
               <div class="text-xs leading-5 p-2">
                 <div>One function per line</div>
                 <div>Use <code class="bg-accented rounded px-1">x</code> as input variable</div>
-                <div>Use <code class="bg-accented rounded px-1">t</code> for time (animated)</div>
+                <div>Use <code class="bg-accented rounded px-1">T</code> for time (animated)</div>
+                <div>Use <code class="bg-accented rounded px-1">t</code> for parametric: <code class="bg-accented rounded px-1">sin(t), cos(t)</code></div>
+                <div>Append <code class="bg-accented rounded px-1">{condition}</code> to filter, e.g. <code class="bg-accented rounded px-1">{x>=0}</code></div>
                 <div>Lines starting with <code class="bg-accented rounded px-1">#</code> are ignored</div>
               </div>
             </template>
@@ -85,11 +87,25 @@ const COLORS = [
   '#f97316',
 ];
 
-interface ParsedLine {
+interface StandardLine {
+  type: 'standard';
   lineNo: number;
   expr: Expression;
-  fn: (x: number, t: number) => number;
+  fn: (x: number, T: number) => number;
+  condition?: Expression;
 }
+
+interface ParametricLine {
+  type: 'parametric';
+  lineNo: number;
+  xExpr: Expression;
+  yExpr: Expression;
+  xFn: (t: number) => number;
+  yFn: (t: number) => number;
+  condition?: Expression;
+}
+
+type ParsedLine = StandardLine | ParametricLine;
 
 const refCanvas = ref<HTMLCanvasElement>();
 const compiledExprs = shallowRef<ParsedLine[]>([]);
@@ -134,7 +150,7 @@ let animFrame = 0;
 let lastPanX = 0;
 let lastPanY = 0;
 let isPanning = false;
-let t = 0;
+let T = 0;
 let tStart = 0;
 let animating = false;
 let viewportAnimFrame = 0;
@@ -146,6 +162,28 @@ function onInput() {
 function onCursorMove(line: number) {
   cursorLine.value = line;
   scheduleRedraw();
+}
+
+function splitTopLevelComma(str: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let current = '';
+  for (const ch of str) {
+    if (ch === '(' || ch === '[' || ch === '{') {
+      depth++;
+      current += ch;
+    } else if (ch === ')' || ch === ']' || ch === '}') {
+      depth--;
+      current += ch;
+    } else if (ch === ',' && depth === 0) {
+      parts.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  parts.push(current);
+  return parts;
 }
 
 function compileExpressions(text: string) {
@@ -164,9 +202,42 @@ function compileExpressions(text: string) {
     const lineEnd = lineStart + rawLine.length;
 
     try {
-      const expr = parser.parse(line);
-      const fn = expr.toJSFunction('x, t');
-      result.push({ lineNo: i + 1, expr, fn });
+      let condition: Expression | undefined;
+      let body = line;
+      const braceMatch = line.match(/\{([^}]+)\}$/);
+      if (braceMatch) {
+        condition = parser.parse(braceMatch[1]!);
+        body = line.slice(0, braceMatch.index).trim();
+        if (!body) throw new Error('Empty expression before condition');
+      }
+
+      const parts = splitTopLevelComma(body);
+      if (parts.length >= 2) {
+        if (parts.length > 2) throw new Error('Too many comma-separated expressions (expected 2 for parametric)');
+        const xExpr = parser.parse(parts[0]!.trim());
+        const yExpr = parser.parse(parts[1]!.trim());
+        const vars = new Set([...xExpr.variables(), ...yExpr.variables()]);
+        if (vars.has('x') || vars.has('y') || vars.has('T')) {
+          const bad = ['x', 'y', 'T'].filter(v => vars.has(v));
+          throw new Error(`Parametric expressions cannot use ${bad.join(', ')} (use t instead)`);
+        }
+        const xFn = xExpr.toJSFunction('t');
+        const yFn = yExpr.toJSFunction('t');
+        try { xFn(0); yFn(0); } catch (err: any) {
+          throw new Error(err.message || 'Error evaluating expression');
+        }
+        result.push({ type: 'parametric', lineNo: i + 1, xExpr, yExpr, xFn, yFn, condition });
+      } else {
+        const expr = parser.parse(body);
+        if (expr.variables().includes('t')) {
+          throw new Error('Use T for time, or use comma syntax for parametric equations');
+        }
+        const fn = expr.toJSFunction('x, T');
+        try { fn(0, 0); } catch (err: any) {
+          throw new Error(err.message || 'Error evaluating expression');
+        }
+        result.push({ type: 'standard', lineNo: i + 1, expr, fn, condition });
+      }
     } catch (err: any) {
       errors.push({
         from: lineStart,
@@ -180,9 +251,19 @@ function compileExpressions(text: string) {
   compiledExprs.value = result;
   compileErrors.value = errors;
 
-  const needsT = result.some(({ expr }) => expr.variables().includes('t'));
+  const needsT = result.some((line) => {
+    const vars: string[] = [];
+    if (line.type === 'standard') {
+      vars.push(...line.expr.variables());
+    } else {
+      vars.push(...line.xExpr.variables(), ...line.yExpr.variables());
+    }
+    if (line.condition) vars.push(...line.condition.variables());
+    return vars.includes('T');
+  });
   if (needsT && !animating) {
     tStart = performance.now();
+    T = 0;
     animating = true;
     runAnimation();
   } else if (!needsT) {
@@ -311,7 +392,8 @@ function drawCurves(ctx: CanvasRenderingContext2D) {
   const active = cursorLine.value;
 
   for (let ci = 0; ci < exprs.length; ci++) {
-    const { fn, lineNo } = exprs[ci]!;
+    const parsed = exprs[ci]!;
+    const { lineNo, condition } = parsed;
     const color = COLORS[ci % COLORS.length]!;
     const isActive = lineNo === active;
 
@@ -319,56 +401,119 @@ function drawCurves(ctx: CanvasRenderingContext2D) {
     ctx.lineWidth = isActive ? 3 : 1.5;
     ctx.beginPath();
 
-    let started = false;
-    let lastPy = NaN;
+    if (parsed.type === 'parametric') {
+      const { xFn, yFn } = parsed;
+      const steps = 500;
+      let started = false;
+      let lastPx = NaN;
+      let lastPy = NaN;
 
-    for (let px = 0; px < w; px++) {
-      const [wx] = pixelToWorld(px, 0);
-      let wy: number;
-      try {
-        wy = fn(wx, t);
-      } catch {
-        if (started) {
-          ctx.stroke();
-          ctx.beginPath();
-          started = false;
+      for (let si = 0; si <= steps; si++) {
+        const t = si / steps;
+        let wx: number, wy: number;
+        try {
+          wx = xFn(t);
+          wy = yFn(t);
+        } catch {
+          if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+          lastPx = NaN; lastPy = NaN;
+          continue;
         }
-        lastPy = NaN;
-        continue;
-      }
 
-      if (!isFinite(wy)) {
-        if (started) {
-          ctx.stroke();
-          ctx.beginPath();
-          started = false;
+        if (!isFinite(wx) || !isFinite(wy)) {
+          if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+          lastPx = NaN; lastPy = NaN;
+          continue;
         }
-        lastPy = NaN;
-        continue;
-      }
 
-      const [, py] = worldToPixel(wx, wy);
-
-      if (py < -h || py > 2 * h) {
-        if (started) {
-          ctx.stroke();
-          ctx.beginPath();
-          started = false;
+        if (condition) {
+          try {
+            if (!condition.evaluate({ x: wx, y: wy, t, T })) {
+              if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+              lastPx = NaN; lastPy = NaN;
+              continue;
+            }
+          } catch {
+            if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+            lastPx = NaN; lastPy = NaN;
+            continue;
+          }
         }
-        lastPy = NaN;
-        continue;
+
+        const [px, py] = worldToPixel(wx, wy);
+
+        if (px < -w || px > 2 * w || py < -h || py > 2 * h) {
+          if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+          lastPx = NaN; lastPy = NaN;
+          continue;
+        }
+
+        if (!started || Math.hypot(px - lastPx, py - lastPy) > Math.max(w, h)) {
+          ctx.moveTo(px, py);
+        } else {
+          ctx.lineTo(px, py);
+        }
+        started = true;
+        lastPx = px;
+        lastPy = py;
       }
 
-      if (!started || Math.abs(py - lastPy) > h) {
-        ctx.moveTo(px, py);
-      } else {
-        ctx.lineTo(px, py);
+      if (started) ctx.stroke();
+    } else {
+      const { fn } = parsed;
+      let started = false;
+      let lastPy = NaN;
+
+      for (let px = 0; px < w; px++) {
+        const [wx] = pixelToWorld(px, 0);
+        let wy: number;
+        try {
+          wy = fn(wx, T);
+        } catch {
+          if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+          lastPy = NaN;
+          continue;
+        }
+
+        if (!isFinite(wy)) {
+          if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+          lastPy = NaN;
+          continue;
+        }
+
+        if (condition) {
+          try {
+            if (!condition.evaluate({ x: wx, y: wy, T })) {
+              if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+              lastPy = NaN;
+              continue;
+            }
+          } catch {
+            if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+            lastPy = NaN;
+            continue;
+          }
+        }
+
+        const [, py] = worldToPixel(wx, wy);
+
+        if (py < -h || py > 2 * h) {
+          if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+          lastPy = NaN;
+          continue;
+        }
+
+        if (!started || Math.abs(py - lastPy) > h) {
+          ctx.moveTo(px, py);
+        } else {
+          ctx.lineTo(px, py);
+        }
+        started = true;
+        lastPy = py;
       }
-      started = true;
-      lastPy = py;
+
+      if (started) ctx.stroke();
     }
-
-    if (started) ctx.stroke();
   }
 }
 
@@ -394,8 +539,8 @@ function runAnimation() {
     timeDisplay.value = '';
     return;
   }
-  t = (performance.now() - tStart) / 1000;
-  timeDisplay.value = `t=${t.toFixed(1)}`;
+  T = (performance.now() - tStart) / 1000;
+  timeDisplay.value = `T=${T.toFixed(1)}`;
   redraw();
   animFrame = requestAnimationFrame(runAnimation);
 }
@@ -473,7 +618,7 @@ function onResize() {
 
 function resetViewport() {
   tStart = performance.now();
-  t = 0;
+  T = 0;
   animateViewport({ xMin: -10, xMax: 10, yMin: -10, yMax: 10 });
 }
 
