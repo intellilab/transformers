@@ -107,6 +107,9 @@ import { Parser, type Expression } from 'expr-eval';
 import type { Diagnostic } from '@codemirror/lint';
 import CodeEditor from '@/components/code-editor.vue';
 import ShareUrl from '@/components/ShareUrl.vue';
+import { Storage } from '@/util';
+
+const store = new Storage<{ code: string }>('curves/settings');
 
 const DEFAULT_CODE = `sin(x)
 cos(x)
@@ -132,6 +135,19 @@ const dropdownItems = [
 function loadExample(key: string) {
   const code = EXAMPLES[key];
   if (code) editorText.value = code;
+}
+
+function saveData() {
+  store.dump({ code: editorText.value });
+}
+
+function restoreData() {
+  const saved = store.load({ code: '' });
+  if (saved.code) {
+    editorText.value = saved.code;
+    return true;
+  }
+  return false;
 }
 
 const COLORS = [
@@ -797,6 +813,7 @@ function checkHash() {
 
 watch(editorText, () => {
   shareContent.value = undefined;
+  saveData();
 });
 
 onMounted(() => {
@@ -807,7 +824,9 @@ onMounted(() => {
     scheduleRedraw();
   });
 
-  compileExpressions(DEFAULT_CODE);
+  if (!restoreData()) {
+    compileExpressions(DEFAULT_CODE);
+  }
 
   const canvas = refCanvas.value;
   if (canvas) {
