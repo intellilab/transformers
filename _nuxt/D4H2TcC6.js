@@ -1,0 +1,1 @@
+import{_ as e,b as t,mt as n}from"./CoKk4mC0.js";import{t as r}from"./BDNMzG2s.js";var i={};function a(r,i){return n(),t(`main`,null,[...i[0]||=[e(`h1`,null,`Transformers`,-1),e(`p`,null,`A bunch of pipe based transformers to facilitate your daily life.`,-1)]])}var o=r(i,[[`render`,a]]);export{o as default};
