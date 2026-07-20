@@ -110,7 +110,6 @@ import { CURVES_SYNTAX_HTML } from '@/components/curves/config';
 import SnapshotPanel from '@/components/snapshot-panel.vue';
 import { Snapshots, Storage } from '@/util';
 
-const toast = useToast();
 const store = new Storage<{ code: string }>('curves/settings');
 const snapshots = new Snapshots('curves/snapshots');
 
@@ -781,13 +780,35 @@ function onResize() {
   cssHeight.value = h;
   canvasWidth.value = Math.floor(w * dpr.value);
   canvasHeight.value = Math.floor(h * dpr.value);
+
+  viewport.value = normalizeViewport();
   scheduleRedraw();
+}
+
+function normalizeViewport(
+  target: {
+    xMin: number;
+    xMax: number;
+    yMin: number;
+    yMax: number;
+  } = viewport.value,
+) {
+  const ratio = canvasWidth.value / canvasHeight.value;
+  const halfHeight = (target.xMax - target.xMin) / ratio / 2;
+  const yCenter = (target.yMin + target.yMax) / 2;
+  return {
+    ...target,
+    yMin: yCenter - halfHeight,
+    yMax: yCenter + halfHeight,
+  };
 }
 
 function resetViewport() {
   tStart = performance.now();
   T = 0;
-  animateViewport({ xMin: -10, xMax: 10, yMin: -10, yMax: 10 });
+  animateViewport(
+    normalizeViewport({ xMin: -10, xMax: 10, yMin: -10, yMax: 10 }),
+  );
 }
 
 function animateViewport(
@@ -829,6 +850,8 @@ watch(editorText, () => {
   saveData();
 });
 
+const disposables: Array<() => void> = [];
+
 onMounted(() => {
   const mq = window.matchMedia('(prefers-color-scheme: dark)');
   isDark.value = mq.matches;
@@ -849,16 +872,23 @@ onMounted(() => {
     window.addEventListener('mouseup', onMouseUp);
   }
 
-  onResize();
-  window.addEventListener('resize', onResize);
+  if (refCanvas.value) {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        onResize();
+      }
+    });
+    resizeObserver.observe(refCanvas.value);
+    disposables.push(() => resizeObserver.disconnect());
+  }
   checkHash();
 });
 
 onUnmounted(() => {
   cancelAnimationFrame(animFrame);
   cancelAnimationFrame(viewportAnimFrame);
-  window.removeEventListener('resize', onResize);
   window.removeEventListener('mousemove', onMouseMove);
   window.removeEventListener('mouseup', onMouseUp);
+  disposables.forEach((dispose) => dispose());
 });
 </script>
