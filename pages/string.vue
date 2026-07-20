@@ -1,9 +1,7 @@
 <template>
-  <div class="size-full flex flex-col">
+  <div class="flex flex-col">
     <h1 class="text-3xl mb-4">String Pipes</h1>
-    <div
-      class="flex-1 grid grid-cols-[2fr_1fr_1fr] grid-rows-[auto_auto] gap-4 *:min-w-0"
-    >
+    <div class="flex-1 grid grid-cols-[2fr_1fr] gap-4 *:min-w-0">
       <div>
         <div class="flex items-center mb-1">
           <span class="font-bold">Input</span>
@@ -62,14 +60,14 @@
         <div v-if="state.pipelineError" class="text-error text-xs mt-1">
           {{ state.pipelineError }}
         </div>
+        <UButton
+          icon="i-mdi-undo"
+          color="neutral"
+          variant="outline"
+          @click="onReset()"
+          >Reset</UButton
+        >
       </div>
-      <SnapshotPanel
-        class="row-span-3"
-        title="Snapshots"
-        v-model="state.activeIndex"
-        :snapshots="snapshots"
-        @pick="onPick"
-      />
       <div>
         <div class="flex items-center mb-1">
           <span class="font-bold">Output</span>
@@ -87,67 +85,36 @@
           placeholder="Output will appear here..."
         />
       </div>
-      <div>
-        <form @submit.prevent="onGenerate">
-          <div class="font-bold mb-1">AI Prompt</div>
-          <UTextarea
-            class="block"
-            v-model="state.prompt"
-            placeholder="e.g. convert YAML to JSON"
-            size="lg"
-            :rows="4"
-          />
-          <div class="flex justify-end mt-1">
-            <UButton
-              type="submit"
-              icon="i-mdi-auto-fix"
-              :loading="generating"
-              :disabled="state.prompt.length < 5"
-              size="lg"
-              class="self-end shrink-0"
-            >
-              Generate
-            </UButton>
-          </div>
-        </form>
-      </div>
-      <div class="col-span-2 space-y-2">
-        <div class="flex gap-2">
-          <UButton
-            icon="i-mdi-content-save"
-            :disabled="!content.input"
-            @click="onSave()"
-            >Save</UButton
-          >
-          <UButton
-            icon="i-mdi-content-save-outline"
-            color="neutral"
-            variant="outline"
-            :disabled="!content.input"
-            @click="onSave(true)"
-            >Save as New</UButton
-          >
-          <UButton
-            icon="i-mdi-undo"
-            color="neutral"
-            variant="outline"
-            @click="onReset()"
-            >Reset</UButton
-          >
-          <UButton
-            icon="i-mdi-share-variant"
-            color="neutral"
-            variant="outline"
-            :disabled="!content.input"
-            @click="onShare"
-            >Share</UButton
-          >
-        </div>
-        <div v-if="shareContent">
-          <ShareUrl :url="shareContent.url" @close="shareContent = undefined" />
-        </div>
-      </div>
     </div>
+
+    <ToolRail :items="toolRailItems">
+      <template #panel-snapshots>
+        <SnapshotPanel
+          title="Snapshots"
+          v-model="state.activeIndex"
+          :snapshots="snapshots"
+          :get-data="getSnapshotData"
+          :save-disabled="!content.input"
+          @pick="onPick"
+        />
+      </template>
+      <template #panel-share>
+        <ShareUrl
+          :get-params="
+            () =>
+              content.input
+                ? { i: content.input, p: content.pipelineText }
+                : null
+          "
+        />
+      </template>
+      <template #panel-ai>
+        <AiPanel
+          :on-generate="handleGenerate"
+          placeholder="e.g. convert YAML to JSON"
+        />
+      </template>
+    </ToolRail>
 
     <UModal v-model:open="showHelp" title="Available Pipes" class="max-w-2xl">
       <template #body>
@@ -254,19 +221,25 @@ const content = reactive<{
 const state = reactive<{
   output: string;
   pipelineError: string;
-  prompt: string;
   activeIndex: number;
 }>({
   output: '',
   pipelineError: '',
-  prompt: '',
   activeIndex: -1,
 });
 
-const shareContent = ref<{ url: string }>();
+const toolRailItems = [
+  { key: 'snapshots', icon: 'i-mdi-camera', label: 'Snapshots' },
+  { key: 'share', icon: 'i-mdi-share-variant', label: 'Share' },
+  { key: 'ai', icon: 'i-mdi-auto-fix', label: 'AI Generate' },
+];
+
+function getSnapshotData() {
+  return { input: content.input, pipelineText: content.pipelineText };
+}
+
 const showHelp = ref(false);
 const helpSearch = ref('');
-const generating = ref(false);
 
 function getPipeCopyText(pipe: (typeof pipeList)[number]): string {
   const opts = getDefaultOptions(pipe);
@@ -303,23 +276,6 @@ function getDefaultOptions(pipe: (typeof pipeList)[number]): string {
   const keys = Object.keys(result.data as Record<string, unknown>);
   if (keys.length === 0) return '';
   return JSON5.stringify(result.data);
-}
-
-function onShare() {
-  const { origin, pathname, search } = window.location;
-  const query = {
-    i: content.input,
-    p: content.pipelineText,
-  };
-  let qs = Object.entries(query)
-    .map(
-      ([key, value]) => value && [key, value].map(encodeURIComponent).join('='),
-    )
-    .filter(Boolean)
-    .join('&');
-  qs = `${qs}&_=`;
-  const url = `${origin}${pathname}${search}#${qs}`;
-  shareContent.value = { url };
 }
 
 const examples = [
@@ -377,25 +333,11 @@ const filteredPipes = computed(() => {
   );
 });
 
-async function onGenerate() {
-  if (!state.prompt.trim() || generating.value) return;
-  generating.value = true;
-  try {
-    const result = await generatePipeline(state.prompt, content.pipelineText);
-    if (result) {
-      content.pipelineText = result;
-      execute();
-    }
-    state.prompt = '';
-  } catch (err: unknown) {
-    toast.add({
-      title: 'Generation failed',
-      description: err instanceof Error ? err.message : JSON.stringify(err),
-      color: 'error',
-      duration: 5000,
-    });
-  } finally {
-    generating.value = false;
+async function handleGenerate(prompt: string) {
+  const result = await generatePipeline(prompt, content.pipelineText);
+  if (result) {
+    content.pipelineText = result;
+    execute();
   }
 }
 
@@ -459,7 +401,6 @@ function checkHash() {
 watch(
   () => [content.input, content.pipelineText],
   () => {
-    shareContent.value = undefined;
     saveData();
   },
 );

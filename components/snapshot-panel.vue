@@ -1,24 +1,45 @@
 <template>
-  <div class="flex flex-col min-w-36">
-    <div class="flex items-center justify-between">
-      <h3 class="font-semibold">{{ title }}</h3>
-      <UButton
-        icon="i-mdi-cog"
-        variant="ghost"
-        color="neutral"
-        size="sm"
-        @click="onConfig"
-      />
-    </div>
-    <div class="flex flex-col flex-1 min-h-0 border border-default rounded-lg">
-      <div class="p-2">
-        <UInput
-          class="block"
-          icon="i-mdi-magnify"
-          placeholder="Search..."
-          v-model="state.search"
+  <div class="flex flex-col min-w-36 h-full p-4">
+    <div class="flex items-center">
+      <template v-if="getData">
+        <UTooltip text="Save">
+          <UButton
+            icon="i-mdi-content-save"
+            size="sm"
+            variant="ghost"
+            color="neutral"
+            :disabled="saveDisabled"
+            @click="onSave(false)"
+          />
+        </UTooltip>
+        <UTooltip text="Save as New">
+          <UButton
+            icon="i-mdi-content-save-plus"
+            size="sm"
+            variant="ghost"
+            color="neutral"
+            :disabled="saveDisabled"
+            @click="onSave(true)"
+          />
+        </UTooltip>
+      </template>
+      <UTooltip text="Config">
+        <UButton
+          icon="i-mdi-cog"
+          variant="ghost"
+          color="neutral"
+          size="sm"
+          @click="onConfig"
         />
-      </div>
+      </UTooltip>
+    </div>
+    <div class="flex flex-col flex-1 min-h-0">
+      <UInput
+        class="block my-2"
+        icon="i-mdi-magnify"
+        placeholder="Search..."
+        v-model="state.search"
+      />
       <div
         v-if="!filtered.length"
         class="flex-1 flex items-center justify-center text-muted pb-2"
@@ -160,9 +181,10 @@ import { computed, nextTick, reactive, ref } from 'vue';
 import { type ISnapshot, Snapshots } from '@/util';
 
 const props = defineProps<{
-  title: string;
   modelValue: number;
   snapshots: Snapshots;
+  getData?: () => Record<string, unknown>;
+  saveDisabled?: boolean;
 }>();
 const emit = defineEmits<{
   (event: 'update:modelValue', index: number): void;
@@ -236,6 +258,17 @@ function appendData() {
     state.modalMessage = `${err}`;
     console.error(err);
   }
+}
+
+function onSave(asNew: boolean) {
+  const data = props.getData?.();
+  if (!data) return;
+  const toast = useToast();
+  const newIndex = props.snapshots.updateItem(asNew ? -1 : props.modelValue, {
+    data,
+  });
+  emit('update:modelValue', newIndex);
+  toast.add({ title: 'Saved', duration: 2000 });
 }
 
 function onPick({ index, data }: { index: number; data: ISnapshot }) {

@@ -1,7 +1,9 @@
 <template>
   <div class="size-full flex flex-col overflow-hidden">
     <h1 class="text-3xl mb-1 shrink-0">Curves</h1>
-    <p class="text-dimmed text-xs mb-4">Plot parametric curves, animate with time, and generate with AI.</p>
+    <p class="text-dimmed text-xs mb-4">
+      Plot parametric curves, animate with time, and generate with AI.
+    </p>
     <div class="flex-1 grid grid-cols-[1.5fr_1fr] gap-4 *:min-w-0 min-h-0">
       <div class="flex flex-col min-h-0 min-w-0">
         <div class="flex items-center gap-2 mb-1">
@@ -60,59 +62,65 @@
           @input="onInput"
           @cursor-move="onCursorMove"
         />
-        <div class="flex gap-2 mt-4">
-          <UButton
-            icon="i-mdi-share-variant"
-            color="neutral"
-            variant="outline"
-            @click="onShare"
-            >Share</UButton
-          >
-        </div>
-        <form @submit.prevent="onGenerate" class="mt-2">
-          <div class="flex gap-2 items-start">
-            <UTextarea
-              v-model="aiPrompt"
-              placeholder="Draw a large ellipse that reveals itself over time..."
-              :rows="3"
-              class="flex-1"
-            />
-            <UButton
-              type="submit"
-              icon="i-mdi-auto-fix"
-              :loading="generating"
-              :disabled="aiPrompt.length < 5"
-              size="sm"
-              color="neutral"
-              variant="solid"
-              class="shrink-0 mt-0.5"
-            >
-              Generate
-            </UButton>
-          </div>
-        </form>
-        <div v-if="shareContent" class="mt-2">
-          <ShareUrl :url="shareContent.url" @close="shareContent = undefined" />
-        </div>
       </div>
     </div>
+
+    <ToolRail :items="toolRailItems">
+      <template #panel-snapshots>
+        <SnapshotPanel
+          title="Snapshots"
+          v-model="state.activeIndex"
+          :snapshots="snapshots"
+          :get-data="getSnapshotData"
+          @pick="onPick"
+        />
+      </template>
+      <template #panel-share>
+        <ShareUrl :get-params="() => ({ code: editorText })" />
+      </template>
+      <template #panel-ai>
+        <AiPanel
+          :on-generate="handleGenerate"
+          placeholder="Draw a large ellipse that reveals itself over time..."
+        />
+      </template>
+    </ToolRail>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue';
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  reactive,
+  ref,
+  shallowRef,
+  watch,
+} from 'vue';
 import { Parser, type Expression } from 'expr-eval';
 import type { Diagnostic } from '@codemirror/lint';
 import CodeEditor from '@/components/code-editor.vue';
-import ShareUrl from '@/components/ShareUrl.vue';
+import ShareUrl from '@/components/share-url.vue';
+import AiPanel from '@/components/ai-panel.vue';
 import { generateCurves } from '@/components/curves/ai';
 import { CURVES_SYNTAX_HTML } from '@/components/curves/config';
-import { Storage } from '@/util';
+import SnapshotPanel from '@/components/snapshot-panel.vue';
+import { Snapshots, Storage } from '@/util';
 
-const aiPrompt = ref('');
-const generating = ref(false);
 const toast = useToast();
 const store = new Storage<{ code: string }>('curves/settings');
+const snapshots = new Snapshots('curves/snapshots');
+
+const state = reactive<{ activeIndex: number }>({
+  activeIndex: -1,
+});
+
+const toolRailItems = [
+  { key: 'snapshots', icon: 'i-mdi-camera', label: 'Snapshots' },
+  { key: 'share', icon: 'i-mdi-share-variant', label: 'Share' },
+  { key: 'ai', icon: 'i-mdi-auto-fix', label: 'AI Generate' },
+];
 
 const DEFAULT_CODE = `sin(x)
 cos(x)
@@ -153,24 +161,20 @@ function restoreData() {
   return false;
 }
 
-async function onGenerate() {
-  if (!aiPrompt.value.trim() || generating.value) return;
-  generating.value = true;
-  try {
-    const result = await generateCurves(aiPrompt.value, editorText.value, viewport.value);
-    if (result) {
-      editorText.value = result;
-    }
-    aiPrompt.value = '';
-  } catch (err: unknown) {
-    toast.add({
-      title: 'Generation failed',
-      description: err instanceof Error ? err.message : JSON.stringify(err),
-      color: 'error',
-      duration: 5000,
-    });
-  } finally {
-    generating.value = false;
+function onPick({ data }: { data: { name?: string; code: string } }) {
+  state.activeIndex = -1;
+  editorText.value = data.code;
+  compileExpressions(data.code);
+}
+
+function getSnapshotData() {
+  return { code: editorText.value };
+}
+
+async function handleGenerate(prompt: string) {
+  const result = await generateCurves(prompt, editorText.value, viewport.value);
+  if (result) {
+    editorText.value = result;
   }
 }
 
@@ -209,7 +213,6 @@ const refCanvas = ref<HTMLCanvasElement>();
 const compiledExprs = shallowRef<ParsedLine[]>([]);
 const compileErrors = shallowRef<Diagnostic[]>([]);
 const editorText = ref(DEFAULT_CODE);
-const shareContent = ref<{ url: string }>();
 const cursorLine = ref(0);
 const timeDisplay = ref('');
 
@@ -807,20 +810,6 @@ function animateViewport(
   viewportAnimFrame = requestAnimationFrame(step);
 }
 
-function onShare() {
-  const { origin, pathname, search } = window.location;
-  const query = { code: editorText.value };
-  let qs = Object.entries(query)
-    .map(
-      ([key, value]) => value && [key, value].map(encodeURIComponent).join('='),
-    )
-    .filter(Boolean)
-    .join('&');
-  qs = `${qs}&_=`;
-  const url = `${origin}${pathname}${search}#${qs}`;
-  shareContent.value = { url };
-}
-
 function checkHash() {
   const query = new URLSearchParams(window.location.hash.slice(1));
   try {
@@ -828,7 +817,6 @@ function checkHash() {
     if (code != null) {
       editorText.value = code;
       compileExpressions(code);
-      shareContent.value = undefined;
     }
   } finally {
     window.location.hash = '';
@@ -836,7 +824,6 @@ function checkHash() {
 }
 
 watch(editorText, () => {
-  shareContent.value = undefined;
   saveData();
 });
 

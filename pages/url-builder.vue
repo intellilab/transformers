@@ -2,7 +2,7 @@
   <div>
     <h1 class="text-3xl mb-4">URL Builder</h1>
     <div
-      class="grid grid-cols-[1.5fr_1.5fr_1fr] grid-rows-[auto_auto] gap-4 *:min-w-0"
+      class="grid grid-cols-[1.5fr_1.5fr] gap-4 *:min-w-0"
     >
       <div>
         <div class="mb-1">
@@ -53,29 +53,8 @@
           v-text="state.error"
         />
       </div>
-      <SnapshotPanel
-        class="row-span-3"
-        title="Snapshots"
-        v-model="state.activeIndex"
-        :snapshots="snapshots"
-        @pick="onPick"
-      />
-      <div class="col-span-2 space-y-2">
+      <div class="col-span-2">
         <div class="flex gap-2">
-          <UButton
-            icon="i-mdi-content-save"
-            :disabled="!content.config"
-            @click="onSave()"
-            >Save</UButton
-          >
-          <UButton
-            icon="i-mdi-content-save-outline"
-            color="neutral"
-            variant="outline"
-            :disabled="!content.config"
-            @click="onSave(true)"
-            >Save as New</UButton
-          >
           <UButton
             icon="i-mdi-undo"
             color="neutral"
@@ -83,20 +62,25 @@
             @click="onReset()"
             >Reset</UButton
           >
-          <UButton
-            icon="i-mdi-share-variant"
-            color="neutral"
-            variant="outline"
-            :disabled="!content.config"
-            @click="onShare"
-            >Share</UButton
-          >
-        </div>
-        <div v-if="shareContent">
-          <ShareUrl :url="shareContent.url" @close="shareContent = undefined" />
         </div>
       </div>
     </div>
+
+    <ToolRail :items="toolRailItems">
+      <template #panel-snapshots>
+        <SnapshotPanel
+          title="Snapshots"
+          v-model="state.activeIndex"
+          :snapshots="snapshots"
+          :get-data="getSnapshotData"
+          :save-disabled="!content.config"
+          @pick="onPick"
+        />
+      </template>
+      <template #panel-share>
+        <ShareUrl :get-params="() => content.url ? { label: content.label, url: content.url } : null" />
+      </template>
+    </ToolRail>
   </div>
 </template>
 
@@ -149,13 +133,13 @@ const optionsQR = computed(() => ({
   ...defaultQROptions,
   data: content.url,
 }));
-const shareContent = ref<{ url: string }>();
+const toolRailItems = [
+  { key: 'snapshots', icon: 'i-mdi-camera', label: 'Snapshots' },
+  { key: 'share', icon: 'i-mdi-share-variant', label: 'Share' },
+];
+
 let updatingConfig = false;
 let updatingUrl = false;
-
-watch(optionsQR, () => {
-  shareContent.value = undefined;
-});
 
 const disposeList: Array<() => void> = [];
 onMounted(() => {
@@ -179,6 +163,10 @@ function onQRUpdated(canvas: HTMLCanvasElement) {
     context.textAlign = 'center';
     context.fillText(label, 150, 330);
   }
+}
+
+function getSnapshotData() {
+  return { label: content.label, config: content.config };
 }
 
 function onSave(asNew?: boolean) {
@@ -266,23 +254,6 @@ function setUrl(data: string) {
 
 function onUrlChange(e: Event) {
   setUrl((e.target as HTMLTextAreaElement).value);
-}
-
-function onShare() {
-  const { origin, pathname, search } = window.location;
-  const { label, url } = content;
-  const query = { label, url };
-  let qs = Object.entries(query)
-    .map(
-      ([key, value]) => value && [key, value].map(encodeURIComponent).join('='),
-    )
-    .filter(Boolean)
-    .join('&');
-  qs = `${qs}&_=`; // in case url is modified by other apps
-  const shareUrl = `${origin}${pathname}${search}#${qs}`;
-  shareContent.value = {
-    url: shareUrl,
-  };
 }
 
 function onPick({
