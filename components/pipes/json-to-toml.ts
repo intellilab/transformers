@@ -1,6 +1,6 @@
-import TOML from '@iarna/toml';
-import { PipeHandler } from '~/components/pipes/types';
+import * as toml from 'js-toml';
 import type { PipeHandlerMeta } from '~/components/pipes/types';
+import { PipeHandler } from '~/components/pipes/types';
 
 class JsonToTomlPipe extends PipeHandler {
   meta = {
@@ -10,7 +10,7 @@ class JsonToTomlPipe extends PipeHandler {
 
   handle(input: string) {
     const obj = JSON.parse(input);
-    return TOML.stringify(obj as any);
+    return toml.dump(obj as any);
   }
 }
 

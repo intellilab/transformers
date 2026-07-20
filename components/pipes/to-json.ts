@@ -1,25 +1,30 @@
-import { z } from 'zod';
-import { PipeHandler } from '~/components/pipes/types';
-import type { PipeHandlerMeta } from '~/components/pipes/types';
-import yaml from 'js-yaml';
-import TOML from '@iarna/toml';
+import * as toml from 'js-toml';
+import * as yaml from 'js-yaml';
 import JSON5 from 'json5';
+import { z } from 'zod';
+import type { PipeHandlerMeta } from '~/components/pipes/types';
+import { PipeHandler } from '~/components/pipes/types';
 
 class ToJsonPipe extends PipeHandler {
   override optionsSchema = z.object({
-    fromFormat: z.enum(['auto', 'yaml', 'toml', 'json']).default('auto').describe('Source format; auto detects from content'),
+    fromFormat: z
+      .enum(['auto', 'yaml', 'toml', 'json'])
+      .default('auto')
+      .describe('Source format; auto detects from content'),
     indent: z.number().default(2).describe('Number of spaces for indentation'),
   });
 
   meta = {
     name: 'toJson',
-    description: 'Parse input from a given format (auto, yaml, toml, json) and serialize it as a JSON string',
+    description:
+      'Parse input from a given format (auto, yaml, toml, json) and serialize it as a JSON string',
   } satisfies PipeHandlerMeta;
 
   handle(input: string, options?: Record<string, unknown>) {
     const { fromFormat, indent } = this.optionsSchema.parse(options ?? {});
 
-    const sourceFormat = fromFormat === 'auto' ? detectFormat(input) : fromFormat;
+    const sourceFormat =
+      fromFormat === 'auto' ? detectFormat(input) : fromFormat;
 
     let data;
     switch (sourceFormat) {
@@ -27,7 +32,7 @@ class ToJsonPipe extends PipeHandler {
         data = yaml.load(input);
         break;
       case 'toml':
-        data = TOML.parse(input);
+        data = toml.load(input);
         break;
       case 'json':
       default:
@@ -47,10 +52,16 @@ function detectFormat(input: string): string {
     return 'json';
   }
   if (trimmed.includes(':') || trimmed.startsWith('-')) {
-    try { const p = yaml.load(trimmed); if (typeof p === 'object' && p) return 'yaml'; } catch {}
+    try {
+      const p = yaml.load(trimmed);
+      if (typeof p === 'object' && p) return 'yaml';
+    } catch {}
   }
   if (trimmed.match(/^[^\n]*=[^\n]*/m)) {
-    try { const p = TOML.parse(trimmed); if (typeof p === 'object' && p) return 'toml'; } catch {}
+    try {
+      const p = toml.load(trimmed);
+      if (typeof p === 'object' && p) return 'toml';
+    } catch {}
   }
   return 'json';
 }
