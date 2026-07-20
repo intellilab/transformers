@@ -17,11 +17,12 @@ EXPRESSIONS {CONDITION}
     sin(x)
     x^2
     sin(x + T)
-- Mode 2: two comma-separated expressions (x and y), both using t
+- Mode 2: two comma-separated expressions (x and y), both using t (t goes from 0 to 1).
+  For multi-variable equations like (x^2)/9 + (y^2)/4 = 1, convert to parametric form, e.g.: 3*cos(2*PI*t), 2*sin(2*PI*t)
   Examples:
     sin(t), cos(t)
     t^2, t
-- {CONDITION} is optional — append as a filter to any line
+- {CONDITION} is optional — append as a filter to any line. Omit it entirely if no filter is needed.
   Examples:
     x^2 {x > 0}
     sin(t), cos(t) {t < 0.5}
