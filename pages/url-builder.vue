@@ -103,7 +103,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { QRCanvas } from 'qrcanvas-vue';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import { KeyboardService } from '@violentmonkey/shortcut';
 import SnapshotPanel from '@/components/snapshot-panel.vue';
 import { parseData, buildData } from '@/components/url';
