@@ -1,4 +1,4 @@
-import { puter } from '@heyputer/puter.js';
+import { chat } from '@/util/ai';
 import { pipeList, getOptionsDescription } from './pipe-list';
 
 function buildPipeDescriptions(): string {
@@ -30,15 +30,11 @@ Rules:
 - Output ONLY the pipeline text, no explanation`;
 }
 
-export async function generatePipeline(userPrompt: string, currentPipeline: string): Promise<string> {
-  const systemPrompt = buildSystemPrompt();
-  const userContent = `Current pipeline:\n${currentPipeline || '(empty)'}\n\nRequest: ${userPrompt}`;
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    { role: 'user', content: userContent },
-  ] as any;
-  const response = await puter.ai.chat(messages, { model: 'openai/gpt-5.4-nano' });
-  const text = response?.message?.content ?? '';
-  const cleaned = (typeof text === 'string' ? text : '').replace(/^```[\s\S]*?\n/, '').replace(/\n```$/, '').trim();
-  return cleaned;
+export async function generatePipeline(userPrompt: string, currentPipeline: string): Promise<string | null> {
+  const result = await chat([
+    { role: 'system', content: buildSystemPrompt() },
+    { role: 'user', content: `Current pipeline:\n${currentPipeline || '(empty)'}\n\nRequest: ${userPrompt}` },
+  ]);
+  if (!result) return null;
+  return result.replace(/^```[\s\S]*?\n/, '').replace(/\n```$/, '').trim();
 }

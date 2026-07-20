@@ -220,7 +220,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
-import { puter } from '@heyputer/puter.js';
 import JSON5 from 'json5';
 import { KeyboardService } from '@violentmonkey/shortcut';
 import { parsePipeline } from '~/components/pipes/parser';
@@ -380,9 +379,6 @@ const filteredPipes = computed(() => {
 
 async function onGenerate() {
   if (!state.prompt.trim() || generating.value) return;
-  if (!puter.auth.isSignedIn()) {
-    await puter.auth.signIn({ attempt_temp_user_creation: true });
-  }
   generating.value = true;
   try {
     const result = await generatePipeline(state.prompt, content.pipelineText);

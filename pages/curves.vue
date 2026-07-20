@@ -37,32 +37,7 @@
               variant="ghost"
             />
             <template #content>
-              <ul class="text-xs leading-5 p-2 pl-6 list-disc">
-                <li>One function per line</li>
-                <li>
-                  Use <code class="bg-accented rounded px-1">x</code> as input
-                  variable
-                </li>
-                <li>
-                  Use <code class="bg-accented rounded px-1">T</code> for time
-                  (animated)
-                </li>
-                <li>
-                  Use <code class="bg-accented rounded px-1">t</code> for
-                  parametric:
-                  <code class="bg-accented rounded px-1">sin(t), cos(t)</code>
-                </li>
-                <li>
-                  Append
-                  <code class="bg-accented rounded px-1">{condition}</code> to
-                  filter, e.g.
-                  <code class="bg-accented rounded px-1">{x>=0}</code>
-                </li>
-                <li>
-                  Lines starting with
-                  <code class="bg-accented rounded px-1">#</code> are ignored
-                </li>
-              </ul>
+              <div v-html="CURVES_SYNTAX_HTML" />
             </template>
           </UPopover>
           <UDropdownMenu class="ml-auto" :items="dropdownItems">
@@ -77,7 +52,7 @@
           </UDropdownMenu>
         </div>
         <CodeEditor
-          class="h-[calc(100dvh-15rem)] border border-default"
+          class="h-80 border border-default"
           v-model="editorText"
           placeholder="Enter functions, one per line..."
           :linter="exprLinter"
@@ -93,6 +68,28 @@
             >Share</UButton
           >
         </div>
+        <form @submit.prevent="onGenerate" class="mt-2">
+          <div class="flex gap-2 items-start">
+            <UTextarea
+              v-model="aiPrompt"
+              placeholder="Draw a large ellipse that reveals itself over time..."
+              :rows="3"
+              class="flex-1"
+            />
+            <UButton
+              type="submit"
+              icon="i-mdi-auto-fix"
+              :loading="generating"
+              :disabled="aiPrompt.length < 5"
+              size="sm"
+              color="neutral"
+              variant="solid"
+              class="shrink-0 mt-0.5"
+            >
+              Generate
+            </UButton>
+          </div>
+        </form>
         <div v-if="shareContent" class="mt-2">
           <ShareUrl :url="shareContent.url" @close="shareContent = undefined" />
         </div>
@@ -107,8 +104,13 @@ import { Parser, type Expression } from 'expr-eval';
 import type { Diagnostic } from '@codemirror/lint';
 import CodeEditor from '@/components/code-editor.vue';
 import ShareUrl from '@/components/ShareUrl.vue';
+import { generateCurves } from '@/components/curves/ai';
+import { CURVES_SYNTAX_HTML } from '@/components/curves/config';
 import { Storage } from '@/util';
 
+const aiPrompt = ref('');
+const generating = ref(false);
+const toast = useToast();
 const store = new Storage<{ code: string }>('curves/settings');
 
 const DEFAULT_CODE = `sin(x)
@@ -122,7 +124,7 @@ cos(x)`,
   animation: `sin(x + T)
 cos(x + T * 2)`,
   ellipse: `5*cos(2*PI*t), 3*sin(2*PI*t)`,
-  'ellipse-anim': `5*cos(2*PI*t), 3*sin(2*PI*t) {t < min(T % 2, 1)}`,
+  'ellipse-anim': `5*cos(2*PI*t), 3*sin(2*PI*t) {t < T % 2}`,
 };
 
 const dropdownItems = [
@@ -150,6 +152,27 @@ function restoreData() {
   return false;
 }
 
+async function onGenerate() {
+  if (!aiPrompt.value.trim() || generating.value) return;
+  generating.value = true;
+  try {
+    const result = await generateCurves(aiPrompt.value, editorText.value, viewport.value);
+    if (result) {
+      editorText.value = result;
+    }
+    aiPrompt.value = '';
+  } catch (err: unknown) {
+    toast.add({
+      title: 'Generation failed',
+      description: err instanceof Error ? err.message : JSON.stringify(err),
+      color: 'error',
+      duration: 5000,
+    });
+  } finally {
+    generating.value = false;
+  }
+}
+
 const COLORS = [
   '#3b82f6',
   '#ef4444',
@@ -174,8 +197,8 @@ interface ParametricLine {
   lineNo: number;
   xExpr: Expression;
   yExpr: Expression;
-  xFn: (t: number) => number;
-  yFn: (t: number) => number;
+  xFn: (t: number, T: number) => number;
+  yFn: (t: number, T: number) => number;
   condition?: Expression;
 }
 
@@ -294,17 +317,17 @@ function compileExpressions(text: string) {
         const xExpr = parser.parse(parts[0]!.trim());
         const yExpr = parser.parse(parts[1]!.trim());
         const vars = new Set([...xExpr.variables(), ...yExpr.variables()]);
-        if (vars.has('x') || vars.has('y') || vars.has('T')) {
-          const bad = ['x', 'y', 'T'].filter((v) => vars.has(v));
+        if (vars.has('x') || vars.has('y')) {
+          const bad = ['x', 'y'].filter((v) => vars.has(v));
           throw new Error(
             `Parametric expressions cannot use ${bad.join(', ')} (use t instead)`,
           );
         }
-        const xFn = xExpr.toJSFunction('t');
-        const yFn = yExpr.toJSFunction('t');
+        const xFn = xExpr.toJSFunction('t, T');
+        const yFn = yExpr.toJSFunction('t, T');
         try {
-          xFn(0);
-          yFn(0);
+          xFn(0, 0);
+          yFn(0, 0);
         } catch (err: any) {
           throw new Error(err.message || 'Error evaluating expression');
         }
@@ -506,8 +529,8 @@ function drawCurves(ctx: CanvasRenderingContext2D) {
         const t = si / steps;
         let wx: number, wy: number;
         try {
-          wx = xFn(t);
-          wy = yFn(t);
+          wx = xFn(t, T);
+          wy = yFn(t, T);
         } catch {
           if (started) {
             ctx.stroke();
