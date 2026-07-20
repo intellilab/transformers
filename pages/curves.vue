@@ -1,12 +1,12 @@
 <template>
   <div class="contents">
-    <div class="flex-1 flex flex-col min-w-0 h-full overflow-auto p-4">
+    <main>
       <h1 class="text-3xl mb-1 shrink-0">Curves</h1>
       <p class="text-dimmed text-xs mb-4">
         Plot parametric curves, animate with time, and generate with AI.
       </p>
-      <div class="flex-1 grid grid-cols-[1.5fr_1fr] gap-4 *:min-w-0 min-h-0">
-        <div class="flex flex-col min-h-0 min-w-0">
+      <div class="flex-1 flex gap-4 min-h-0 overflow-auto">
+        <div class="flex flex-col min-h-0 flex-2 min-w-100">
           <div class="flex items-center gap-2 mb-1">
             <span>Plot</span>
             <UButton
@@ -28,7 +28,7 @@
             :height="canvasHeight"
           />
         </div>
-        <div>
+        <div class="flex-1">
           <div class="mb-1 flex items-center gap-1">
             <span>Functions</span>
             <UPopover>
@@ -58,7 +58,7 @@
           />
         </div>
       </div>
-    </div>
+    </main>
 
     <ToolRail :items="toolRailItems">
       <template #panel-snapshots>
@@ -775,11 +775,12 @@ function normalizeViewport(
   const ratio = canvasWidth.value / canvasHeight.value;
   const halfHeight = (target.xMax - target.xMin) / ratio / 2;
   const yCenter = (target.yMin + target.yMax) / 2;
-  return {
+  const v = {
     ...target,
     yMin: yCenter - halfHeight,
     yMax: yCenter + halfHeight,
   };
+  return v;
 }
 
 function resetViewport() {

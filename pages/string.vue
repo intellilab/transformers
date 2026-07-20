@@ -1,9 +1,9 @@
 <template>
   <div class="contents">
-    <div class="flex-1 flex flex-col min-w-0 h-full overflow-auto p-4">
+    <main>
       <h1 class="text-3xl mb-4">String Pipes</h1>
-      <div class="flex-1 flex gap-4 *:min-w-0">
-        <div class="flex-2">
+      <div class="flex-1 flex gap-4 overflow-auto">
+        <div class="flex-2 min-w-100">
           <div class="flex items-center mb-1">
             <span class="font-bold">Input</span>
             <UButton
@@ -76,7 +76,7 @@
           >
         </div>
       </div>
-    </div>
+    </main>
 
     <ToolRail :items="toolRailItems">
       <template #panel-snapshots>
