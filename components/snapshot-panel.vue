@@ -24,13 +24,7 @@
         </UTooltip>
       </template>
       <UTooltip text="Config">
-        <UButton
-          icon="i-mdi-cog"
-          variant="ghost"
-          color="neutral"
-          size="sm"
-          @click="onConfig"
-        />
+        <UButton icon="i-mdi-cog" variant="ghost" color="neutral" size="sm" @click="onConfig" />
       </UTooltip>
     </div>
     <div class="flex flex-col flex-1 min-h-0">
@@ -40,10 +34,7 @@
         placeholder="Search..."
         v-model="state.search"
       />
-      <div
-        v-if="!filtered.length"
-        class="flex-1 flex items-center justify-center text-muted pb-2"
-      >
+      <div v-if="!filtered.length" class="flex-1 flex items-center justify-center text-muted pb-2">
         No snapshots found
       </div>
       <div v-else class="flex-1 overflow-y-auto">
@@ -51,11 +42,7 @@
           v-for="item in filtered"
           :key="item.index"
           class="group relative rounded-lg transition-colors"
-          :class="
-            modelValue === item.index
-              ? 'bg-primary/10 text-primary'
-              : 'hover:bg-elevated'
-          "
+          :class="modelValue === item.index ? 'bg-primary/10 text-primary' : 'hover:bg-elevated'"
         >
           <form
             v-if="state.renameIndex === item.index"
@@ -64,36 +51,18 @@
             @submit.prevent="onRenameSave"
             @keydown.escape="onRenameCancel"
           >
-            <UIcon
-              name="i-mdi-file-document-outline"
-              class="size-4 shrink-0 text-muted"
-            />
+            <UIcon name="i-mdi-file-document-outline" class="size-4 shrink-0 text-muted" />
             <UInput class="flex-1 min-w-0" v-model="state.renameName" />
-            <UButton
-              type="submit"
-              icon="i-mdi-check"
-              size="xs"
-              variant="ghost"
-            />
-            <UButton
-              icon="i-mdi-close"
-              size="xs"
-              variant="ghost"
-              @click="onRenameCancel"
-            />
+            <UButton type="submit" icon="i-mdi-check" size="xs" variant="ghost" />
+            <UButton icon="i-mdi-close" size="xs" variant="ghost" @click="onRenameCancel" />
           </form>
           <button
             v-else
             class="flex items-center gap-2 w-full text-left px-3 py-2"
             @click="onPick(item)"
           >
-            <UIcon
-              name="i-mdi-file-document-outline"
-              class="size-4 shrink-0 text-muted"
-            />
-            <span class="flex-1 truncate">{{
-              item.data.name || 'Unnamed'
-            }}</span>
+            <UIcon name="i-mdi-file-document-outline" class="size-4 shrink-0 text-muted" />
+            <span class="flex-1 truncate">{{ item.data.name || 'Unnamed' }}</span>
           </button>
           <div
             v-if="state.renameIndex !== item.index"
@@ -152,18 +121,8 @@
       <template #footer>
         <CopyButton :text="state.modalContent" />
         <div class="ml-auto flex gap-2">
-          <UButton
-            label="Overwrite"
-            color="error"
-            variant="solid"
-            @click="overwriteData"
-          />
-          <UButton
-            label="Append"
-            color="neutral"
-            variant="outline"
-            @click="appendData"
-          />
+          <UButton label="Overwrite" color="error" variant="solid" @click="overwriteData" />
+          <UButton label="Append" color="neutral" variant="outline" @click="appendData" />
           <UButton
             label="Close"
             color="neutral"
@@ -218,9 +177,7 @@ const filtered = computed(() => {
   let items = props.snapshots.all.map((data, index) => ({ data, index }));
   if (state.search) {
     const lowerSearch = state.search.toLowerCase();
-    items = items.filter(({ data }) =>
-      data.name.toLowerCase().includes(lowerSearch),
-    );
+    items = items.filter(({ data }) => data.name.toLowerCase().includes(lowerSearch));
   }
   return items;
 });

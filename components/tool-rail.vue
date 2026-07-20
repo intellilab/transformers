@@ -5,9 +5,7 @@
         v-if="isOpen && activeItem"
         class="w-80 border-l border-default bg-default flex flex-col -z-1"
       >
-        <div
-          class="flex items-center justify-between px-4 h-12 border-b border-default shrink-0"
-        >
+        <div class="flex items-center justify-between px-4 h-12 border-b border-default shrink-0">
           <h3 class="font-semibold truncate">{{ activeItem.label }}</h3>
           <UButton
             icon="i-mdi-close"
@@ -60,9 +58,7 @@ const props = defineProps<{
 const activeKey = ref<string | null>(null);
 const isOpen = ref(false);
 
-const activeItem = computed(() =>
-  props.items.find((item) => item.key === activeKey.value),
-);
+const activeItem = computed(() => props.items.find((item) => item.key === activeKey.value));
 
 function togglePanel(key: string) {
   if (activeKey.value === key && isOpen.value) {

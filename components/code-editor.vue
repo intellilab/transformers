@@ -113,9 +113,7 @@ onMounted(() => {
           else emit('blur');
         }
         if (update.selectionSet) {
-          const lineNo = update.view.state.doc.lineAt(
-            update.view.state.selection.main.head,
-          ).number;
+          const lineNo = update.view.state.doc.lineAt(update.view.state.selection.main.head).number;
           emit('cursorMove', lineNo);
         }
         if (update.docChanged) {

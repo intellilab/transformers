@@ -36,10 +36,7 @@ export class Snapshots<T = unknown> {
   }
 
   remove(index: number) {
-    const value = [
-      ...this.data.value.slice(0, index),
-      ...this.data.value.slice(index + 1),
-    ];
+    const value = [...this.data.value.slice(0, index), ...this.data.value.slice(index + 1)];
     this.data.value = value;
     this.dump();
   }

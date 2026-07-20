@@ -10,12 +10,15 @@
 <script setup lang="ts">
 import { ref, onUnmounted } from 'vue';
 
-const props = withDefaults(defineProps<{
-  text?: string;
-  color?: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral';
-}>(), {
-  color: 'neutral',
-});
+const props = withDefaults(
+  defineProps<{
+    text?: string;
+    color?: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral';
+  }>(),
+  {
+    color: 'neutral',
+  },
+);
 
 const emit = defineEmits<{
   copy: [text: string];
@@ -30,7 +33,9 @@ function onClick() {
   clearTimeout(timer);
   copied.value = true;
   emit('copy', props.text);
-  timer = setTimeout(() => { copied.value = false; }, 2000);
+  timer = setTimeout(() => {
+    copied.value = false;
+  }, 2000);
 }
 
 onUnmounted(() => {

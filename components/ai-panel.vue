@@ -1,11 +1,6 @@
 <template>
   <form @submit.prevent="onSubmit" class="p-4 space-y-3">
-    <UTextarea
-      class="block"
-      v-model="prompt"
-      :placeholder="placeholder"
-      :rows="rows"
-    />
+    <UTextarea class="block" v-model="prompt" :placeholder="placeholder" :rows="rows" />
     <UButton
       type="submit"
       icon="i-mdi-auto-fix"

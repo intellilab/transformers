@@ -2,7 +2,10 @@
   <div class="flex items-center gap-1">
     <div class="p-2 text-success font-mono text-lg" v-text="state.value"></div>
     <CopyButton :text="state.value" size="xs" variant="ghost" />
-    <div class="w-6 h-6 leading-6 text-center text-xs border border-default rounded-full" v-text="state.count"></div>
+    <div
+      class="w-6 h-6 leading-6 text-center text-xs border border-default rounded-full"
+      v-text="state.count"
+    ></div>
   </div>
 </template>
 
@@ -34,15 +37,19 @@ const options = computed(() => ({
 }));
 
 let totp: TOTP | null;
-watch(options, (options) => {
-  try {
-    totp = new TOTP(options);
-  } catch (err) {
-    console.error(err);
-    totp = null;
-  }
-  update();
-}, { immediate: true });
+watch(
+  options,
+  (options) => {
+    try {
+      totp = new TOTP(options);
+    } catch (err) {
+      console.error(err);
+      totp = null;
+    }
+    update();
+  },
+  { immediate: true },
+);
 
 function update() {
   try {
@@ -56,7 +63,7 @@ function update() {
 function updateCount() {
   const epoch = Math.round(Date.now() / 1000);
   const { period } = options.value;
-  state.count = period - epoch % period;
+  state.count = period - (epoch % period);
   if (state.count === period) update();
 }
 
@@ -65,7 +72,7 @@ onMounted(() => {
   timer = window.setInterval(updateCount, 1000);
   updateCount();
   update();
-})
+});
 onUnmounted(() => {
   clearInterval(timer);
 });

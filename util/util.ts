@@ -1,9 +1,8 @@
 function importStorage(input: string) {
   const store: Record<string, string> = JSON.parse(decodeURI(input));
-  Object.entries(store)
-    .forEach(([key, value]) => {
-      localStorage.setItem(key, value);
-    });
+  Object.entries(store).forEach(([key, value]) => {
+    localStorage.setItem(key, value);
+  });
 }
 
 function exportStorage() {

@@ -30,12 +30,7 @@
               are supported)</span
             >
           </div>
-          <UTextarea
-            class="block"
-            :value="content.url"
-            @input="onUrlChange"
-            :rows="4"
-          />
+          <UTextarea class="block" :value="content.url" @input="onUrlChange" :rows="4" />
           <TotpBanner v-if="state.totp" :data="state.totp" />
           <div>
             <QRCanvas
@@ -54,11 +49,7 @@
         </div>
         <div class="col-span-2">
           <div class="flex gap-2">
-            <UButton
-              icon="i-mdi-undo"
-              color="neutral"
-              variant="outline"
-              @click="onReset()"
+            <UButton icon="i-mdi-undo" color="neutral" variant="outline" @click="onReset()"
               >Reset</UButton
             >
           </div>
@@ -79,10 +70,7 @@
       </template>
       <template #panel-share>
         <ShareUrl
-          :get-params="
-            () =>
-              content.url ? { label: content.label, url: content.url } : null
-          "
+          :get-params="() => (content.url ? { label: content.label, url: content.url } : null)"
         />
       </template>
     </ToolRail>
@@ -179,10 +167,7 @@ function onSave(asNew?: boolean) {
   const item = {
     data: { label, config },
   };
-  state.activeIndex = snapshots.updateItem(
-    asNew ? -1 : state.activeIndex,
-    item,
-  );
+  state.activeIndex = snapshots.updateItem(asNew ? -1 : state.activeIndex, item);
   toast.add({ title: 'Saved', duration: 2000 });
 }
 
@@ -261,11 +246,7 @@ function onUrlChange(e: Event) {
   setUrl((e.target as HTMLTextAreaElement).value);
 }
 
-function onPick({
-  data,
-}: {
-  data: { name: string; label: string; config?: any };
-}) {
+function onPick({ data }: { data: { name: string; label: string; config?: any } }) {
   Object.assign(content, {
     label: data.label,
   });
