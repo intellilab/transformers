@@ -13,6 +13,11 @@
         <div class="flex-1 my-2">
           <NuxtLink
             class="flex px-2 py-1 cursor-pointer text-dimmed hover:bg-muted rounded transition-colors [&.router-link-active]:bg-accented [&.router-link-active]:text-default"
+            to="/curves/"
+            >Curves</NuxtLink
+          >
+          <NuxtLink
+            class="flex px-2 py-1 cursor-pointer text-dimmed hover:bg-muted rounded transition-colors [&.router-link-active]:bg-accented [&.router-link-active]:text-default"
             to="/string/"
             >String pipes</NuxtLink
           >
@@ -20,11 +25,6 @@
             class="flex px-2 py-1 cursor-pointer text-dimmed hover:bg-muted rounded transition-colors [&.router-link-active]:bg-accented [&.router-link-active]:text-default"
             to="/url-builder/"
             >URL Builder</NuxtLink
-          >
-          <NuxtLink
-            class="flex px-2 py-1 cursor-pointer text-dimmed hover:bg-muted rounded transition-colors [&.router-link-active]:bg-accented [&.router-link-active]:text-default"
-            to="/curves/"
-            >Curves</NuxtLink
           >
         </div>
         <footer>

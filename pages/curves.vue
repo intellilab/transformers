@@ -1,6 +1,7 @@
 <template>
   <div class="size-full flex flex-col overflow-hidden">
-    <h1 class="text-3xl mb-4 shrink-0">Curves</h1>
+    <h1 class="text-3xl mb-1 shrink-0">Curves</h1>
+    <p class="text-dimmed text-xs mb-4">Plot parametric curves, animate with time, and generate with AI.</p>
     <div class="flex-1 grid grid-cols-[1.5fr_1fr] gap-4 *:min-w-0 min-h-0">
       <div class="flex flex-col min-h-0 min-w-0">
         <div class="flex items-center gap-2 mb-1">
