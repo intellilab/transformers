@@ -1,67 +1,69 @@
 <template>
-  <div class="size-full flex flex-col overflow-hidden">
-    <h1 class="text-3xl mb-1 shrink-0">Curves</h1>
-    <p class="text-dimmed text-xs mb-4">
-      Plot parametric curves, animate with time, and generate with AI.
-    </p>
-    <div class="flex-1 grid grid-cols-[1.5fr_1fr] gap-4 *:min-w-0 min-h-0">
-      <div class="flex flex-col min-h-0 min-w-0">
-        <div class="flex items-center gap-2 mb-1">
-          <span>Plot</span>
-          <UButton
-            icon="i-mdi-refresh"
-            size="xs"
-            color="neutral"
-            variant="ghost"
-            @click="resetViewport"
-            >Reset</UButton
-          >
-          <span
-            v-if="timeDisplay"
-            class="ml-auto text-sm font-mono tabular-nums text-primary"
-            >{{ timeDisplay }}</span
-          >
-        </div>
-        <canvas
-          ref="refCanvas"
-          class="border border-default cursor-crosshair flex-1 w-full min-h-0"
-          :width="canvasWidth"
-          :height="canvasHeight"
-        />
-      </div>
-      <div>
-        <div class="mb-1 flex items-center gap-1">
-          <span>Functions</span>
-          <UPopover>
+  <div class="contents">
+    <div class="flex-1 flex flex-col min-w-0 h-full overflow-auto p-4">
+      <h1 class="text-3xl mb-1 shrink-0">Curves</h1>
+      <p class="text-dimmed text-xs mb-4">
+        Plot parametric curves, animate with time, and generate with AI.
+      </p>
+      <div class="flex-1 grid grid-cols-[1.5fr_1fr] gap-4 *:min-w-0 min-h-0">
+        <div class="flex flex-col min-h-0 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <span>Plot</span>
             <UButton
-              icon="i-mdi-information-outline"
+              icon="i-mdi-refresh"
               size="xs"
               color="neutral"
               variant="ghost"
-            />
-            <template #content>
-              <div v-html="CURVES_SYNTAX_HTML" />
-            </template>
-          </UPopover>
-          <UDropdownMenu class="ml-auto" :items="dropdownItems">
-            <UButton
-              icon="i-mdi-chevron-down"
-              size="xs"
-              color="neutral"
-              variant="ghost"
-              label="Examples"
-              trailing
-            />
-          </UDropdownMenu>
+              @click="resetViewport"
+              >Reset</UButton
+            >
+            <span
+              v-if="timeDisplay"
+              class="ml-auto text-sm font-mono tabular-nums text-primary"
+              >{{ timeDisplay }}</span
+            >
+          </div>
+          <canvas
+            ref="refCanvas"
+            class="border border-default cursor-crosshair flex-1 w-full min-h-0"
+            :width="canvasWidth"
+            :height="canvasHeight"
+          />
         </div>
-        <CodeEditor
-          class="h-80 border border-default"
-          v-model="editorText"
-          placeholder="Enter functions, one per line..."
-          :linter="exprLinter"
-          @input="onInput"
-          @cursor-move="onCursorMove"
-        />
+        <div>
+          <div class="mb-1 flex items-center gap-1">
+            <span>Functions</span>
+            <UPopover>
+              <UButton
+                icon="i-mdi-information-outline"
+                size="xs"
+                color="neutral"
+                variant="ghost"
+              />
+              <template #content>
+                <div v-html="CURVES_SYNTAX_HTML" />
+              </template>
+            </UPopover>
+            <UDropdownMenu class="ml-auto" :items="dropdownItems">
+              <UButton
+                icon="i-mdi-chevron-down"
+                size="xs"
+                color="neutral"
+                variant="ghost"
+                label="Examples"
+                trailing
+              />
+            </UDropdownMenu>
+          </div>
+          <CodeEditor
+            class="h-80 border border-default"
+            v-model="editorText"
+            placeholder="Enter functions, one per line..."
+            :linter="exprLinter"
+            @input="onInput"
+            @cursor-move="onCursorMove"
+          />
+        </div>
       </div>
     </div>
 

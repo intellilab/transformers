@@ -1,7 +1,29 @@
 <template>
-  <div class="fixed right-0 top-0 h-full z-50 w-12">
+  <div class="h-full flex z-0">
+    <Transition name="sidebar-panel">
+      <div
+        v-if="isOpen && activeItem"
+        class="w-80 border-l border-default bg-default flex flex-col -z-1"
+      >
+        <div
+          class="flex items-center justify-between px-4 h-12 border-b border-default shrink-0"
+        >
+          <h3 class="font-semibold truncate">{{ activeItem.label }}</h3>
+          <UButton
+            icon="i-mdi-close"
+            size="sm"
+            variant="ghost"
+            color="neutral"
+            @click="isOpen = false"
+          />
+        </div>
+        <div class="flex-1 min-h-0">
+          <slot :name="`panel-${activeKey}`" />
+        </div>
+      </div>
+    </Transition>
     <div
-      class="flex flex-col items-center gap-1 p-2 w-12 bg-muted border-l border-default h-full shrink-0"
+      class="flex flex-col items-center gap-1 p-2 pt-8 w-12 bg-muted border-l border-default h-full shrink-0"
     >
       <template v-for="item in items" :key="item.key">
         <UTooltip :text="item.label" :content="{ side: 'left' }">
@@ -20,28 +42,6 @@
       </template>
     </div>
   </div>
-  <Transition name="sidebar-panel">
-    <div
-      v-if="isOpen && activeItem"
-      class="fixed right-12 top-0 h-full w-80 border-l border-default bg-default flex flex-col z-40"
-    >
-      <div
-        class="flex items-center justify-between px-4 h-12 border-b border-default shrink-0"
-      >
-        <h3 class="font-semibold truncate">{{ activeItem.label }}</h3>
-        <UButton
-          icon="i-mdi-close"
-          size="sm"
-          variant="ghost"
-          color="neutral"
-          @click="isOpen = false"
-        />
-      </div>
-      <div class="flex-1 min-h-0">
-        <slot :name="`panel-${activeKey}`" />
-      </div>
-    </div>
-  </Transition>
 </template>
 
 <script setup lang="ts">

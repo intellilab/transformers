@@ -1,10 +1,5 @@
 <template>
   <UApp>
-    <GithubCorners
-      :size="40"
-      href="https://github.com/intellilab/transformers"
-      fixed
-    />
     <div class="flex h-dvh">
       <aside class="flex flex-col p-3 bg-muted">
         <NuxtLink to="/"
@@ -39,10 +34,13 @@
           </p>
         </footer>
       </aside>
-      <div class="flex-1 p-4 pr-14 min-w-200 max-w-screen-xl mx-auto">
-        <slot />
-      </div>
+      <slot />
     </div>
+    <GithubCorners
+      :size="40"
+      href="https://github.com/intellilab/transformers"
+      fixed
+    />
   </UApp>
 </template>
 

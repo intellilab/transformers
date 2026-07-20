@@ -1,89 +1,89 @@
 <template>
-  <div class="flex flex-col">
-    <h1 class="text-3xl mb-4">String Pipes</h1>
-    <div class="flex-1 grid grid-cols-[2fr_1fr] gap-4 *:min-w-0">
-      <div>
-        <div class="flex items-center mb-1">
-          <span class="font-bold">Input</span>
-          <UButton
-            v-if="content.input"
-            icon="i-mdi-delete"
-            size="xs"
-            color="neutral"
-            variant="ghost"
-            class="ml-1"
-            @click="
-              content.input = '';
-              execute();
-            "
+  <div class="contents">
+    <div class="flex-1 flex flex-col min-w-0 h-full overflow-auto p-4">
+      <h1 class="text-3xl mb-4">String Pipes</h1>
+      <div class="flex-1 flex gap-4 *:min-w-0">
+        <div class="flex-2">
+          <div class="flex items-center mb-1">
+            <span class="font-bold">Input</span>
+            <UButton
+              v-if="content.input"
+              icon="i-mdi-delete"
+              size="xs"
+              color="neutral"
+              variant="ghost"
+              class="ml-1"
+              @click="
+                content.input = '';
+                execute();
+              "
+            />
+          </div>
+          <CodeEditor
+            class="h-[300px] border border-default"
+            v-model="content.input"
+            @input="onInputChange"
+            placeholder="Enter input data..."
+          />
+          <div class="flex items-center mb-1">
+            <span class="font-bold">Output</span>
+            <CopyButton
+              :text="state.output"
+              size="xs"
+              variant="ghost"
+              class="ml-auto"
+            />
+          </div>
+          <CodeEditor
+            class="h-[200px] border border-default"
+            readonly
+            :modelValue="state.output"
+            placeholder="Output will appear here..."
           />
         </div>
-        <CodeEditor
-          class="h-[300px] border border-default"
-          v-model="content.input"
-          @input="onInputChange"
-          placeholder="Enter input data..."
-        />
-      </div>
-      <div>
-        <div class="flex items-center mb-1">
-          <span class="font-bold">Pipes</span>
-          <UButton
-            icon="i-mdi-help-circle-outline"
-            size="xs"
-            color="neutral"
-            variant="ghost"
-            class="ml-1"
-            @click="showHelp = true"
-          />
-          <UButton
-            icon="i-mdi-shuffle"
-            color="neutral"
-            variant="outline"
-            size="xs"
-            class="ml-auto"
-            @click="onRandomExample"
-          >
-            Random
-          </UButton>
-        </div>
-        <UTextarea
-          class="block"
-          :class="state.pipelineError ? 'border-error' : ''"
-          v-model="content.pipelineText"
-          placeholder="# Example pipeline
+        <div class="flex-1">
+          <div class="flex items-center mb-1">
+            <span class="font-bold">Pipes</span>
+            <UButton
+              icon="i-mdi-help-circle-outline"
+              size="xs"
+              color="neutral"
+              variant="ghost"
+              class="ml-1"
+              @click="showHelp = true"
+            />
+            <UButton
+              icon="i-mdi-shuffle"
+              color="neutral"
+              variant="outline"
+              size="xs"
+              class="ml-auto"
+              @click="onRandomExample"
+            >
+              Random
+            </UButton>
+          </div>
+          <UTextarea
+            class="block"
+            :class="state.pipelineError ? 'border-error' : ''"
+            v-model="content.pipelineText"
+            placeholder="# Example pipeline
 |> toJson({ fromFormat: 'yaml' })
 |> formatJson({ indent: 2 })"
-          @input="execute"
-          :rows="8"
-        />
-        <div v-if="state.pipelineError" class="text-error text-xs mt-1">
-          {{ state.pipelineError }}
-        </div>
-        <UButton
-          icon="i-mdi-undo"
-          color="neutral"
-          variant="outline"
-          @click="onReset()"
-          >Reset</UButton
-        >
-      </div>
-      <div>
-        <div class="flex items-center mb-1">
-          <span class="font-bold">Output</span>
-          <CopyButton
-            :text="state.output"
-            size="xs"
-            variant="ghost"
-            class="ml-auto"
+            @input="execute"
+            :rows="8"
           />
+          <div v-if="state.pipelineError" class="text-error text-xs mt-1">
+            {{ state.pipelineError }}
+          </div>
+          <UButton
+            icon="i-mdi-undo"
+            color="neutral"
+            variant="outline"
+            @click="onReset()"
+            >Reset</UButton
+          >
         </div>
-        <CodeEditor
-          class="h-[200px] border border-default"
-          readonly
-          :modelValue="state.output"
-          placeholder="Output will appear here..."
-        />
       </div>
     </div>
 

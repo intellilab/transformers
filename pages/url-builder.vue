@@ -1,67 +1,67 @@
 <template>
-  <div>
-    <h1 class="text-3xl mb-4">URL Builder</h1>
-    <div
-      class="grid grid-cols-[1.5fr_1.5fr] gap-4 *:min-w-0"
-    >
-      <div>
-        <div class="mb-1">
-          Parsed data
-          <span class="ml-1 text-sm">(in Yaml)</span>
-        </div>
-        <CodeEditor
-          class="h-[400px] border border-default"
-          lang="yaml"
-          v-model="content.config"
-        />
-        <div class="flex items-start gap-2 mt-4">
-          <div class="py-1">Label</div>
-          <div class="flex-1">
-            <UInput class="block" v-model="content.label" />
-            <div class="text-xs">(show on the QRCode)</div>
+  <div class="contents">
+    <div class="flex-1 flex flex-col min-w-0 h-full overflow-auto p-4">
+      <h1 class="text-3xl mb-4">URL Builder</h1>
+      <div class="grid grid-cols-[1.5fr_1.5fr] gap-4 *:min-w-0">
+        <div>
+          <div class="mb-1">
+            Parsed data
+            <span class="ml-1 text-sm">(in Yaml)</span>
+          </div>
+          <CodeEditor
+            class="h-[400px] border border-default"
+            lang="yaml"
+            v-model="content.config"
+          />
+          <div class="flex items-start gap-2 mt-4">
+            <div class="py-1">Label</div>
+            <div class="flex-1">
+              <UInput class="block" v-model="content.label" />
+              <div class="text-xs">(show on the QRCode)</div>
+            </div>
           </div>
         </div>
-      </div>
-      <div>
-        <div class="mb-1">
-          URL
-          <span class="ml-1 text-sm"
-            >(Special protocols like
-            <code class="bg-accented rounded px-1">otpauth:</code>
-            are supported)</span
-          >
-        </div>
-        <UTextarea
-          class="block"
-          :value="content.url"
-          @input="onUrlChange"
-          :rows="4"
-        />
-        <TotpBanner v-if="state.totp" :data="state.totp" />
         <div>
-          <QRCanvas
-            class="dark:brightness-50 max-w-full"
-            :width="300"
-            :height="content.label ? 340 : 300"
-            :options="optionsQR"
-            @updated="onQRUpdated"
+          <div class="mb-1">
+            URL
+            <span class="ml-1 text-sm"
+              >(Special protocols like
+              <code class="bg-accented rounded px-1">otpauth:</code>
+              are supported)</span
+            >
+          </div>
+          <UTextarea
+            class="block"
+            :value="content.url"
+            @input="onUrlChange"
+            :rows="4"
+          />
+          <TotpBanner v-if="state.totp" :data="state.totp" />
+          <div>
+            <QRCanvas
+              class="dark:brightness-50 max-w-full"
+              :width="300"
+              :height="content.label ? 340 : 300"
+              :options="optionsQR"
+              @updated="onQRUpdated"
+            />
+          </div>
+          <div
+            class="mt-2 rounded p-2 bg-error text-inverted"
+            v-if="state.error"
+            v-text="state.error"
           />
         </div>
-        <div
-          class="mt-2 rounded p-2 bg-error text-inverted"
-          v-if="state.error"
-          v-text="state.error"
-        />
-      </div>
-      <div class="col-span-2">
-        <div class="flex gap-2">
-          <UButton
-            icon="i-mdi-undo"
-            color="neutral"
-            variant="outline"
-            @click="onReset()"
-            >Reset</UButton
-          >
+        <div class="col-span-2">
+          <div class="flex gap-2">
+            <UButton
+              icon="i-mdi-undo"
+              color="neutral"
+              variant="outline"
+              @click="onReset()"
+              >Reset</UButton
+            >
+          </div>
         </div>
       </div>
     </div>
@@ -78,7 +78,12 @@
         />
       </template>
       <template #panel-share>
-        <ShareUrl :get-params="() => content.url ? { label: content.label, url: content.url } : null" />
+        <ShareUrl
+          :get-params="
+            () =>
+              content.url ? { label: content.label, url: content.url } : null
+          "
+        />
       </template>
     </ToolRail>
   </div>
