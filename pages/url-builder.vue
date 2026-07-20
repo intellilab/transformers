@@ -1,102 +1,91 @@
 <template>
-  <div>
-    <h1 class="text-3xl mb-4">URL Builder</h1>
-    <div
-      class="grid grid-cols-[1.5fr_1.5fr_1fr] grid-rows-[auto_auto] gap-4 *:min-w-0"
-    >
-      <div>
-        <div class="mb-1">
-          Parsed data
-          <span class="ml-1 text-sm">(in Yaml)</span>
+  <div class="contents">
+    <div class="flex-1 flex flex-col min-w-0 h-full overflow-auto p-4">
+      <h1 class="text-3xl mb-4">URL Builder</h1>
+      <div class="grid grid-cols-[1.5fr_1.5fr] gap-4 *:min-w-0">
+        <div>
+          <div class="mb-1">
+            Parsed data
+            <span class="ml-1 text-sm">(in Yaml)</span>
+          </div>
+          <CodeEditor
+            class="h-[400px] border border-default"
+            lang="yaml"
+            v-model="content.config"
+          />
+          <div class="flex items-start gap-2 mt-4">
+            <div class="py-1">Label</div>
+            <div class="flex-1">
+              <UInput class="block" v-model="content.label" />
+              <div class="text-xs">(show on the QRCode)</div>
+            </div>
+          </div>
         </div>
-        <CodeEditor
-          class="h-[400px] border border-default"
-          lang="yaml"
-          v-model="content.config"
-        />
-        <div class="flex items-start gap-2 mt-4">
-          <div class="py-1">Label</div>
-          <div class="flex-1">
-            <UInput class="block" v-model="content.label" />
-            <div class="text-xs">(show on the QRCode)</div>
+        <div>
+          <div class="mb-1">
+            URL
+            <span class="ml-1 text-sm"
+              >(Special protocols like
+              <code class="bg-accented rounded px-1">otpauth:</code>
+              are supported)</span
+            >
+          </div>
+          <UTextarea
+            class="block"
+            :value="content.url"
+            @input="onUrlChange"
+            :rows="4"
+          />
+          <TotpBanner v-if="state.totp" :data="state.totp" />
+          <div>
+            <QRCanvas
+              class="dark:brightness-50 max-w-full"
+              :width="300"
+              :height="content.label ? 340 : 300"
+              :options="optionsQR"
+              @updated="onQRUpdated"
+            />
+          </div>
+          <div
+            class="mt-2 rounded p-2 bg-error text-inverted"
+            v-if="state.error"
+            v-text="state.error"
+          />
+        </div>
+        <div class="col-span-2">
+          <div class="flex gap-2">
+            <UButton
+              icon="i-mdi-undo"
+              color="neutral"
+              variant="outline"
+              @click="onReset()"
+              >Reset</UButton
+            >
           </div>
         </div>
       </div>
-      <div>
-        <div class="mb-1">
-          URL
-          <span class="ml-1 text-sm"
-            >(Special protocols like
-            <code class="bg-accented rounded px-1">otpauth:</code>
-            are supported)</span
-          >
-        </div>
-        <UTextarea
-          class="block"
-          :value="content.url"
-          @input="onUrlChange"
-          :rows="4"
-        />
-        <TotpBanner v-if="state.totp" :data="state.totp" />
-        <div>
-          <QRCanvas
-            class="dark:brightness-50 max-w-full"
-            :width="300"
-            :height="content.label ? 340 : 300"
-            :options="optionsQR"
-            @updated="onQRUpdated"
-          />
-        </div>
-        <div
-          class="mt-2 rounded p-2 bg-error text-inverted"
-          v-if="state.error"
-          v-text="state.error"
-        />
-      </div>
-      <SnapshotPanel
-        class="row-span-3"
-        title="Snapshots"
-        v-model="state.activeIndex"
-        :snapshots="snapshots"
-        @pick="onPick"
-      />
-      <div class="col-span-2 space-y-2">
-        <div class="flex gap-2">
-          <UButton
-            icon="i-mdi-content-save"
-            :disabled="!content.config"
-            @click="onSave()"
-            >Save</UButton
-          >
-          <UButton
-            icon="i-mdi-content-save-outline"
-            color="neutral"
-            variant="outline"
-            :disabled="!content.config"
-            @click="onSave(true)"
-            >Save as New</UButton
-          >
-          <UButton
-            icon="i-mdi-undo"
-            color="neutral"
-            variant="outline"
-            @click="onReset()"
-            >Reset</UButton
-          >
-          <UButton
-            icon="i-mdi-share-variant"
-            color="neutral"
-            variant="outline"
-            :disabled="!content.config"
-            @click="onShare"
-            >Share</UButton
-          >
-        </div>
-        <div v-if="shareContent">
-          <ShareUrl :url="shareContent.url" @close="shareContent = undefined" />
-        </div>
-      </div>
     </div>
+
+    <ToolRail :items="toolRailItems">
+      <template #panel-snapshots>
+        <SnapshotPanel
+          title="Snapshots"
+          v-model="state.activeIndex"
+          :snapshots="snapshots"
+          :get-data="getSnapshotData"
+          :save-disabled="!content.config"
+          @pick="onPick"
+        />
+      </template>
+      <template #panel-share>
+        <ShareUrl
+          :get-params="
+            () =>
+              content.url ? { label: content.label, url: content.url } : null
+          "
+        />
+      </template>
+    </ToolRail>
   </div>
 </template>
 
@@ -149,13 +138,13 @@ const optionsQR = computed(() => ({
   ...defaultQROptions,
   data: content.url,
 }));
-const shareContent = ref<{ url: string }>();
+const toolRailItems = [
+  { key: 'snapshots', icon: 'i-mdi-camera', label: 'Snapshots' },
+  { key: 'share', icon: 'i-mdi-share-variant', label: 'Share' },
+];
+
 let updatingConfig = false;
 let updatingUrl = false;
-
-watch(optionsQR, () => {
-  shareContent.value = undefined;
-});
 
 const disposeList: Array<() => void> = [];
 onMounted(() => {
@@ -179,6 +168,10 @@ function onQRUpdated(canvas: HTMLCanvasElement) {
     context.textAlign = 'center';
     context.fillText(label, 150, 330);
   }
+}
+
+function getSnapshotData() {
+  return { label: content.label, config: content.config };
 }
 
 function onSave(asNew?: boolean) {
@@ -266,23 +259,6 @@ function setUrl(data: string) {
 
 function onUrlChange(e: Event) {
   setUrl((e.target as HTMLTextAreaElement).value);
-}
-
-function onShare() {
-  const { origin, pathname, search } = window.location;
-  const { label, url } = content;
-  const query = { label, url };
-  let qs = Object.entries(query)
-    .map(
-      ([key, value]) => value && [key, value].map(encodeURIComponent).join('='),
-    )
-    .filter(Boolean)
-    .join('&');
-  qs = `${qs}&_=`; // in case url is modified by other apps
-  const shareUrl = `${origin}${pathname}${search}#${qs}`;
-  shareContent.value = {
-    url: shareUrl,
-  };
 }
 
 function onPick({
