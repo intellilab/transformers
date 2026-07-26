@@ -1,0 +1,1 @@
+@keyframes poke-left-1a9fb32c{0%,to{transform:translate(0)}25%{transform:translate(-10px)}50%{transform:translate(0)}}@keyframes jump-1a9fb32c{0%,to{transform:translateY(0)}50%{transform:translateY(-.35em)}}.title-letter[data-v-1a9fb32c]{animation:1.2s ease-in-out infinite jump-1a9fb32c}.poke-left[data-v-1a9fb32c]{animation:.8s ease-in-out infinite poke-left-1a9fb32c}
