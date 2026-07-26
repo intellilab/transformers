@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="onSubmit" class="p-4 space-y-3">
+  <form @submit.prevent="onSubmit" class="space-y-3 p-4">
     <UTextarea class="block" v-model="prompt" :placeholder="placeholder" :rows="rows" />
     <UButton
       type="submit"

@@ -1,12 +1,12 @@
 <template>
-  <div class="h-full flex z-0">
+  <div class="z-10 flex h-full">
     <Transition name="sidebar-panel">
       <div
         v-if="isOpen && activeItem"
-        class="w-80 border-l border-default bg-default flex flex-col -z-1"
+        class="border-default bg-muted fixed top-0 right-12 bottom-0 left-0 flex flex-col border-l md:static md:left-auto md:w-80"
       >
-        <div class="flex items-center justify-between px-4 h-12 border-b border-default shrink-0">
-          <h3 class="font-semibold truncate">{{ activeItem.label }}</h3>
+        <div class="border-default flex h-12 shrink-0 items-center justify-between border-b px-4">
+          <h3 class="truncate font-semibold">{{ activeItem.label }}</h3>
           <UButton
             icon="i-mdi-close"
             size="sm"
@@ -15,18 +15,18 @@
             @click="isOpen = false"
           />
         </div>
-        <div class="flex-1 min-h-0">
+        <div class="min-h-0 flex-1">
           <slot :name="`panel-${activeKey}`" />
         </div>
       </div>
     </Transition>
     <div
-      class="flex flex-col items-center gap-1 p-2 pt-8 w-12 bg-muted border-l border-default h-full shrink-0"
+      class="bg-muted border-muted z-10 flex h-full w-12 shrink-0 flex-col items-center gap-1 border-l p-2 pt-8"
     >
       <template v-for="item in items" :key="item.key">
         <UTooltip :text="item.label" :content="{ side: 'left' }">
           <button
-            class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
+            class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
             :class="
               activeKey === item.key && isOpen
                 ? 'bg-primary/10 text-primary'

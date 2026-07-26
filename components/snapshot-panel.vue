@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col min-w-36 h-full p-4">
+  <div class="flex h-full min-w-36 flex-col p-4">
     <div class="flex items-center">
       <template v-if="getData">
         <UTooltip text="Save">
@@ -27,14 +27,14 @@
         <UButton icon="i-mdi-cog" variant="ghost" color="neutral" size="sm" @click="onConfig" />
       </UTooltip>
     </div>
-    <div class="flex flex-col flex-1 min-h-0">
+    <div class="flex min-h-0 flex-1 flex-col">
       <UInput
-        class="block my-2"
+        class="my-2 block"
         icon="i-mdi-magnify"
         placeholder="Search..."
         v-model="state.search"
       />
-      <div v-if="!filtered.length" class="flex-1 flex items-center justify-center text-muted pb-2">
+      <div v-if="!filtered.length" class="text-muted flex flex-1 items-center justify-center pb-2">
         No snapshots found
       </div>
       <div v-else class="flex-1 overflow-y-auto">
@@ -46,27 +46,27 @@
         >
           <form
             v-if="state.renameIndex === item.index"
-            class="flex items-center gap-1 pl-3 pr-1 py-1"
+            class="flex items-center gap-1 py-1 pr-1 pl-3"
             ref="renameForm"
             @submit.prevent="onRenameSave"
             @keydown.escape="onRenameCancel"
           >
-            <UIcon name="i-mdi-file-document-outline" class="size-4 shrink-0 text-muted" />
-            <UInput class="flex-1 min-w-0" v-model="state.renameName" />
+            <UIcon name="i-mdi-file-document-outline" class="text-muted size-4 shrink-0" />
+            <UInput class="min-w-0 flex-1" v-model="state.renameName" />
             <UButton type="submit" icon="i-mdi-check" size="xs" variant="ghost" />
             <UButton icon="i-mdi-close" size="xs" variant="ghost" @click="onRenameCancel" />
           </form>
           <button
             v-else
-            class="flex items-center gap-2 w-full text-left px-3 py-2"
+            class="flex w-full items-center gap-2 px-3 py-2 text-left"
             @click="onPick(item)"
           >
-            <UIcon name="i-mdi-file-document-outline" class="size-4 shrink-0 text-muted" />
+            <UIcon name="i-mdi-file-document-outline" class="text-muted size-4 shrink-0" />
             <span class="flex-1 truncate">{{ item.data.name || 'Unnamed' }}</span>
           </button>
           <div
             v-if="state.renameIndex !== item.index"
-            class="absolute right-0 top-0 bottom-0 flex items-center px-1 rounded-r-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute top-0 right-0 bottom-0 flex items-center rounded-r-lg px-1 opacity-0 transition-opacity group-hover:opacity-100"
             :class="
               modelValue === item.index
                 ? 'bg-[color-mix(in_srgb,var(--ui-primary)_10%,var(--ui-bg))]'

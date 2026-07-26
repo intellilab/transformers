@@ -1,9 +1,9 @@
 <template>
   <div class="flex items-center gap-1">
-    <div class="p-2 text-success font-mono text-lg" v-text="state.value"></div>
+    <div class="text-success p-2 font-mono text-lg" v-text="state.value"></div>
     <CopyButton :text="state.value" size="xs" variant="ghost" />
     <div
-      class="w-6 h-6 leading-6 text-center text-xs border border-default rounded-full"
+      class="border-default h-6 w-6 rounded-full border text-center text-xs leading-6"
       v-text="state.count"
     ></div>
   </div>

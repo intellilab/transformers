@@ -11,7 +11,7 @@
         @click="onCopy"
       />
     </div>
-    <p v-else class="text-sm text-dimmed">Nothing to share.</p>
+    <p v-else class="text-dimmed text-sm">Nothing to share.</p>
   </div>
 </template>
 

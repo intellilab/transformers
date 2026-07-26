@@ -1,18 +1,18 @@
 <template>
   <main class="items-center justify-center">
     <h1 class="sr-only">Transformers</h1>
-    <div class="text-6xl font-black text-default tracking-wider select-none" aria-hidden="true">
+    <div class="text-default text-6xl font-black tracking-wider select-none" aria-hidden="true">
       <span
         v-for="(letter, i) in letters"
         :key="i"
-        class="inline-block title-letter"
+        class="title-letter inline-block"
         :style="{ animationDelay: `${i * 0.1}s` }"
         >{{ letter }}</span
       >
     </div>
-    <p class="mt-6 text-base text-dimmed select-none">A collection of handy tools</p>
-    <p class="mt-8 text-base text-muted select-none">
-      <span class="inline-block poke-left mr-1">👈</span>
+    <p class="text-dimmed mt-6 text-base select-none">A collection of handy tools</p>
+    <p class="text-muted mt-8 text-base select-none">
+      <span class="poke-left mr-1 inline-block">👈</span>
       Pick a tool from the sidebar
     </p>
   </main>

@@ -1,19 +1,19 @@
 <template>
   <div class="contents">
     <main class="overflow-auto">
-      <h1 class="text-3xl mb-4">URL Builder</h1>
-      <div class="flex-1 flex gap-4 overflow-auto">
-        <div class="flex-1 min-w-80">
+      <h1>URL Builder</h1>
+      <div class="flex flex-1 gap-4 overflow-auto">
+        <div class="min-w-80 flex-1">
           <div class="mb-1">
             Parsed data
             <span class="ml-1 text-sm">(in Yaml)</span>
           </div>
           <CodeEditor
-            class="h-[400px] border border-default"
+            class="border-default h-[400px] border"
             lang="yaml"
             v-model="content.config"
           />
-          <div class="flex items-start gap-2 mt-4">
+          <div class="mt-4 flex items-start gap-2">
             <div class="py-1">Label</div>
             <div class="flex-1">
               <UInput class="block" v-model="content.label" />
@@ -26,7 +26,7 @@
             >
           </div>
         </div>
-        <div class="flex-1 min-w-60">
+        <div class="min-w-60 flex-1">
           <div class="mb-1">
             URL
             <span class="ml-1 text-sm"
@@ -39,7 +39,7 @@
           <TotpBanner v-if="state.totp" :data="state.totp" />
           <div>
             <QRCanvas
-              class="dark:brightness-50 max-w-full"
+              class="max-w-full dark:brightness-50"
               :width="300"
               :height="content.label ? 340 : 300"
               :options="optionsQR"
@@ -47,7 +47,7 @@
             />
           </div>
           <div
-            class="mt-2 rounded p-2 bg-error text-inverted"
+            class="bg-error text-inverted mt-2 rounded p-2"
             v-if="state.error"
             v-text="state.error"
           />
