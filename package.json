@@ -37,6 +37,7 @@
     "@uivjs/vue-github-corners": "^1.0.1",
     "@violentmonkey/shortcut": "^1.4.4",
     "codemirror": "^6.0.2",
+    "es-toolkit": "^1.50.0",
     "husky": "^9.1.7",
     "js-toml": "^1.2.1",
     "js-yaml": "^5.2.2",
