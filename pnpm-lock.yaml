@@ -32,6 +32,12 @@ importers:
       '@codemirror/view':
         specifier: ^6.43.7
         version: 6.43.7
+      '@gera2ld/async-memo':
+        specifier: ^2.0.1
+        version: 2.0.1
+      '@gera2ld/common':
+        specifier: ^0.1.2
+        version: 0.1.2
       '@gera2ld/format-json':
         specifier: ^0.3.0
         version: 0.3.0
@@ -724,6 +730,12 @@ packages:
 
   '@floating-ui/vue@1.1.11':
     resolution: {integrity: sha512-HzHKCNVxnGS35r9fCHBc3+uCnjw9IWIlCPL683cGgM9Kgj2BiAl8x1mS7vtvP6F9S/e/q4O6MApwSHj8hNLGfw==}
+
+  '@gera2ld/async-memo@2.0.1':
+    resolution: {integrity: sha512-/bD6Os9qwoSIXfdDIQUqBRu5Q3JbtK3p7DTx1YF/MofobkCG/GSN3rtdssd92NKKhtp7tHR21knCHzL6yay/uA==}
+
+  '@gera2ld/common@0.1.2':
+    resolution: {integrity: sha512-1gh8jO5CB2ZR8nNNuQKSuJwmrrfEBlpWh19Ea0KVSjmfrf2faxLSovt/PYTOognShE6pQtX6p4Fz+Eb6oEKQzw==}
 
   '@gera2ld/format-json@0.3.0':
     resolution: {integrity: sha512-gVCb8PpGGnmfH3nCHkj4G1UHV0L4bs8kG5eB2D7eYQFTffGaEU9RaJnYvUGjZ+l0qoszxYuf6AXg0uky7F8oEQ==}
@@ -2639,6 +2651,9 @@ packages:
     resolution: {integrity: sha512-cp447VUsGS07+n1Dqf7YSQ8maeJrjEhaDxTm1ZefbqDtypHBC5GzGMQbklR6IPR13Y8OAJRHZWEMtZipJLCttg==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+
+  bignumber.js@11.1.5:
+    resolution: {integrity: sha512-6WmzCNtUnfKpbozq+hOgWaZMMzORmYBwF1xZScyoIX3QRYWeKTtxxwDOW5tIz7C9BdjkIYHGTcelCLkXg0mndw==}
 
   bindings@1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
@@ -6187,6 +6202,13 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
+  '@gera2ld/async-memo@2.0.1': {}
+
+  '@gera2ld/common@0.1.2':
+    dependencies:
+      bignumber.js: 11.1.5
+      es-toolkit: 1.50.0
+
   '@gera2ld/format-json@0.3.0':
     dependencies:
       '@babel/runtime': 7.29.7
@@ -8342,6 +8364,8 @@ snapshots:
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.11.9: {}
+
+  bignumber.js@11.1.5: {}
 
   bindings@1.5.0:
     dependencies:
