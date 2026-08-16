@@ -29,7 +29,7 @@
       </aside>
       <slot />
     </div>
-    <GithubCorners :size="40" href="https://github.com/intellilab/transformers" fixed />
+    <GithubCorners :size="40" href="https://github.com/intellilab/transformers" fixed :z-index="20" />
   </UApp>
 </template>
 
