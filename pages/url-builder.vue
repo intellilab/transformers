@@ -1,7 +1,10 @@
 <template>
   <div class="contents">
     <main class="overflow-auto">
-      <h1>URL Builder</h1>
+      <h1 class="mb-4 text-2xl font-bold">
+        <UIcon name="i-mdi-link-variant" class="mr-2 inline-block align-middle" />
+        <span class="align-middle">URL Builder</span>
+      </h1>
       <div class="flex flex-1 gap-4 overflow-auto">
         <div class="min-w-80 flex-1">
           <div class="mb-1">

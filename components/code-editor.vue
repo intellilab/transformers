@@ -15,6 +15,9 @@ import { linter, lintGutter, type Diagnostic, type LintSource } from '@codemirro
 import { json, jsonParseLinter } from '@codemirror/lang-json';
 import { html } from '@codemirror/lang-html';
 import { yaml } from '@codemirror/lang-yaml';
+import { javascript } from '@codemirror/lang-javascript';
+import { css } from '@codemirror/lang-css';
+import { sql } from '@codemirror/lang-sql';
 import { EditorState, Compartment, type Extension } from '@codemirror/state';
 import { indentWithTab } from '@codemirror/commands';
 import { keymap, placeholder } from '@codemirror/view';
@@ -40,6 +43,9 @@ const langExtMap: Record<string, () => Extension[]> = {
   json: () => [json(), linter(jsonParseLinter()), lintGutter()],
   html: () => [html()],
   yaml: () => [yaml()],
+  javascript: () => [javascript()],
+  css: () => [css()],
+  sql: () => [sql()],
 };
 
 const refCode = ref<HTMLElement>();
