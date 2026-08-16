@@ -6,11 +6,6 @@
         <div class="my-2 flex-1">
           <NuxtLink
             class="text-dimmed hover:bg-muted [&.router-link-active]:bg-accented [&.router-link-active]:text-default flex cursor-pointer rounded px-2 py-1 transition-colors"
-            to="/curves/"
-            >Curves</NuxtLink
-          >
-          <NuxtLink
-            class="text-dimmed hover:bg-muted [&.router-link-active]:bg-accented [&.router-link-active]:text-default flex cursor-pointer rounded px-2 py-1 transition-colors"
             to="/string/"
             >String pipes</NuxtLink
           >

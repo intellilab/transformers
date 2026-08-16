@@ -11,10 +11,19 @@
       >
     </div>
     <p class="text-dimmed mt-6 text-base select-none">A collection of handy tools</p>
-    <p class="text-muted mt-8 text-base select-none">
-      <span class="poke-left mr-1 inline-block">👈</span>
-      Pick a tool from the sidebar
-    </p>
+    <section class="mt-16 text-center">
+      <h2 class="text-xl font-semibold">Other Tools</h2>
+      <div class="mt-4 flex items-center justify-center gap-3">
+        <a
+          class="text-primary hover:underline"
+          href="https://curves.bananatree.dev/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Curves</a
+        >
+        <span class="text-muted text-sm">— turn any math expression into a curve</span>
+      </div>
+    </section>
   </main>
 </template>
 
