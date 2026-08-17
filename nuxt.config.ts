@@ -11,19 +11,11 @@ export default defineNuxtConfig({
     },
   },
 
-  routeRules: {
-    '/curves': { redirect: 'https://curves.bananatree.dev/' },
-  },
-
   css: ['~/assets/css/main.css'],
 
   modules: ['@nuxtjs/tailwindcss', '@nuxt/ui'],
 
   vite: {
-    define: {
-      // patch for @iarna/toml
-      'global.Date': 'window.Date',
-    },
     optimizeDeps: {
       include: [
         '@codemirror/commands',
@@ -37,7 +29,6 @@ export default defineNuxtConfig({
         '@violentmonkey/shortcut',
         'codemirror',
         'js-yaml',
-        'otpauth',
         'qrcanvas-vue',
       ],
     },

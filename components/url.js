@@ -1,10 +1,3 @@
-function dropEmpty(query) {
-  if (!query || typeof query !== 'object') return query;
-  return Object.entries(query)
-    .filter(([, v]) => v != null && v !== '')
-    .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
-}
-
 export function buildData(raw) {
   let config;
   if (raw?._type) {
@@ -22,17 +15,8 @@ export function buildData(raw) {
   }
   if (config._type === 'url') {
     const parts = [config.protocol, config.host && '//', config.host];
-    let pathname = config.pathname || config.path;
-    let { query } = config;
-    if (config.protocol === 'otpauth:') {
-      const payload = config.payload || {};
-      if (payload.type && payload.label) {
-        pathname = `//${encodeURIComponent(payload.type)}/${encodeURIComponent(payload.label)}`;
-      }
-      query = dropEmpty(query);
-    } else if (config.protocol === 'vmess:') {
-      pathname = dumpVMess(config.payload).pathname;
-    }
+    const pathname = config.pathname || config.path;
+    const { query } = config;
     parts.push(pathname);
     const search = buildData(query);
     const hash = buildData(config.hash);
@@ -80,27 +64,7 @@ export function parseData(str) {
     if (url.host) {
       config.host = url.host;
     }
-    if (url.protocol === 'otpauth:') {
-      const [, type, label] = url.pathname
-        .match(/^\/\/([^/]*)\/(.*)|$/)
-        .map((s) => s && decodeURIComponent(s));
-      config.payload = {
-        type: type || 'totp',
-        label: label || '',
-      };
-      config.query = {
-        secret: '',
-        issuer: '',
-        algorithm: '',
-        digits: '',
-        period: '',
-        counter: '',
-      };
-    } else if (url.protocol === 'vmess:') {
-      config.payload = loadVMess(url);
-    } else {
-      config.pathname = url.pathname;
-    }
+    config.pathname = url.pathname;
     if (url.search.length > 1) {
       config.query = {
         ...config.query,
@@ -127,49 +91,4 @@ export function parseData(str) {
   //   return str.split(',').map(decodeURIComponent).map(parseData);
   // }
   return decodeURIComponent(str);
-}
-
-const vmessDefaults = {
-  add: '',
-  aid: 0,
-  host: '',
-  id: 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx',
-  net: 'tcp',
-  path: '/ws',
-  port: 1080,
-  ps: 'example',
-  tls: '',
-  type: 'none',
-  v: '2',
-};
-
-function getRandomHex() {
-  return '0123456789abcdef'[(Math.random() * 16) | 0];
-}
-
-export function loadVMess(url) {
-  let data = { ...vmessDefaults };
-  let valid = true;
-  if (url.protocol === 'vmess:') {
-    if (url.host) {
-      try {
-        const raw = atob(url.host);
-        data = {
-          ...data,
-          ...JSON.parse(raw),
-        };
-      } catch {
-        valid = false;
-      }
-    }
-    if (/x/.test(data.id)) {
-      data.id = data.id.replace(/x/g, getRandomHex);
-    }
-  }
-  return { data, valid };
-}
-
-export function dumpVMess(data) {
-  const encoded = btoa(JSON.stringify(dropEmpty(data))).replace(/=+$/, '');
-  return new URL(`vmess://${encoded}`);
 }

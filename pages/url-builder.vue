@@ -30,16 +30,8 @@
           </div>
         </div>
         <div class="min-w-60 flex-1">
-          <div class="mb-1">
-            URL
-            <span class="ml-1 text-sm"
-              >(Special protocols like
-              <code class="bg-accented rounded px-1">otpauth:</code>
-              are supported)</span
-            >
-          </div>
+          <div class="mb-1">URL</div>
           <UTextarea class="block" :value="content.url" @input="onUrlChange" :rows="4" />
-          <TotpBanner v-if="state.totp" :data="state.totp" />
           <div>
             <QRCanvas
               class="max-w-full dark:brightness-50"
@@ -85,7 +77,6 @@ import * as yaml from 'js-yaml';
 import { KeyboardService } from '@violentmonkey/shortcut';
 import SnapshotPanel from '@/components/snapshot-panel.vue';
 import { parseData, buildData } from '@/components/url';
-import TotpBanner from '@/components/totp-banner.vue';
 import CodeEditor from '~/components/code-editor.vue';
 import { defaultQROptions } from '@/components/common';
 import { Snapshots, Storage } from '@/util';
@@ -119,7 +110,6 @@ const content = reactive<{
 const state = reactive<{
   activeIndex: number;
   error?: string;
-  totp?: Record<string, any>;
 }>({
   activeIndex: -1,
 });
@@ -214,15 +204,6 @@ function setConfig(data: string, force = false) {
   } catch (err) {
     state.error = `${err}`;
     console.error(err);
-  }
-
-  if (parsedConfig?.payload?.type === 'totp' && parsedConfig.query?.secret) {
-    state.totp = {
-      ...parsedConfig.payload,
-      ...parsedConfig.query,
-    };
-  } else {
-    state.totp = undefined;
   }
 
   saveData();
